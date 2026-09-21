@@ -1,0 +1,13 @@
+{
+  "name": "Bravo Mike SimMonitor",
+  "short_name": "SimMonitor",
+  "start_url": "./index.html",
+  "display": "fullscreen",
+  "orientation": "any",
+  "background_color": "#07090c",
+  "theme_color": "#07090c",
+  "icons": [
+    { "src": "img/icon.svg", "sizes": "any", "type": "image/svg+xml" },
+    { "src": "img/icon-192.png", "sizes": "192x192", "type": "image/png" }
+  ]
+}

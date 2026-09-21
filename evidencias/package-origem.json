@@ -1,0 +1,16 @@
+{
+  "name": "simmonitor-revisao-codex",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/*.test.js",
+    "preview": "node scripts/preview.mjs",
+    "prepare:go": "node scripts/prepare-go.mjs",
+    "build:web": "node web/build.mjs",
+    "test:browser": "node scripts/audit-browser.cjs",
+    "test:local": "node scripts/audit-browser.cjs --local",
+    "audit:integrity": "node scripts/audit-integrity.mjs",
+    "audit:refactor": "node scripts/audit-refactor.mjs"
+  },
+  "version": "2.3.2-codex.20260920"
+}

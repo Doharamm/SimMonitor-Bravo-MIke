@@ -1,0 +1,956 @@
+{
+ "versao": "2.3.3-online.20260921",
+ "gerado_em": "2026-09-21T17:53:42.281Z",
+ "files": [
+  {
+   "file": ".gitattributes",
+   "bytes": 384,
+   "sha256": "c8115113328c700d073e6b820b3c25116cd121e6a5b25a7de9db39e50f64154f"
+  },
+  {
+   "file": ".gitignore",
+   "bytes": 108,
+   "sha256": "0de7b24f4946feb52b1d13556fb6a82f27e40442f3cc949bd4110feb8ffa813e"
+  },
+  {
+   "file": ".vercelignore",
+   "bytes": 128,
+   "sha256": "466a750fd1da336a122ac7e0b5766b48bfeee3aa7d699e47ecf267023ae2a78f"
+  },
+  {
+   "file": "CLAUDE.md",
+   "bytes": 3631,
+   "sha256": "1d732893f1134a276fab8eec2d35d5a43a78637cb19d977519297834a21c0480"
+  },
+  {
+   "file": "COMECE_AQUI.md",
+   "bytes": 3002,
+   "sha256": "68729d4a1baa86dd2bda5acf0fb5b8e3a236548e793c436d0c2b8bd0ecc268f6"
+  },
+  {
+   "file": "ENTREGA_PARA_REVISAO.md",
+   "bytes": 26590,
+   "sha256": "c2ecb82a740154f5c1305d13af7391803b3afcfa15b648c74e4c487407a36511"
+  },
+  {
+   "file": "evidencias/browser-depois.json",
+   "bytes": 5182,
+   "sha256": "13174bba8db9682f3b761ec6ed8cd1bf22b03c11538e298a651595d8a9d3e966"
+  },
+  {
+   "file": "evidencias/browser-local.json",
+   "bytes": 5281,
+   "sha256": "397233fec33eb21a350ae4b31d04c6287e8b10c57afa86ab02d9bf8fa35626f8"
+  },
+  {
+   "file": "evidencias/integridade-final.json",
+   "bytes": 9622,
+   "sha256": "64a9f16ccc2640d32e1ecf0a92063caecf73f6f306220e3fb5a72618bc3ad464"
+  },
+  {
+   "file": "evidencias/MAPA_ORIGEM.md",
+   "bytes": 17586,
+   "sha256": "2a5702c689a594621e150f8a72b287c80385559e3654aeed642a3ca04915e4ed"
+  },
+  {
+   "file": "evidencias/package-origem.json",
+   "bytes": 540,
+   "sha256": "327be1aa4b6f07465686a9508405cfbae36cb079e6b7a9c61332c673b264f6c5"
+  },
+  {
+   "file": "evidencias/PROVENIENCIA.json",
+   "bytes": 55803,
+   "sha256": "0c5c2a2f46d43248f34d5d5c49f95992d7ec79fda9b34b21ef648b318539a318"
+  },
+  {
+   "file": "evidencias/refatoracao-alteracoes.json",
+   "bytes": 1130,
+   "sha256": "7a8eca30fb0388979cc991d6635f19bdde9a804ecb0129dac09cdc4d27f0110b"
+  },
+  {
+   "file": "evidencias/refatoracao-go-final.txt",
+   "bytes": 366,
+   "sha256": "d7d77dc4831b888de91b854333c668fe5f9bc953c4abf6a8f1d96dbc15b0721b"
+  },
+  {
+   "file": "evidencias/refatoracao-motor-final.txt",
+   "bytes": 660,
+   "sha256": "2f11ee7520ad99e7ed4feaf1a5b8b8eaf8fbd538e0606823c5db717b3b657b3c"
+  },
+  {
+   "file": "evidencias/refatoracao-preservacao.json",
+   "bytes": 3169,
+   "sha256": "e9892bc41d1b388f3d4bc72db43a6432bcfcced2c8be16f43b2b030d3407d9f5"
+  },
+  {
+   "file": "evidencias/refatoracao-testes-final.txt",
+   "bytes": 12966,
+   "sha256": "b2c229729a805e1a588104f1c20421a4ee5e81f06d2d5bd7d8de34f6f0243282"
+  },
+  {
+   "file": "evidencias/REORGANIZACAO_ORIGEM.md",
+   "bytes": 8705,
+   "sha256": "0821221edc6400d7c59e50113a97e570a6e8f512bb81bd816b4eb7d69cf0904a"
+  },
+  {
+   "file": "evidencias/REVISAO_CLINICA_ORIGEM.md",
+   "bytes": 4678,
+   "sha256": "3da14ad8203aa27a77761d0fe8556f0354933e189d34586d625d0e13b3465625"
+  },
+  {
+   "file": "evidencias/scripts-origem/audit-engine.mjs.txt",
+   "bytes": 2173,
+   "sha256": "8e5e2eec51d586b06f5517798d9deb513ecf0651e43259bb3e2bf4f715de9c07"
+  },
+  {
+   "file": "evidencias/scripts-origem/audit-integrity.mjs.txt",
+   "bytes": 4068,
+   "sha256": "d361916383f07bea55d71718cd8a32516a73b78ec06db81cbb83fb4896116c8b"
+  },
+  {
+   "file": "evidencias/scripts-origem/audit-refactor.mjs.txt",
+   "bytes": 6272,
+   "sha256": "83a84dfe6cebe96e80f46123d87b0f26ce0281b4d272a106b656ad0db625b98f"
+  },
+  {
+   "file": "evidencias/testes-pacote.txt",
+   "bytes": 12961,
+   "sha256": "348dc446ee5fdd5381990bc253e089288be4492fce15069a458f71aa0da13dab"
+  },
+  {
+   "file": "evidencias/validacao-pacote.json",
+   "bytes": 470,
+   "sha256": "ff43a111a505115a3ee844b74a29759cb4a6472bc2694a24c711176516875b9b"
+  },
+  {
+   "file": "evidencias/visual/controle-360.png",
+   "bytes": 75136,
+   "sha256": "7ad7d31e27587f5e898381d2a3e3a5baf6de38a056590b614bcb313f1adf3fff"
+  },
+  {
+   "file": "evidencias/visual/monitor-1366.png",
+   "bytes": 141859,
+   "sha256": "64ef05592380f02f06d9af5e23d49d6bb0f2d79e47acf4dfcdd36f4c82ff6b3b"
+  },
+  {
+   "file": "evidencias/visual/terapia-minimalista.png",
+   "bytes": 42632,
+   "sha256": "19573f519b11cb13af746751c76c0a702785415a252296899b706a636078420a"
+  },
+  {
+   "file": "LEIA-ME.md",
+   "bytes": 3283,
+   "sha256": "91745791aa28043e59a7fc2063964608d88742e665f7e17ef9453ee67f470222"
+  },
+  {
+   "file": "MAPA_DO_CODIGO.md",
+   "bytes": 13941,
+   "sha256": "7e383578c58f86cfc0cd6f6f5a24f1d28eb61971d0d572fd5ea19ce09526301c"
+  },
+  {
+   "file": "package.json",
+   "bytes": 646,
+   "sha256": "51e6c5bb7d69b9b5ebdc7cccd6aa7fa9f4e07671f1f246800ab0590ffd25a2db"
+  },
+  {
+   "file": "PROMPT_PARA_CLAUDE.txt",
+   "bytes": 1349,
+   "sha256": "10bfb13df20c4148e3a31730fc49cf2bc50ce385e6cc9a8c4344e3c23d6443ad"
+  },
+  {
+   "file": "public/controle.html",
+   "bytes": 14668,
+   "sha256": "841d2bf309609a81bfc261fbd570bae664a1404e419423240ea732e0a7d9390a"
+  },
+  {
+   "file": "public/css/base.css",
+   "bytes": 1713,
+   "sha256": "84246b6dc8f697ba80a0dd0534324fbfe34bef69aa901c799fd7812ffe4b89bf"
+  },
+  {
+   "file": "public/css/controle.css",
+   "bytes": 16654,
+   "sha256": "f5be0304b7d88de458fc47041092419d1b25a46581a78bf0ea9f9099c3cf7ad1"
+  },
+  {
+   "file": "public/css/monitor-scenario-controls.css",
+   "bytes": 2395,
+   "sha256": "7107f1f1b82341fda1b22249e221a348c657d65be591e8af33ebc4216f61575a"
+  },
+  {
+   "file": "public/css/monitor.css",
+   "bytes": 12308,
+   "sha256": "53976334dc82581ba5c7a5f926561a66508d655c78efe36e6a606ac607e8394d"
+  },
+  {
+   "file": "public/exams/ecg/01_Lead.jpg",
+   "bytes": 87891,
+   "sha256": "a662bb692d35f5827e3c052afbf2350db90efc32ab4a01b514f25c33744f7bda"
+  },
+  {
+   "file": "public/exams/ecg/02_Lead.jpg",
+   "bytes": 91979,
+   "sha256": "ce947d1137d2c1b9033daaf99f485880e86395542b0c3b875a5fa49cb6c5c7da"
+  },
+  {
+   "file": "public/exams/ecg/03_Lead.jpg",
+   "bytes": 93963,
+   "sha256": "97fe16679eb92209a3d5f0a14c2712b8e3fa701a1c24ed09190e9cc5edbf00e0"
+  },
+  {
+   "file": "public/exams/ecg/04_Lead.jpg",
+   "bytes": 89333,
+   "sha256": "a3806057075307571f8b14dde7457cbc5280cda4da4cf61e2cb08cc8313a7715"
+  },
+  {
+   "file": "public/exams/ecg/05_Lead.jpg",
+   "bytes": 295075,
+   "sha256": "e3a43cfc9381abb7d1c96437ea812196013a1558aa80b5ab04af28e058c70419"
+  },
+  {
+   "file": "public/exams/ecg/06_Lead.jpg",
+   "bytes": 315995,
+   "sha256": "13a72bdb31e305f7466bdf06dad28b82bb1f9f7da646217ec0473b2d8cf47ebb"
+  },
+  {
+   "file": "public/exams/ecg/07_Lead.jpg",
+   "bytes": 102771,
+   "sha256": "4f6f540d441b2946707679c29900c8e95020f3c14e61640aa7462b37125783ff"
+  },
+  {
+   "file": "public/exams/ecg/08_Lead.jpg",
+   "bytes": 93470,
+   "sha256": "dd9ed0a8ac76f65dec9f05b3e9120c34e872228b899fdd44282d9ddddca4e790"
+  },
+  {
+   "file": "public/exams/ecg/09_Lead.jpg",
+   "bytes": 88226,
+   "sha256": "da63a5284acb9aa9d61cbabeb1e4a9077f98c0f29b7a26ed78a6ef20f7223130"
+  },
+  {
+   "file": "public/exams/ecg/10_Lead.jpg",
+   "bytes": 85474,
+   "sha256": "257938a45c1eb893a0bee9403098d14bbbbbbfea8bf3b52b2873ddbeb3726269"
+  },
+  {
+   "file": "public/exams/ecg/11_Lead.jpg",
+   "bytes": 794323,
+   "sha256": "cde1b2d1bbab82f9342b48840693ac99616e0a3306ba79bd2ffcca72e7da47d7"
+  },
+  {
+   "file": "public/exams/ecg/12_Lead.jpg",
+   "bytes": 416983,
+   "sha256": "528ed61117210576cbc27d551bb665381ef0312dade1643f4edcb8538f8283ef"
+  },
+  {
+   "file": "public/exams/ecg/13_Lead.jpg",
+   "bytes": 83339,
+   "sha256": "4f1d8842f676cd8910eb25c235f054c5d1664bd698617fe736f54407fe020f10"
+  },
+  {
+   "file": "public/exams/ecg/14_Lead.jpg",
+   "bytes": 84803,
+   "sha256": "d534d574dea37b723752dd8ce26072804f5cc3dac79879d92b95dda6ce26b71b"
+  },
+  {
+   "file": "public/exams/ecg/15_Lead.jpg",
+   "bytes": 87901,
+   "sha256": "c1abeb5d0b8cff53d116092294ca157d992d904c47a015ba5ea67528f26ed7cc"
+  },
+  {
+   "file": "public/exams/ecg/16_Lead.jpg",
+   "bytes": 99973,
+   "sha256": "d3d9985266a190a0c18591c23cfd56cb0f133c7b6e87e0ae94f220c32e32f00d"
+  },
+  {
+   "file": "public/exams/ecg/17_Lead.jpg",
+   "bytes": 95796,
+   "sha256": "a0c79d66461a51fbac89dd381037b2fe2fee8aaf7b8fe98bbecfef26025ad146"
+  },
+  {
+   "file": "public/exams/ecg/18_Lead.jpg",
+   "bytes": 77168,
+   "sha256": "abc21ed0a84b5c99e45f677f44c5a6575af65f83253593657c047e40e3f28d9a"
+  },
+  {
+   "file": "public/exams/ecg/19_Lead.jpg",
+   "bytes": 79187,
+   "sha256": "3ed23bdab2c1dfb40184165bcdc4ad2abab3a361c8cb50e90afe7eabdc5140e8"
+  },
+  {
+   "file": "public/exams/ecg/20_Lead.jpg",
+   "bytes": 102141,
+   "sha256": "965bb26b85e0ad6880063a72c39345b1f798cf24845d5558aba24926692ba833"
+  },
+  {
+   "file": "public/exams/ecg/21_Lead.jpg",
+   "bytes": 91453,
+   "sha256": "8ab6bb321e3e4e96458271fc8ea14c59fac7fd6ba7078e1fe6180dd467b6297f"
+  },
+  {
+   "file": "public/exams/ecg/22_Lead.jpg",
+   "bytes": 98037,
+   "sha256": "b3dc6cf5a2251e4a83cfc376adfcc471bc8526384e2dd8d392bc10b3c16304f9"
+  },
+  {
+   "file": "public/exams/ecg/23_Lead.jpg",
+   "bytes": 93255,
+   "sha256": "50e63956702919eea9ca89d6b258f724446a65f30fe0c0eb00e85dc022d2f93e"
+  },
+  {
+   "file": "public/exams/ecg/24_Lead.jpg",
+   "bytes": 91212,
+   "sha256": "62bc36af0396b6dde33d9c2de136e41463b9290f0923630ec5d7ea93d71e430b"
+  },
+  {
+   "file": "public/exams/ecg/25_Lead.jpg",
+   "bytes": 89763,
+   "sha256": "4efbefd0110cf8c050942f42e96932675b9cbb60c3b9efe40ae5ef4b93697468"
+  },
+  {
+   "file": "public/exams/ecg/26_Lead.jpg",
+   "bytes": 423748,
+   "sha256": "ea57090ff46bf2728af540cfd10b26e0fe51bb150b97eabbb3d641bcc3cc76df"
+  },
+  {
+   "file": "public/exams/ecg/27_Lead.jpg",
+   "bytes": 265739,
+   "sha256": "337a310c74a98af49f01aeebd5ebb532d99156127d075722ee4b6603e973a926"
+  },
+  {
+   "file": "public/exams/ecg/28_Lead.jpg",
+   "bytes": 204274,
+   "sha256": "8056194f16ea32e66c61920ba88ace21dbbba5d5e37495fe23efb277dbc7b9d6"
+  },
+  {
+   "file": "public/exams/ecg/29_Lead.jpg",
+   "bytes": 278010,
+   "sha256": "43c25b34792b443528159d68d7dfa94a1a1b89c314c8263cc8b4a139b248f7cd"
+  },
+  {
+   "file": "public/exams/ecg/30_Lead.jpg",
+   "bytes": 248611,
+   "sha256": "7a77915663ca65e2ac54647d2c00816dc9c95174dd8d029632184cc49e76e3c0"
+  },
+  {
+   "file": "public/exams/ecg/31_Lead.jpg",
+   "bytes": 254215,
+   "sha256": "9b30fa173eec1b602aa4430960f0f693c30891457d2f2131c7c65d98827b08ed"
+  },
+  {
+   "file": "public/exams/ecg/32_Lead.jpg",
+   "bytes": 249316,
+   "sha256": "c8ed5f7b391114d75a0fc566a6be187e5eef637c530be7cc02873314cf95013b"
+  },
+  {
+   "file": "public/exams/ecg/33_Lead.jpg",
+   "bytes": 280586,
+   "sha256": "879af5f90ad0cc41c331c2d0f50ca978f22cf9390aab9d3c4faed1c79b687944"
+  },
+  {
+   "file": "public/exams/ecg/34_Lead.jpg",
+   "bytes": 300937,
+   "sha256": "26c6b0658c05df4e347ca5f8fd22e97b773f1f9b15d32edc5750ae78520e6156"
+  },
+  {
+   "file": "public/exams/ecg/35_Lead.jpg",
+   "bytes": 249316,
+   "sha256": "d82a506e222573067bcdb7c443f0e99620b8dabcd35e88ca56558d4b5be706fd"
+  },
+  {
+   "file": "public/exams/ecg/36_Lead.jpg",
+   "bytes": 288887,
+   "sha256": "15572855955f4a05cdb847d265b0a0b9f1fc8d54ab35908e8e2ca1b1e91222f8"
+  },
+  {
+   "file": "public/exams/ecg/37_Lead.jpg",
+   "bytes": 292463,
+   "sha256": "d5ffb82b3b53582146611cd3817f8af0e5bcf3c352b4ae749d375cf0ba2fb23d"
+  },
+  {
+   "file": "public/exams/xray/11yo-severe-bilateral-infiltrates.jpg",
+   "bytes": 38640,
+   "sha256": "ceb15afa1b642715e58be63a95adc3418fb35576a6c55bb8ef1c6af414806a8e"
+  },
+  {
+   "file": "public/exams/xray/2month-old-right-mainstem-intubation.jpg",
+   "bytes": 33894,
+   "sha256": "1757ef9caab42014a6bc570baf2ba6cfff8a6d84850461f37a385501d52c33f7"
+  },
+  {
+   "file": "public/exams/xray/Adult-Cardiac-Tamponade.jpg",
+   "bytes": 30361,
+   "sha256": "9a67becbab62cdbf42279e35b0f82d246179ce06dcc0c8185800a49e6edf2c4f"
+  },
+  {
+   "file": "public/exams/xray/Collapse-of-left-upper_right-middle-and-right-lower-lobe.jpg",
+   "bytes": 33673,
+   "sha256": "de437e0835494af5ea50e289f6ba94e5cf2e38ce567a78ed57bfdd4811e7eecb"
+  },
+  {
+   "file": "public/exams/xray/COPD.jpg",
+   "bytes": 35266,
+   "sha256": "c4a41de1d07f76eaa9c39d91551693c9bde7e895585df767a6ecfa65790e456f"
+  },
+  {
+   "file": "public/exams/xray/Croup.jpg",
+   "bytes": 29187,
+   "sha256": "6fecf39fb1c16abc7d27436f4de8dfe2cebacdb182f71ecaf7270fed7f162c30"
+  },
+  {
+   "file": "public/exams/xray/Diffuse-bilateral-pulmonary-infiltrates-.jpg",
+   "bytes": 41851,
+   "sha256": "f1f327470cf7cc058e5f7874b09bcaed334b9d4a38ef41e520afdcc073232f6a"
+  },
+  {
+   "file": "public/exams/xray/Infant-Cardiac-Tamponade-.jpg",
+   "bytes": 44728,
+   "sha256": "ff96a2f653a73537f302f9108be8d811346e9cc402bc60faf7d9362b5cf295d6"
+  },
+  {
+   "file": "public/exams/xray/Mediastinal-emphysema_Bilateral-pleural-effusions.jpg",
+   "bytes": 27273,
+   "sha256": "a7482d9e070c0e59bcaa31b1599639d0c4a1b3e6c609c774a36a712200f4857e"
+  },
+  {
+   "file": "public/exams/xray/normal-chest-Xray.jpg",
+   "bytes": 34156,
+   "sha256": "dcfd7215dceddbb3cc68bc2706ce0932ba71e531f1a4eeaad63c0426092d6abe"
+  },
+  {
+   "file": "public/exams/xray/Pneumonia-left-lower-lobe.jpg",
+   "bytes": 31793,
+   "sha256": "0ad468d3cd0a9b48e55cd04a386feca36b9a4623c3ba99c80bcdbee495559550"
+  },
+  {
+   "file": "public/exams/xray/Pneumonia.jpg",
+   "bytes": 41636,
+   "sha256": "eb6f488ccd6498fb8677aaa278e53bfa00f9b5bb7d4491a42652ac73e09e927a"
+  },
+  {
+   "file": "public/exams/xray/Pulmonary-Edema.jpg",
+   "bytes": 29948,
+   "sha256": "39ccff7aa25a24c6a0bb835a00f12a47267bde1c1c843e48203529bad45c200d"
+  },
+  {
+   "file": "public/exams/xray/Pulmonary-tuberculosis.jpg",
+   "bytes": 32162,
+   "sha256": "8e0adf6a779a8ea478c6d4fa4f1532b0aa45f1c963c88eda9dd2d534f7ac02ca"
+  },
+  {
+   "file": "public/exams/xray/right_mainstem_intubation.jpg",
+   "bytes": 31586,
+   "sha256": "6043beb18e32f0f673ff3e1225a32cb0219b7383b6300fe4cf261e3a4827c504"
+  },
+  {
+   "file": "public/exams/xray/Right-upper-lobe-collapse-.jpg",
+   "bytes": 33152,
+   "sha256": "aed910a376f0fec86689e0f94b727ec9722f01bdb9edbf644f46ac650dca1bd2"
+  },
+  {
+   "file": "public/exams/xray/Tension_Hemopneumothorax.jpg",
+   "bytes": 27888,
+   "sha256": "e108e7ea5aafa97872eea89aa3090b1bdd791eb7c0c1f24a5792f8a6743d2068"
+  },
+  {
+   "file": "public/exams/xray/Tension-pneumothorax.jpg",
+   "bytes": 22358,
+   "sha256": "5e997be9d4d46f491be47ae5db3feacb28a736bd2550766aa4110ee4613a0d44"
+  },
+  {
+   "file": "public/exams/xray/Trauma_rib-fractures.jpg",
+   "bytes": 43991,
+   "sha256": "e57688c26a500ea33f0bef2d9960a998a80b5023feb5c7a4621b7512953d66bb"
+  },
+  {
+   "file": "public/exams/xray/White-out-on-right-lung.jpg",
+   "bytes": 40019,
+   "sha256": "d3afccbd18f8a8efd0f712e84e16643f31ccdf1e530631b5700dd67b5152ef6d"
+  },
+  {
+   "file": "public/fonts/public-sans-latin-400-normal.woff2",
+   "bytes": 14632,
+   "sha256": "36274b5787b4f03b27e65ae971d6c808a96838ccd60c9dabaee154889b6bba82"
+  },
+  {
+   "file": "public/fonts/public-sans-latin-600-normal.woff2",
+   "bytes": 14592,
+   "sha256": "c7842f97346df1b3b470e9d71acde90f132dd858508ec5ae6606401e5d0938f7"
+  },
+  {
+   "file": "public/fonts/public-sans-latin-700-normal.woff2",
+   "bytes": 14600,
+   "sha256": "dace741613696827f61dbee2d984e8685f14a2846136783f3ad1c8950914bf1d"
+  },
+  {
+   "file": "public/fonts/public-sans-latin-800-normal.woff2",
+   "bytes": 14772,
+   "sha256": "e16804f79bc244ab4b40f7e3e1a9b5b626bbbac4d7bc0a0864ce45b50490da19"
+  },
+  {
+   "file": "public/img/icon-180.png",
+   "bytes": 9585,
+   "sha256": "0bf68a38a845e6bef2052f41bac1563bb75c4b31619594d6d9a3743ac2b3cfcf"
+  },
+  {
+   "file": "public/img/icon-192.png",
+   "bytes": 10138,
+   "sha256": "4d80799e1882af61487c3aa26549cefd37b628271d0161d73b2f882b75584099"
+  },
+  {
+   "file": "public/img/icon.svg",
+   "bytes": 8043,
+   "sha256": "cecfbecf63459f6ec2692a641bb3fa78c188eeac5ae8427c741d859d22e90624"
+  },
+  {
+   "file": "public/index.html",
+   "bytes": 2800,
+   "sha256": "3c8d4aec35cf09c59a98d4449accc1fb44b72e5b48b0549398ec1caba5314bcb"
+  },
+  {
+   "file": "public/js/case-exams.js",
+   "bytes": 1284,
+   "sha256": "7bd4ac06b0e8a1920a4c4d36b2c2faac18cfd7a64e463e88410f7dff1d501afd"
+  },
+  {
+   "file": "public/js/classroom-ui.js",
+   "bytes": 7325,
+   "sha256": "b28f9c4c70517ed382500f2cb6ee4cf14b7d4d50468db493857e170b61d878c3"
+  },
+  {
+   "file": "public/js/classroom.js",
+   "bytes": 3507,
+   "sha256": "f5dc4ee287d8dca435611c46d2e12e50b8170d9324a6d4996b016679dd2f15f6"
+  },
+  {
+   "file": "public/js/clinical-review.js",
+   "bytes": 1967,
+   "sha256": "bd721782c01c3066240b5383cb2d8c24da3b05c0a2de159bab6fb12297493bd0"
+  },
+  {
+   "file": "public/js/config.js",
+   "bytes": 311,
+   "sha256": "3236a19ecd42ca9c702fc128cd75a53dc9bb04218981f59da44290ab24861025"
+  },
+  {
+   "file": "public/js/controle.js",
+   "bytes": 31997,
+   "sha256": "1badf5bc1c18ceaff68716de7d10698ba73f8cf8c2a98bb78ff816357b59db7d"
+  },
+  {
+   "file": "public/js/controller-cases.js",
+   "bytes": 3812,
+   "sha256": "13e04bb12cf51edab4e3c04065e24f8aebd5ff37252d7dad40ab0f617d7def49"
+  },
+  {
+   "file": "public/js/crypto-identity.js",
+   "bytes": 9491,
+   "sha256": "978f0a6b155c051e20935e09a3549f76bb6cebf06cf94eddf9bccb935be8f0e6"
+  },
+  {
+   "file": "public/js/dart-data.js",
+   "bytes": 343454,
+   "sha256": "2dfcb1bcb9855fb41813b16b0fcdbe456550267a12f5bae50ed57a337f5d172b"
+  },
+  {
+   "file": "public/js/dart-player.js",
+   "bytes": 2960,
+   "sha256": "aefcc0db0f4bb6edb633fb91b7c70a4721f3f337ab6bf8d3f966d45f382e8a9a"
+  },
+  {
+   "file": "public/js/debrief-export.js",
+   "bytes": 1671,
+   "sha256": "afd0da26d219f1f15c339b7c2d7d1de348d8216c435ebaa3ab6f7f6d99b81b36"
+  },
+  {
+   "file": "public/js/descriptions.js",
+   "bytes": 4896,
+   "sha256": "2e94b4ca65608795f4eea3e9ac6278ed36171d45a152194f398e034f0dcdf96b"
+  },
+  {
+   "file": "public/js/ecg-shapes.js",
+   "bytes": 4520,
+   "sha256": "dc5afb86fd9fecfe250a87f55d9a27261780fca6887db8a8ceb64d231cca1ccd"
+  },
+  {
+   "file": "public/js/engine.js",
+   "bytes": 15990,
+   "sha256": "ea2e701b715878eac2b6f11f4b3fb126be9b394b9d8cdb07ce02d5d44a9bc87c"
+  },
+  {
+   "file": "public/js/exam-search.js",
+   "bytes": 300,
+   "sha256": "36fad2410ca1e957635476d117310974926077302f199bf413dff36513e546a0"
+  },
+  {
+   "file": "public/js/exam-viewer.js",
+   "bytes": 2917,
+   "sha256": "63a12a6dfe85893fbd50b6b4990c6d0e586d436040f494080871864245070387"
+  },
+  {
+   "file": "public/js/exams.js",
+   "bytes": 8524,
+   "sha256": "3ca917da5f5938f74a9d58e9d0ab3e456ec1ba6759d7c2f26a9b144daf815643"
+  },
+  {
+   "file": "public/js/history.js",
+   "bytes": 2178,
+   "sha256": "ff31214c8fef096a18160164399affcd6015197459e00f5eea527aedf33b84e0"
+  },
+  {
+   "file": "public/js/monitor-audio.js",
+   "bytes": 2226,
+   "sha256": "402a05f0c026fa40ff5a581f104fe747368293c8dcfb3c54d8825463b2210a8c"
+  },
+  {
+   "file": "public/js/monitor-exams.js",
+   "bytes": 1482,
+   "sha256": "b2dfc1049a41063b28fb50b1c340a371c7e8af80148884946f5f1ff3c16509f4"
+  },
+  {
+   "file": "public/js/monitor-readings.js",
+   "bytes": 2731,
+   "sha256": "3f2827c596b05ca50f514eb83d3fb23ef00c366fdcaaf7a9d407c932a1a58549"
+  },
+  {
+   "file": "public/js/monitor.js",
+   "bytes": 44019,
+   "sha256": "792e9e10da0647c25de79ba0a435d5db5f9baae906cbe6e77550f04a83806559"
+  },
+  {
+   "file": "public/js/online-room.js",
+   "bytes": 8859,
+   "sha256": "ad945a0022e0b2e970552a8535db9c706bcd125ea4ce5243a9ddb108a8dbf6b0"
+  },
+  {
+   "file": "public/js/rhythm-catalog.js",
+   "bytes": 3778,
+   "sha256": "39193e5f915daf8f983fcf7bac11aca701a43ebd635ed7242983a3b06fc05ee0"
+  },
+  {
+   "file": "public/js/scenario-catalog.js",
+   "bytes": 10256,
+   "sha256": "852b75b558f51ff67b83acd4d7ea9bcb9b3830b4439b7232db780905bdc1e674"
+  },
+  {
+   "file": "public/js/scenario-editor.js",
+   "bytes": 6745,
+   "sha256": "d08967bbf6d4eaadb64d16331adf0059289323f117dcedeed95f0c88433caf42"
+  },
+  {
+   "file": "public/js/session.js",
+   "bytes": 3856,
+   "sha256": "a4cfd6a41b9641623d8ce61c4f13367ba3b27bf598f6fbbe5c2f37577598351b"
+  },
+  {
+   "file": "public/js/shared.js",
+   "bytes": 521,
+   "sha256": "1f35802f3dc9c1856e761dececcee4041bf088f09746a0dde77e6a33e4832993"
+  },
+  {
+   "file": "public/js/simulation-clock.js",
+   "bytes": 1148,
+   "sha256": "eb997a436c9e4ca238b2112db7c46a73a80699f3a506368800fbfbb64d263144"
+  },
+  {
+   "file": "public/js/simulation-config.js",
+   "bytes": 1178,
+   "sha256": "4a0cf94db48657f23d0eaf94cbe009654d7b1db51a1979a576ed9ec675b68418"
+  },
+  {
+   "file": "public/js/simulation-state.js",
+   "bytes": 8154,
+   "sha256": "c99075039d2cc3ed96c1c91999439b3b769817cb52b074a2876fb1543764ad27"
+  },
+  {
+   "file": "public/js/state-validation.js",
+   "bytes": 3697,
+   "sha256": "5aecc93a5e98898266cfa19fb7ef2bbc715fdfb65462dbf72f3df8de60cfc660"
+  },
+  {
+   "file": "public/js/supabase-rest.js",
+   "bytes": 5476,
+   "sha256": "5c56f07172e2b38086fd7b7ef69b512551254d30d7463af63c1ce77351ba6520"
+  },
+  {
+   "file": "public/js/trace-renderer.js",
+   "bytes": 2474,
+   "sha256": "9166987bc8e7c3d7f481047d6a4fdc83cff9f75b148f20e23332ed885c3c8371"
+  },
+  {
+   "file": "public/js/transport.js",
+   "bytes": 10598,
+   "sha256": "920706cdc6b59c4420be04adab2ad8357bb0ea06b3ef75b5a25fd071584f1720"
+  },
+  {
+   "file": "public/js/vendor/qrcode.mjs",
+   "bytes": 51907,
+   "sha256": "ea91d7118a5395289170da848b7c6758b996163bfbccf312591ab65a4911b7c0"
+  },
+  {
+   "file": "public/manifest.webmanifest",
+   "bytes": 376,
+   "sha256": "730519b6c612b52830bb0de0e6f568e5b31c0d89d09c52fbda970c583ce2da42"
+  },
+  {
+   "file": "public/monitor.html",
+   "bytes": 12971,
+   "sha256": "585d17f92f65641457e959e666ca946e657d6b30c83357fae16596104732253c"
+  },
+  {
+   "file": "public/tracados.html",
+   "bytes": 5782013,
+   "sha256": "3d3a2a07c6b0f4f0d5f0c8344ade9b6d2d8f46526f27a866bf15161923c31dbd"
+  },
+  {
+   "file": "PUBLICACAO_VERCEL_SUPABASE.md",
+   "bytes": 7780,
+   "sha256": "0d4308c0f7461b89d56b4306f6c5d88897cc6a9c8dd658345cd2d0f4d393b6b8"
+  },
+  {
+   "file": "README.md",
+   "bytes": 1870,
+   "sha256": "70cf264fcf73ac9e17fbe2c79a197b6bf0cbbd4acc9d8793d64af1578d188331"
+  },
+  {
+   "file": "reference/dart-originals/Captura de Tela (55).png",
+   "bytes": 151995,
+   "sha256": "b3c3303b1e29f6c5e38b06bb583c2edc4daae197ded5bf1b3b70f53a2f66624b"
+  },
+  {
+   "file": "reference/dart-originals/Captura de Tela (56).png",
+   "bytes": 150741,
+   "sha256": "054db7615d18f5fb5a251a65ac874148e02bd77e6464177cfdce8e4b472c6401"
+  },
+  {
+   "file": "reference/dart-originals/Captura de Tela (57).png",
+   "bytes": 155703,
+   "sha256": "bf00aadabb03ae37c7398ca0adbfb08d9cb9d73495bda6f8e61c720309765bfc"
+  },
+  {
+   "file": "reference/dart-originals/Captura de Tela (58).png",
+   "bytes": 157726,
+   "sha256": "3008aa4dbc58e48fb5976c168b57585f2b1c5eeeedae75d2e951e1d777512717"
+  },
+  {
+   "file": "reference/dart-originals/Captura de Tela (60).png",
+   "bytes": 154270,
+   "sha256": "d7e22d71780e4cf2811a689d5a2aad98f7ac90235fc52c2af957a2b9be39eacd"
+  },
+  {
+   "file": "reference/dart-originals/Captura de Tela (61).png",
+   "bytes": 154237,
+   "sha256": "cced1526aae07c16a6848bf4f502f0c83b90db727250751ab21a4e2e7b826ad3"
+  },
+  {
+   "file": "reference/dart-originals/Captura de Tela (62).png",
+   "bytes": 150427,
+   "sha256": "9e3daa71a53460dd592dfdc530fbbab0cedb745c7b4f132352a2794259620b23"
+  },
+  {
+   "file": "reference/dart-originals/Captura de Tela (63).png",
+   "bytes": 159145,
+   "sha256": "26b7ba606f775e9f718b5481a567b71c13e02837ad7ead0421f93d6564b6ae35"
+  },
+  {
+   "file": "reference/dart-originals/Captura de Tela (64).png",
+   "bytes": 153479,
+   "sha256": "e83bf9b1e16dea0835d5f4e5d34b9c37fd371209d48c6e1ea33420d0b067c0a4"
+  },
+  {
+   "file": "reference/dart-originals/Captura de Tela (65).png",
+   "bytes": 151832,
+   "sha256": "55d7a9d31961eb1b95d1a5b9e269660e14175e2d7a3c05ee6170c06dd20c6c7a"
+  },
+  {
+   "file": "reference/dart-originals/Captura de Tela (66).png",
+   "bytes": 157309,
+   "sha256": "a76b5053832d33cd762c141739f76e602926e38a6a8e098fea4e5167ce889407"
+  },
+  {
+   "file": "reference/dart-originals/Captura de Tela (67).png",
+   "bytes": 154159,
+   "sha256": "a1d472e48106648b065cfe59e700b43962955251aabde54fadbca2064e66e906"
+  },
+  {
+   "file": "reference/dart-originals/Captura de Tela (68).png",
+   "bytes": 155088,
+   "sha256": "4a71eeab86751a43e10405cc90adf5007719c8853ebb0e38f136548aaddec1c9"
+  },
+  {
+   "file": "reference/dart-originals/Captura de Tela (69).png",
+   "bytes": 148646,
+   "sha256": "1340692bc0a5644d84ffeb99bbb24147e5abb73e9cece9e9f16af8c561c577cc"
+  },
+  {
+   "file": "reference/dart-originals/Captura de Tela (70).png",
+   "bytes": 153682,
+   "sha256": "2ec138284f45687923ba41c6f841341821ea772784e67560bab396d1d56d3415"
+  },
+  {
+   "file": "reference/dart-originals/Captura de Tela (71).png",
+   "bytes": 149976,
+   "sha256": "c426be1d8bc5ee928fd1d45e437b8740ec4ea0a47084428af8f27b2071a70567"
+  },
+  {
+   "file": "reference/dart-originals/Captura de Tela (72).png",
+   "bytes": 154352,
+   "sha256": "0a0cdec4b6887f6f5c17795fa2b422ed22d3ab17a6ac482043277d269dcbb6c1"
+  },
+  {
+   "file": "reference/dart-originals/Captura de Tela (73).png",
+   "bytes": 144490,
+   "sha256": "7f6fa94f62b82039888352bb50988448c6295185654a174f32ad4084fceb7db5"
+  },
+  {
+   "file": "reference/dart-originals/Captura de Tela (74).png",
+   "bytes": 145010,
+   "sha256": "5c8bea4681d37c6ffa08842333760ccef757453ef2a1b1da3c124847f0c4216e"
+  },
+  {
+   "file": "reference/dart-originals/Captura de Tela (75).png",
+   "bytes": 170004,
+   "sha256": "c7c58e8f7b1cdc5adc421eb13ba4f536df32dc7955935ddd6fcb1b39725ac20b"
+  },
+  {
+   "file": "reference/dart-originals/Captura de Tela (76).png",
+   "bytes": 159957,
+   "sha256": "9b2778322db6080962d727e3ef32a4c25260af05eeda2c7b16af3c98f233cb70"
+  },
+  {
+   "file": "reference/dart-originals/Captura de Tela (77).png",
+   "bytes": 155255,
+   "sha256": "710544b705620f0fcb28bc146fe5a9e220eb48f2c0eb665f05f1da75781f78ba"
+  },
+  {
+   "file": "reference/dart-originals/Captura de Tela (78).png",
+   "bytes": 161690,
+   "sha256": "0a11c62f8e3a142215b2dd1c77195374441d20fcf2226cd01aa0e37683fa7d41"
+  },
+  {
+   "file": "reference/dart-originals/Captura de Tela (80).png",
+   "bytes": 150185,
+   "sha256": "42b711989a8c7ad68ce9e3d28ba7ad4f6b97862f18806e3e36cca3699a3579e9"
+  },
+  {
+   "file": "reference/dart-originals/Captura de Tela (81).png",
+   "bytes": 157720,
+   "sha256": "c9b1700c9ad135edaa06fcb2b0cc08ef87ad29653f696d30e1cf4964f4a17afe"
+  },
+  {
+   "file": "reference/dart-originals/Captura de Tela (82).png",
+   "bytes": 153731,
+   "sha256": "1d3a2b20e807396a3882b071e0f550031af19f23e6a2b31bced2ad4a0a9a3e19"
+  },
+  {
+   "file": "scripts/audit-browser.cjs",
+   "bytes": 24324,
+   "sha256": "18d2d83b4f26963220c2a9c82a6116edfed37fd60461d6adc58544bb50aeb02d"
+  },
+  {
+   "file": "scripts/audit-online.mjs",
+   "bytes": 16268,
+   "sha256": "6767aada9ebe9e857855c37dc98963e6e0d22f7089cd13da21be737816e7f375"
+  },
+  {
+   "file": "scripts/gerar-manifesto.mjs",
+   "bytes": 2329,
+   "sha256": "147cf3915b3dc5d8a7b38da8d1a80b74320bf9baa85a6d44aae69ca20fddb5a2"
+  },
+  {
+   "file": "scripts/prepare-go.mjs",
+   "bytes": 516,
+   "sha256": "f1f0ec8a077f31b48d0e8583f1a1cedc14bb351c8533778381d79b245ebced23"
+  },
+  {
+   "file": "scripts/preview-online.mjs",
+   "bytes": 2350,
+   "sha256": "623fe10b3b22a4f63b2d79224da0806e58a9fc71dbdab4e05ac1f63792f351db"
+  },
+  {
+   "file": "scripts/preview.mjs",
+   "bytes": 1252,
+   "sha256": "6d386a99a80595908061b8d960e3a6315e21350c796ddc362cef65f4bc762866"
+  },
+  {
+   "file": "scripts/verify-delivery.mjs",
+   "bytes": 987,
+   "sha256": "b6c371051452cefdeaf1a6138bd03108f49509043bf08e96a47f2d0c0a9c6fc2"
+  },
+  {
+   "file": "server-go/go.mod",
+   "bytes": 84,
+   "sha256": "e26a5f59d64153d3deac22e740cc37cbca70177160f3b2bdf74d97f08628e3bb"
+  },
+  {
+   "file": "server-go/go.sum",
+   "bytes": 175,
+   "sha256": "1737d5523b7264df09b253e86e29f96af295a7bd18e0aaa4373c6099317e065f"
+  },
+  {
+   "file": "server-go/main_test.go",
+   "bytes": 5509,
+   "sha256": "583d44a8319bb9e87e1f0079d57f84d6c5cb89e3a27a23c427d3e89e4575f6c0"
+  },
+  {
+   "file": "server-go/main.go",
+   "bytes": 9524,
+   "sha256": "6042cad88e15375b2e7994e8224316d945b262cd3365125013dd3b1d46032808"
+  },
+  {
+   "file": "supabase/migrations/20260921120000_simmonitor_salas_online.sql",
+   "bytes": 17200,
+   "sha256": "e7169b8500bae6528a58052278cfaf7c3af49c2f1ceb32df6b32536801c3eb26"
+  },
+  {
+   "file": "supabase/migrations/20260921130000_simmonitor_auxiliares_schema_privado.sql",
+   "bytes": 9303,
+   "sha256": "c9637887a9d088d5c3a737d7b00fbf9b830c5ad18214d149d0ee3d4ef9e6834c"
+  },
+  {
+   "file": "tests/classroom.test.js",
+   "bytes": 3440,
+   "sha256": "6ad4e000f4625703268f02a6965a1b5ab00787e7802380b46d5db3f27a05227a"
+  },
+  {
+   "file": "tests/dart-waveforms.test.js",
+   "bytes": 5454,
+   "sha256": "d3a466bd25110a0638249f5cd34eca4f92f7ffd79ba2af864ccc4e3ceec19ec6"
+  },
+  {
+   "file": "tests/debrief-export.test.js",
+   "bytes": 2645,
+   "sha256": "18dd245286266a29785dad5d738eb8da56e80decfcce207bbde6a92557d1f93b"
+  },
+  {
+   "file": "tests/online-auth.test.js",
+   "bytes": 21381,
+   "sha256": "b0f4e6940b5dd263d8cd6cbc332c47388c882255bbe462f2aecf590e1136566a"
+  },
+  {
+   "file": "tests/organization.test.js",
+   "bytes": 4280,
+   "sha256": "bcf73145477d0a1b56d7760aa6081c542fb0ddbacebff3208ac05118180b7377"
+  },
+  {
+   "file": "tests/regression.test.js",
+   "bytes": 68045,
+   "sha256": "c239c262bc03887170b8ddb1c16cd76828d69928c5d03ce57775c42804dc1ad9"
+  },
+  {
+   "file": "VALIDACAO_DO_PACOTE.md",
+   "bytes": 3125,
+   "sha256": "8c6afbdc8d2dccb901af46d2c5f3d9ffc0c20c3460766baa1949085f39e687cf"
+  },
+  {
+   "file": "vercel.json",
+   "bytes": 172,
+   "sha256": "438fa2212be1ef9f656d2bb8b41099d26a9949ea2d79cf9a81d0c02bdd2401dd"
+  },
+  {
+   "file": "web/build.mjs",
+   "bytes": 435,
+   "sha256": "7dd6257df7297807eaa0716cba7f12869f15f1abbc2bdf31cb1b7268bd41e564"
+  }
+ ]
+}

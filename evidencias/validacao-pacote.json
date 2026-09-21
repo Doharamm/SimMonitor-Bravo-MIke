@@ -1,0 +1,17 @@
+{
+  "verifiedAt": "2026-09-21T10:47:00.882Z",
+  "runtimeFilesIdentical": 115,
+  "generatedCopiesIdentical": 210,
+  "localImportsResolved": 74,
+  "staticHtmlLinksResolved": 18,
+  "onlineReady": false,
+  "remoteProjectsAccessed": false,
+  "publicKeyType": "sb_publishable",
+  "privateKeyPatternScan": "passed (limited patterns)",
+  "tests": {
+    "pass": 144,
+    "fail": 0
+  },
+  "build": "passed",
+  "browser": "previous local run only; see evidencias/browser-*.json"
+}

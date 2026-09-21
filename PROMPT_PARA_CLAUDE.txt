@@ -1,0 +1,11 @@
+Use o ZIP anexo como a versão final reorganizada do SimMonitor 2.3.2.
+
+Leia primeiro COMECE_AQUI.md e CLAUDE.md. Quero preparar esta versão para eu publicar na Vercel e usar o Supabase na comunicação entre monitor e controle.
+
+Atenção ao impedimento já identificado: os comandos online estão bloqueados nas duas interfaces e o transporte remoto existente usa canal público. Conclua a autorização online com identidade verificável, isolamento das salas e reconexão segura. Apenas apagar os bloqueios não resolve.
+
+Preserve o layout aprovado, os traçados e suas velocidades, os casos clínicos, as terapias e todos os testes existentes. Use MAPA_DO_CODIGO.md para manter as alterações localizadas. Siga os critérios de PUBLICACAO_VERCEL_SUPABASE.md.
+
+Primeiro confira a integridade e execute os testes da base. Depois apresente um plano curto e implemente em etapas, sem pedir confirmação a cada alteração local. Se faltar acesso ou informação sobre o projeto de destino, peça o dado específico e continue o trabalho independente.
+
+Entregue o código pronto, configurações e migrações necessárias, resultados dos testes locais e online separados e um passo a passo para eu publicar. Não publique nem altere serviços remotos sem minha instrução explícita. Documente limitações e como restaurar a versão anterior.

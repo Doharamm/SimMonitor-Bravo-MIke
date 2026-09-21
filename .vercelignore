@@ -1,0 +1,14 @@
+.git/
+node_modules/
+.tools/
+auditoria/
+evidencias/
+reference/
+tests/
+server-go/
+*.exe
+*.zip
+*.md
+*.txt
+ENTREGA_*.json
+supabase/

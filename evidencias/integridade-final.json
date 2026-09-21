@@ -1,0 +1,300 @@
+{
+  "originalPreserved": true,
+  "originalFiles": 138,
+  "approvedECGEnginePreserved": true,
+  "protectedFiles": [
+    "public/js/dart-data.js",
+    "public/js/dart-player.js",
+    "public/js/ecg-shapes.js",
+    "public/css/monitor.css",
+    "public/js/config.js"
+  ],
+  "generatedVerified": 210,
+  "binary": {
+    "file": "BravoMike-SimMonitor-2.3.2.exe",
+    "bytes": 19265024,
+    "sha256": "43dedecab16db8fba12bfed686cce579a8e754edaea99ee7f763805d26b5c236"
+  },
+  "changes": [
+    {
+      "file": "AJUSTES_PADRAO_2_3_1.md",
+      "status": "added",
+      "sha256": "9c181f6abe8f13f9a1dc40de50ab0194aa07853ec1150f547fd539dc13ff9299"
+    },
+    {
+      "file": "AUDITORIA_CODEX.md",
+      "status": "added",
+      "sha256": "29b318eda7857af8d4790021cd96c5635e3a65a8c3443241f3de7aba7ada28e9"
+    },
+    {
+      "file": "BravoMike-SimMonitor-2.3.2.exe~",
+      "status": "added",
+      "sha256": "34faff0df4f7f637f481d0ea4ef415887a57eb81ba318898acc269cea86defbb"
+    },
+    {
+      "file": "CASOS_E_EXAMES_2_2_0.md",
+      "status": "added",
+      "sha256": "16f26b79a18cea1eae6e55ab248a0a02e7e46558537069f67bc7982fd91e3394"
+    },
+    {
+      "file": "CONTROLES_TOPO_2_1_4.md",
+      "status": "added",
+      "sha256": "21451307b36e00aa6ad7c28ebf72bf35e42a368d3bc932642d89bc7a159218ac"
+    },
+    {
+      "file": "CORRECAO_WIFI.md",
+      "status": "added",
+      "sha256": "c7a688ea893ee6911d557bd76d95c8622f351fc0f29c8293177d0ddf25254bc3"
+    },
+    {
+      "file": "CORRECOES_2_1_1.md",
+      "status": "added",
+      "sha256": "17f183cd27897ff591fc79c339cb75b2201ce4b8a4559bde4e84d4a6ea88aebe"
+    },
+    {
+      "file": "INTERFACE_E_CASOS_2_3_0.md",
+      "status": "added",
+      "sha256": "a6034a23cd1ae4d7038cea07e60fa7828a602878c3894b9aec611fafd1ff7d7a"
+    },
+    {
+      "file": "LAYOUT_CONTROLE_2_1_3.md",
+      "status": "added",
+      "sha256": "b8e20fa4e50439dbe499ef663e575056efa2e1a26153483f0338d744b55d3773"
+    },
+    {
+      "file": "LEIA-ME.md",
+      "status": "changed",
+      "sha256": "4f0dda64813ac635b0aefceea18a102b485181507bd7194596336b6dc7d0e582"
+    },
+    {
+      "file": "MAPA_DO_CODIGO.md",
+      "status": "added",
+      "sha256": "2a5702c689a594621e150f8a72b287c80385559e3654aeed642a3ca04915e4ed"
+    },
+    {
+      "file": "MONITOR_TOPO_2_1_5.md",
+      "status": "added",
+      "sha256": "ea73b7a0cf657c77053fd0d2334912a450dd6b0a1c5da6bb58c2b0cddc52d086"
+    },
+    {
+      "file": "ORGANIZACAO_2_1_2.md",
+      "status": "added",
+      "sha256": "17ec38e17db2f3b62a625d669e5de424f5d42b49ac13f618429eb5b18ee93701"
+    },
+    {
+      "file": "REORGANIZACAO_DO_CODIGO.md",
+      "status": "added",
+      "sha256": "0821221edc6400d7c59e50113a97e570a6e8f512bb81bd816b4eb7d69cf0904a"
+    },
+    {
+      "file": "REVISAO_2_1.md",
+      "status": "added",
+      "sha256": "ae7692b1f51f2528c87b40744428e761da751b95622f974a4573192f1773e747"
+    },
+    {
+      "file": "REVISAO_CLINICA.md",
+      "status": "added",
+      "sha256": "3da14ad8203aa27a77761d0fe8556f0354933e189d34586d625d0e13b3465625"
+    },
+    {
+      "file": "package.json",
+      "status": "changed",
+      "sha256": "327be1aa4b6f07465686a9508405cfbae36cb079e6b7a9c61332c673b264f6c5"
+    },
+    {
+      "file": "public/controle.html",
+      "status": "changed",
+      "sha256": "841d2bf309609a81bfc261fbd570bae664a1404e419423240ea732e0a7d9390a"
+    },
+    {
+      "file": "public/css/controle.css",
+      "status": "changed",
+      "sha256": "f5be0304b7d88de458fc47041092419d1b25a46581a78bf0ea9f9099c3cf7ad1"
+    },
+    {
+      "file": "public/css/monitor-scenario-controls.css",
+      "status": "added",
+      "sha256": "7107f1f1b82341fda1b22249e221a348c657d65be591e8af33ebc4216f61575a"
+    },
+    {
+      "file": "public/js/case-exams.js",
+      "status": "added",
+      "sha256": "7bd4ac06b0e8a1920a4c4d36b2c2faac18cfd7a64e463e88410f7dff1d501afd"
+    },
+    {
+      "file": "public/js/classroom-ui.js",
+      "status": "added",
+      "sha256": "b28f9c4c70517ed382500f2cb6ee4cf14b7d4d50468db493857e170b61d878c3"
+    },
+    {
+      "file": "public/js/classroom.js",
+      "status": "added",
+      "sha256": "e9d7b8a3654c8022f87a061f01d53a8e3e2e4341f0923360bfb075e25321a549"
+    },
+    {
+      "file": "public/js/clinical-review.js",
+      "status": "added",
+      "sha256": "bd721782c01c3066240b5383cb2d8c24da3b05c0a2de159bab6fb12297493bd0"
+    },
+    {
+      "file": "public/js/controle.js",
+      "status": "changed",
+      "sha256": "375d651558ef18154d8db679befa85a1ea17a62a1a80d7de04c97d988a4cda31"
+    },
+    {
+      "file": "public/js/controller-cases.js",
+      "status": "added",
+      "sha256": "13e04bb12cf51edab4e3c04065e24f8aebd5ff37252d7dad40ab0f617d7def49"
+    },
+    {
+      "file": "public/js/debrief-export.js",
+      "status": "added",
+      "sha256": "afd0da26d219f1f15c339b7c2d7d1de348d8216c435ebaa3ab6f7f6d99b81b36"
+    },
+    {
+      "file": "public/js/descriptions.js",
+      "status": "added",
+      "sha256": "2e94b4ca65608795f4eea3e9ac6278ed36171d45a152194f398e034f0dcdf96b"
+    },
+    {
+      "file": "public/js/engine.js",
+      "status": "changed",
+      "sha256": "ea2e701b715878eac2b6f11f4b3fb126be9b394b9d8cdb07ce02d5d44a9bc87c"
+    },
+    {
+      "file": "public/js/history.js",
+      "status": "changed",
+      "sha256": "ff31214c8fef096a18160164399affcd6015197459e00f5eea527aedf33b84e0"
+    },
+    {
+      "file": "public/js/monitor-audio.js",
+      "status": "added",
+      "sha256": "402a05f0c026fa40ff5a581f104fe747368293c8dcfb3c54d8825463b2210a8c"
+    },
+    {
+      "file": "public/js/monitor-exams.js",
+      "status": "added",
+      "sha256": "b2dfc1049a41063b28fb50b1c340a371c7e8af80148884946f5f1ff3c16509f4"
+    },
+    {
+      "file": "public/js/monitor-readings.js",
+      "status": "added",
+      "sha256": "3f2827c596b05ca50f514eb83d3fb23ef00c366fdcaaf7a9d407c932a1a58549"
+    },
+    {
+      "file": "public/js/monitor.js",
+      "status": "changed",
+      "sha256": "5367f784ab0cbe60d1901bbc29c3346cf5c2fab92600fb6b42c0594246a318d5"
+    },
+    {
+      "file": "public/js/rhythm-catalog.js",
+      "status": "added",
+      "sha256": "39193e5f915daf8f983fcf7bac11aca701a43ebd635ed7242983a3b06fc05ee0"
+    },
+    {
+      "file": "public/js/scenario-catalog.js",
+      "status": "added",
+      "sha256": "852b75b558f51ff67b83acd4d7ea9bcb9b3830b4439b7232db780905bdc1e674"
+    },
+    {
+      "file": "public/js/scenario-editor.js",
+      "status": "added",
+      "sha256": "d08967bbf6d4eaadb64d16331adf0059289323f117dcedeed95f0c88433caf42"
+    },
+    {
+      "file": "public/js/shared.js",
+      "status": "changed",
+      "sha256": "1f35802f3dc9c1856e761dececcee4041bf088f09746a0dde77e6a33e4832993"
+    },
+    {
+      "file": "public/js/simulation-clock.js",
+      "status": "added",
+      "sha256": "eb997a436c9e4ca238b2112db7c46a73a80699f3a506368800fbfbb64d263144"
+    },
+    {
+      "file": "public/js/simulation-config.js",
+      "status": "added",
+      "sha256": "4a0cf94db48657f23d0eaf94cbe009654d7b1db51a1979a576ed9ec675b68418"
+    },
+    {
+      "file": "public/js/simulation-state.js",
+      "status": "added",
+      "sha256": "c99075039d2cc3ed96c1c91999439b3b769817cb52b074a2876fb1543764ad27"
+    },
+    {
+      "file": "public/js/state-validation.js",
+      "status": "changed",
+      "sha256": "5aecc93a5e98898266cfa19fb7ef2bbc715fdfb65462dbf72f3df8de60cfc660"
+    },
+    {
+      "file": "public/js/trace-renderer.js",
+      "status": "added",
+      "sha256": "9166987bc8e7c3d7f481047d6a4fdc83cff9f75b148f20e23332ed885c3c8371"
+    },
+    {
+      "file": "public/js/transport.js",
+      "status": "changed",
+      "sha256": "6655dd466ca876656132b7bae5960be478f48c83da7deac6f3c9f18bd1bbaba3"
+    },
+    {
+      "file": "public/monitor.html",
+      "status": "changed",
+      "sha256": "585d17f92f65641457e959e666ca946e657d6b30c83357fae16596104732253c"
+    },
+    {
+      "file": "scripts/audit-browser.cjs",
+      "status": "added",
+      "sha256": "18d2d83b4f26963220c2a9c82a6116edfed37fd60461d6adc58544bb50aeb02d"
+    },
+    {
+      "file": "scripts/audit-engine.mjs",
+      "status": "added",
+      "sha256": "8e5e2eec51d586b06f5517798d9deb513ecf0651e43259bb3e2bf4f715de9c07"
+    },
+    {
+      "file": "scripts/audit-integrity.mjs",
+      "status": "added",
+      "sha256": "d361916383f07bea55d71718cd8a32516a73b78ec06db81cbb83fb4896116c8b"
+    },
+    {
+      "file": "scripts/audit-refactor.mjs",
+      "status": "added",
+      "sha256": "83a84dfe6cebe96e80f46123d87b0f26ce0281b4d272a106b656ad0db625b98f"
+    },
+    {
+      "file": "scripts/document-case-exams.mjs",
+      "status": "added",
+      "sha256": "fdacef4a5ebef6811e13eab48db5e0222fe048ceee318738a84d931db758dea8"
+    },
+    {
+      "file": "server-go/main.go",
+      "status": "changed",
+      "sha256": "fd850bda1ec3352d3b31551766e7653a094716c0971edefead0ce362078f71d9"
+    },
+    {
+      "file": "server-go/main_test.go",
+      "status": "added",
+      "sha256": "583d44a8319bb9e87e1f0079d57f84d6c5cb89e3a27a23c427d3e89e4575f6c0"
+    },
+    {
+      "file": "tests/classroom.test.js",
+      "status": "added",
+      "sha256": "6ad4e000f4625703268f02a6965a1b5ab00787e7802380b46d5db3f27a05227a"
+    },
+    {
+      "file": "tests/debrief-export.test.js",
+      "status": "added",
+      "sha256": "18dd245286266a29785dad5d738eb8da56e80decfcce207bbde6a92557d1f93b"
+    },
+    {
+      "file": "tests/organization.test.js",
+      "status": "added",
+      "sha256": "bcf73145477d0a1b56d7760aa6081c542fb0ddbacebff3208ac05118180b7377"
+    },
+    {
+      "file": "tests/regression.test.js",
+      "status": "changed",
+      "sha256": "61608c30a61550e6bb2e34ccb6452996dfbc4efc504387f624d61662b40330c1"
+    }
+  ]
+}

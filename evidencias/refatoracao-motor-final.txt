@@ -1,0 +1,26 @@
+{
+  "comparisons": 156,
+  "maxDifference": 0,
+  "longRun": {
+    "seconds": 720,
+    "step": 0.016666666666666666,
+    "totalBeats": 659,
+    "maxBuffers": 18
+  },
+  "intervals": [
+    {
+      "id": "bbb",
+      "method": "janela de 26 pixels do recorte; tempo inferido da FC exibida, sem calibração clínica",
+      "nominalHr": 60,
+      "referenceMs": 175.67567567567568,
+      "at120Ms": 87.83783783783784
+    },
+    {
+      "id": "ivr",
+      "method": "janela de 18 pixels do recorte; tempo inferido da FC exibida, sem calibração clínica",
+      "nominalHr": 50,
+      "referenceMs": 83.0769230769231,
+      "at120Ms": 34.61538461538462
+    }
+  ]
+}

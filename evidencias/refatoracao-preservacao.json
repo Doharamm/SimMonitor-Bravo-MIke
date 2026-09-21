@@ -1,0 +1,135 @@
+{
+  "backupVerified": 358,
+  "protectedFiles": 119,
+  "sharedExports": 20,
+  "scenarioSteps": 24,
+  "validationComparisons": 57,
+  "readingComparisons": 3120,
+  "traceComparisons": 4,
+  "dependencies": {
+    "case-exams.js": [
+      "./exams.js",
+      "./scenario-catalog.js",
+      "./simulation-state.js"
+    ],
+    "classroom-ui.js": [
+      "./clinical-review.js",
+      "./classroom.js",
+      "./descriptions.js",
+      "./debrief-export.js",
+      "./scenario-editor.js"
+    ],
+    "classroom.js": [
+      "./scenario-catalog.js",
+      "./simulation-state.js",
+      "./clinical-review.js"
+    ],
+    "clinical-review.js": [],
+    "config.js": [],
+    "controle.js": [
+      "./controller-cases.js",
+      "./classroom.js",
+      "./classroom-ui.js",
+      "./state-validation.js",
+      "./exam-search.js",
+      "./case-exams.js",
+      "./history.js",
+      "./session.js",
+      "./exams.js",
+      "./rhythm-catalog.js",
+      "./simulation-config.js",
+      "./scenario-catalog.js",
+      "./simulation-state.js",
+      "./descriptions.js",
+      "./transport.js"
+    ],
+    "controller-cases.js": [
+      "./scenario-catalog.js",
+      "./classroom.js"
+    ],
+    "dart-data.js": [],
+    "dart-player.js": [
+      "./dart-data.js",
+      "./ecg-shapes.js"
+    ],
+    "debrief-export.js": [
+      "./history.js"
+    ],
+    "descriptions.js": [
+      "./rhythm-catalog.js",
+      "./scenario-catalog.js",
+      "./simulation-config.js"
+    ],
+    "ecg-shapes.js": [],
+    "engine.js": [
+      "./ecg-shapes.js",
+      "./dart-player.js"
+    ],
+    "exam-search.js": [],
+    "exam-viewer.js": [],
+    "exams.js": [],
+    "history.js": [],
+    "monitor-audio.js": [],
+    "monitor-exams.js": [
+      "./case-exams.js"
+    ],
+    "monitor-readings.js": [
+      "./simulation-state.js"
+    ],
+    "monitor.js": [
+      "./trace-renderer.js",
+      "./monitor-audio.js",
+      "./monitor-readings.js",
+      "./simulation-clock.js",
+      "./classroom.js",
+      "./monitor-exams.js",
+      "./exam-viewer.js",
+      "./history.js",
+      "./session.js",
+      "./exams.js",
+      "./rhythm-catalog.js",
+      "./simulation-config.js",
+      "./scenario-catalog.js",
+      "./simulation-state.js",
+      "./descriptions.js",
+      "./engine.js",
+      "./transport.js",
+      "./vendor/qrcode.mjs"
+    ],
+    "rhythm-catalog.js": [],
+    "scenario-catalog.js": [],
+    "scenario-editor.js": [
+      "./classroom.js",
+      "./rhythm-catalog.js",
+      "./simulation-config.js"
+    ],
+    "session.js": [],
+    "shared.js": [
+      "./rhythm-catalog.js",
+      "./simulation-config.js",
+      "./scenario-catalog.js",
+      "./simulation-state.js",
+      "./descriptions.js"
+    ],
+    "simulation-clock.js": [],
+    "simulation-config.js": [],
+    "simulation-state.js": [
+      "./rhythm-catalog.js",
+      "./scenario-catalog.js",
+      "./simulation-config.js"
+    ],
+    "state-validation.js": [
+      "./classroom.js",
+      "./rhythm-catalog.js",
+      "./simulation-config.js",
+      "./scenario-catalog.js",
+      "./exams.js"
+    ],
+    "trace-renderer.js": [
+      "./simulation-state.js"
+    ],
+    "transport.js": [
+      "./config.js"
+    ]
+  }
+}

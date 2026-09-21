@@ -1,0 +1,7 @@
+# Nenhuma conversão de quebra de linha, em nenhum arquivo.
+#
+# A entrega inteira é conferida por SHA-256 (`npm run verify:delivery` e
+# `npm run manifesto`). Se o Git trocasse LF por CRLF ao clonar no Windows,
+# todo arquivo de texto mudaria de hash e a conferência acusaria alteração que
+# não houve. Guardar os bytes como estão mantém clone, ZIP e manifesto iguais.
+* -text

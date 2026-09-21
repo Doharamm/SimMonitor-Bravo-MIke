@@ -1,0 +1,29 @@
+import {Engine as Original} from '../../public/js/engine.js';
+import {Engine} from '../public/js/engine.js';
+import {DART} from '../public/js/dart-player.js';
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+const report={comparisons:[],longRun:{seconds:720,step:1/60},intervals:[]};
+for(const id of Object.keys(DART))for(const hr of [5,40,60,120,180,300]){
+ const a=new Original({seed:123}),b=new Engine({seed:123});
+ for(const e of [a,b]){e.rhythm=id;e.setParams({hr,noise:false});}
+ let maxDifference=0,beats=0;
+ for(let i=0;i<12*120;i++){
+  const t=i/120;a.schedule(t);b.schedule(t);maxDifference=Math.max(maxDifference,Math.abs(a.ecg(t)-b.ecg(t)));
+  const aa=a.popBeats(t),bb=b.popBeats(t);assert.deepEqual(aa,bb);beats+=bb.length;
+ }
+ assert.equal(maxDifference,0);report.comparisons.push({id,hr,maxDifference,beats});
+}
+const engine=new Engine({seed:42});let maxBuffers=0,totalBeats=0;
+for(let i=0;i<720*60;i++){
+ const t=i/60,stage=Math.floor(t/60),ids=['nsr','afib','bbb','bige','bav3','vt','vf','asys','agonal','nsr','ste','sb'];
+ engine.setRhythm(ids[stage],t);engine.setParams({hr:60+Math.sin(t/10)*30,pacer:{on:stage===7,rate:70,ma:80,threshold:60}});
+ if(i>0&&i%(90*60)===0)engine.shock(t);
+ engine.schedule(t);assert.ok(Number.isFinite(engine.ecg(t)));const beats=engine.popBeats(t);totalBeats+=beats.length;
+ maxBuffers=Math.max(maxBuffers,engine.beats.length+engine.ecgW.length+engine.ecgC.length+engine.plethC.length+engine.spikes.length);
+ assert.ok(maxBuffers<150);
+}
+report.longRun={...report.longRun,totalBeats,maxBuffers};
+for(const id of ['bbb','ivr']){const p=DART[id],pixels=id==='bbb'?26:18;report.intervals.push({id,method:'janela de '+pixels+' pixels do recorte; tempo inferido da FC exibida, sem calibração clínica',nominalHr:p.nominalHr,referenceMs:pixels/(p.values.length-1)*p.duration*1000,at120Ms:pixels/(p.values.length-1)*p.duration*1000*p.nominalHr/120});}
+fs.writeFileSync(new URL('../auditoria/fidelidade-e-motor.json',import.meta.url),JSON.stringify(report,null,2));
+console.log(JSON.stringify({comparisons:report.comparisons.length,maxDifference:0,longRun:report.longRun,intervals:report.intervals},null,2));

@@ -1,0 +1,31 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import crypto from 'node:crypto';
+import {fileURLToPath} from 'node:url';
+const root=fileURLToPath(new URL('../',import.meta.url)),source=path.resolve(root,'..');
+const hash=p=>crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex');
+const original=JSON.parse(fs.readFileSync(path.join(root,'auditoria/entrega-claude-sha256.json'),'utf8').replace(/^\uFEFF/,''));
+const preserved=original.every(f=>fs.existsSync(path.join(source,f.file))&&hash(path.join(source,f.file))===f.sha256);
+if(!preserved)throw Error('A entrega original mudou durante a auditoria');
+const skip=new Set(['.git','.tools','auditoria','BASE_E_ALTERACOES.json']);
+function walk(dir=''){let files=[];for(const e of fs.readdirSync(path.join(root,dir),{withFileTypes:true})){
+ const p=path.posix.join(dir,e.name);if(skip.has(e.name)||p==='web/dist'||p==='server-go/public'||p.endsWith('.exe'))continue;
+ if(e.isDirectory())files.push(...walk(p));else files.push(p);
+}return files.sort();}
+const files=walk(),base=JSON.parse(fs.readFileSync(path.join(root,'BASE_E_ALTERACOES.json'),'utf8'));
+const baseMap=new Map(base.original.map(f=>[f.file,f.sha256])),claudeMap=new Map(original.map(f=>[f.file,f.sha256]));
+base.files=files.map(file=>{const sha256=hash(path.join(root,file));return {file,status:!baseMap.has(file)?'added':sha256===baseMap.get(file)?'unchanged':'changed',sha256};});
+base.removed=base.original.filter(f=>!files.includes(f.file)).map(f=>f.file);base.updatedAt=new Date().toISOString();
+base.note='Cópia revisada pelo Codex. Ver AUDITORIA_CODEX.md. Histórico original mantido. Gerados (EXE, web/dist, server-go/public), ferramentas e evidências excluídos deste manifesto.';
+fs.writeFileSync(path.join(root,'BASE_E_ALTERACOES.json'),JSON.stringify(base,null,2)+'\n');
+const changes=files.map(file=>({file,status:!claudeMap.has(file)?'added':hash(path.join(root,file))===claudeMap.get(file)?'unchanged':'changed',sha256:hash(path.join(root,file))}));
+const required=['public/js/dart-data.js','public/js/dart-player.js','public/js/ecg-shapes.js','public/css/monitor.css','public/js/config.js'];
+for(const f of required)if(hash(path.join(root,f))!==claudeMap.get(f))throw Error('Arquivo protegido alterado: '+f);
+const approvedECGEnginePreserved=hash(path.join(root,'public/js/engine.js'))===hash(path.join(root,'auditoria/antes-interface-2.2.0/public/js/engine.js'));
+if(!approvedECGEnginePreserved)throw Error('Motor de ECG aprovado foi alterado nesta revisão de interface');
+const monitorLayout=p=>fs.readFileSync(p,'utf8').replace(/    <!-- scenario-toolbar-start -->[\s\S]*?    <!-- scenario-toolbar-end -->\r?\n/, '').replace(/    <!-- temperature-exams-start -->[\s\S]*?    <!-- temperature-exams-end -->\r?\n/, '').replace('<span class="timer tnum" id="timer" title="Acompanha play e pause">00:00</span>', '<button class="timer tnum" id="timer" title="Tocar para iniciar ou pausar">00:00</button>').split('<div id="app">')[1]?.split('<div id="startOverlay"')[0];
+if(!monitorLayout(path.join(root,'public/monitor.html'))||monitorLayout(path.join(root,'public/monitor.html'))!==monitorLayout(path.join(source,'public/monitor.html')))throw Error('Layout central do monitor foi alterado');
+const generated=[];for(const f of files.filter(f=>f.startsWith('public/')&&f!=='public/tracados.html'))for(const folder of ['server-go/public','web/dist']){const dest=f.replace(/^public/,folder);if(hash(path.join(root,f))!==hash(path.join(root,dest)))throw Error('Gerado divergente: '+dest);generated.push(dest);}
+const binary=path.join(root,'BravoMike-SimMonitor-2.3.2.exe');
+const result={originalPreserved:preserved,originalFiles:original.length,approvedECGEnginePreserved,protectedFiles:required,generatedVerified:generated.length,binary:{file:path.basename(binary),bytes:fs.statSync(binary).size,sha256:hash(binary)},changes:changes.filter(f=>f.status!=='unchanged')};
+fs.writeFileSync(path.join(root,'auditoria/integridade-final.json'),JSON.stringify(result,null,2)+'\n');console.log(JSON.stringify(result,null,2));

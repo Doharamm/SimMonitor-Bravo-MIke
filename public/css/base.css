@@ -1,0 +1,32 @@
+@font-face { font-family: 'Public Sans'; font-weight: 400; font-display: swap; src: url(../fonts/public-sans-latin-400-normal.woff2) format('woff2'); }
+@font-face { font-family: 'Public Sans'; font-weight: 600; font-display: swap; src: url(../fonts/public-sans-latin-600-normal.woff2) format('woff2'); }
+@font-face { font-family: 'Public Sans'; font-weight: 700; font-display: swap; src: url(../fonts/public-sans-latin-700-normal.woff2) format('woff2'); }
+@font-face { font-family: 'Public Sans'; font-weight: 800; font-display: swap; src: url(../fonts/public-sans-latin-800-normal.woff2) format('woff2'); }
+:root {
+  --brand: #FF2905;
+  --bg: #07090c;
+  --panel: #12161b;
+  --panel-2: #1a1f26;
+  --line: #262d36;
+  --text: #eef1f4;
+  --muted: #8c96a3;
+  --ecg: #4ade80;
+  --spo2: #22d3ee;
+  --nibp: #f4f4f5;
+  --co2: #facc15;
+  --resp: #c4b5fd;
+  --temp: #fb923c;
+  --warn: #fbbf24;
+  --crit: #ff3b30;
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Public Sans', system-ui, sans-serif; }
+button { font: inherit; color: inherit; }
+.tnum { font-variant-numeric: tabular-nums; }
+.brandmark { display: inline-flex; align-items: center; gap: .5em; font-weight: 800; letter-spacing: .02em; }
+.brandmark .bm { background: var(--brand); color: #fff; border-radius: 6px; padding: .12em .38em; font-size: .9em; }
+.brandmark .sub { font-weight: 600; color: var(--muted); }
+.dot { width: 10px; height: 10px; border-radius: 50%; background: #555; display: inline-block; }
+.dot.on { background: #22c55e; box-shadow: 0 0 8px #22c55e; }
+.dot.connecting { background: var(--warn); }
+.dot.off { background: var(--crit); }

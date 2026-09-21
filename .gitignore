@@ -1,0 +1,11 @@
+node_modules/
+.vercel/
+.tools/
+web/dist/
+server-go/public/
+*.exe
+*.zip
+auditoria/
+.env
+.env.*
+!.env.example

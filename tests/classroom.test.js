@@ -1,0 +1,17 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import {SimulationClock} from '../public/js/simulation-clock.js';import {validateScenario,duplicateScenario,SCENARIOS,registerScenario} from '../public/js/classroom.js';
+import {validPublicState} from '../public/js/state-validation.js';
+test('Clock resumes repeated pauses at exact remaining delay without backlog',()=>{let now=0,seq=0;const jobs=new Map();const clock=new SimulationClock(()=>now,(f,n)=>{jobs.set(++seq,{f,n});return seq;},id=>jobs.delete(id));let fired=0;clock.later(()=>fired++,3000);now=1000;clock.pause();now=9000;clock.resume();assert.equal([...jobs.values()][0].n,2000);now=9500;clock.pause();now=20000;clock.resume();assert.equal([...jobs.values()][0].n,1500);now+=1500;[...jobs.values()][0].f();assert.equal(fired,1);});
+test('Every builtin case can be duplicated without editing its source or set values',()=>{for(const sc of SCENARIOS){const before=JSON.stringify(sc),copy=duplicateScenario(sc),checked=validateScenario(copy);assert.ok(checked,sc.id);assert.deepEqual(checked.etapas.map(e=>e.set),sc.etapas.map(e=>e.set));checked.etapas[0].titulo='edited';assert.equal(JSON.stringify(sc),before);assert.equal(checked.approval,'Revisão clínica humana pendente');}});
+test('Custom cases reject builtin IDs, out of range values, unknown fields and prototype names',()=>{const sc=duplicateScenario(SCENARIOS[0]);assert.equal(validateScenario({...sc,id:'fv'}),null);for(const set of [{vit:{hr:9999}},{rhythm:'__proto__'},{rhythm:'constructor'},{pulse:'on',execute:'bad'}]){const copy=structuredClone(sc);copy.etapas[0].set=set;assert.equal(validateScenario(copy),null);}});
+test('State validation never throws on prototype scenario id',()=>{assert.equal(validPublicState({scn:{id:'__proto__'}}),false);});
+
+import {caseSources,scenarioReviewText} from '../public/js/classroom.js';
+import {CLINICAL_REVIEW} from '../public/js/clinical-review.js';
+test('FIX: copies preserve each original source and origin without claiming review',()=>{for(const original of SCENARIOS){const copy=validateScenario(duplicateScenario(original));assert.equal(copy.source,CLINICAL_REVIEW[original.id].source);assert.equal(copy.originId,original.id);assert.equal(copy.reviewedAt,null);assert.ok(copy.createdAt);assert.equal(copy.updatedAt,copy.createdAt);assert.doesNotMatch(scenarioReviewText(copy),/revisão documental/);assert.match(scenarioReviewText(original),/19\/09\/2026/);assert.deepEqual(validateScenario(copy),copy);}});
+test('FIX: editing retains creation and custom sources, legacy dates remain unknown',()=>{const copy=duplicateScenario(SCENARIOS[0]);const edited=validateScenario({...copy,source:'Minha fonte',updatedAt:'2026-09-20T18:00:00Z',reviewedAt:'2026-09-19'});assert.equal(edited.createdAt,copy.createdAt);assert.equal(edited.updatedAt,'2026-09-20T18:00:00.000Z');assert.equal(caseSources(edited),'Minha fonte');assert.equal(edited.reviewedAt,null);const legacy=validateScenario({...copy,createdAt:undefined,updatedAt:undefined});assert.equal(legacy.createdAt,null);assert.match(scenarioReviewText(legacy),/não registrada/);});
+
+test('Case wait metadata is retained in copies and rejects invalid delays',()=>{
+ const copy=duplicateScenario(SCENARIOS[0]);copy.etapas[0].wait=45;assert.equal(validateScenario(copy).etapas[0].wait,45);
+ for(const wait of [-1,601,1.5,'30']){copy.etapas[0].wait=wait;assert.equal(validateScenario(copy),null);}
+});

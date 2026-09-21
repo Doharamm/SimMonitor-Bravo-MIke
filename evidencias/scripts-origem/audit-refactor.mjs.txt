@@ -1,0 +1,97 @@
+// Compara a reorganização com o ponto de restauração local, sem acessar rede.
+import fs from 'node:fs';
+import path from 'node:path';
+import vm from 'node:vm';
+import crypto from 'node:crypto';
+import assert from 'node:assert/strict';
+import { fileURLToPath } from 'node:url';
+import * as current from '../public/js/shared.js';
+import * as previous from '../auditoria/antes-refatoracao-2.3.2/public/js/shared.js';
+import { evaluateReadings } from '../public/js/monitor-readings.js';
+import { Trace } from '../public/js/trace-renderer.js';
+
+const root = fileURLToPath(new URL('../', import.meta.url));
+const backup = path.join(root, 'auditoria/antes-refatoracao-2.3.2');
+const hash = file => crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
+const manifest = JSON.parse(fs.readFileSync(path.join(backup, 'RESTAURACAO_SHA256.json')));
+for (const entry of manifest.files) assert.equal(hash(path.join(backup, entry.file)), entry.sha256, entry.file);
+
+// Estes arquivos não precisaram mudar para separar responsabilidades.
+const protectedFiles = manifest.files.filter(({file}) =>
+  file.startsWith('public/') && !file.startsWith('public/js/') ||
+  /^public\/js\/(engine|dart-data|dart-player|ecg-shapes|config|transport|session|simulation-clock|exams|clinical-review)\.js$/.test(file) ||
+  file.startsWith('reference/') || /^(server-go\/[^/]+|web\/[^/]+)$/.test(file));
+for (const entry of protectedFiles) assert.equal(hash(path.join(root, entry.file)), entry.sha256, 'Protegido: ' + entry.file);
+assert.deepEqual(Object.keys(current), Object.keys(previous), 'API shared.js');
+for (const key of Object.keys(previous)) if (typeof previous[key] !== 'function') assert.deepEqual(current[key], previous[key], key);
+assert.deepEqual(current.defaultState(), previous.defaultState());
+let steps = 0;
+for (const scenario of previous.SCENARIOS) for (let i = 0; i < scenario.etapas.length; i++) {
+  assert.deepEqual(current.scenarioStepSet(current.SCENARIO_BY_ID[scenario.id], i), previous.scenarioStepSet(scenario, i));
+  steps++;
+}
+
+const values = [undefined, null, false, true, NaN, Infinity, -Infinity, -1, 0, 0.1, 29, 30, 70, 180, 200, 301, '70', {}, []];
+let validations = 0;
+for (const value of values) for (const key of ['rate','ma','threshold']) {
+  const patch = {pacer:{[key]:value},vit:{hr:value,spo2:value,temp:value},nibp:{interval:value},defib:{energy:value},show:{ecg:value}};
+  assert.deepEqual(current.sanitizeSet(patch), previous.sanitizeSet(patch));
+  const saved = {...previous.defaultState(),...patch};
+  assert.deepEqual(current.restoreState(saved), previous.restoreState(saved));
+  validations++;
+}
+for (const value of values) {
+  assert.equal(current.describeSet({vit:{temp:value,hr:value}}), previous.describeSet({vit:{temp:value,hr:value}}));
+}
+
+// Compara a função extraída com o corpo original, com entradas determinísticas.
+const monitor = fs.readFileSync(path.join(backup, 'public/js/monitor.js'), 'utf8');
+const start = monitor.indexOf('  const t = nowS();', monitor.indexOf('function evaluate()'));
+const end = monitor.indexOf('  // som', start);
+assert.ok(start > 0 && end > start);
+const originalReadings = vm.runInNewContext(`(S,eng,clock) => {
+  const {bootT,acquisitionUntil}=clock,nowS=()=>clock.t,simNow=()=>clock.epochNow;
+  let displayed,alarmsNow;
+${monitor.slice(start, end)}
+  return {displayed,alarmsNow};
+}`, {hasPulse:previous.hasPulse});
+const plain = value => JSON.parse(JSON.stringify(value));
+let readings = 0;
+for (const rhythm of previous.RHYTHMS) for (const hr of [null,0,39,40,49,50,120,121,150,151])
+for (const signal of ['normal','low','absent']) for (const cpr of [false,true]) for (const t of [1,10]) {
+  const state = previous.defaultState();
+  Object.assign(state,{rhythm:rhythm.id,spo2Signal:signal,cpr});
+  state.cur = {...state.vit, rr:cpr?10:16,etco2:cpr?8:36,spo2:84};
+  state.nibp = {...state.nibp,sys:79,at:10000};
+  const engine = {measuredHr:()=>hr,captured:()=>cpr};
+  const clock = {t,epochNow:20000,bootT:0,acquisitionUntil:4};
+  assert.deepEqual(plain(evaluateReadings(state,engine,clock)),plain(originalReadings(state,engine,clock)));
+  readings++;
+}
+
+// Mesmos comandos de desenho, inclusive retorno da varredura, ocultação e mudança de escala.
+const traceSource = monitor.slice(monitor.indexOf('class Trace {'), monitor.indexOf('// A escala só troca'));
+const browser = {devicePixelRatio:1.5,ResizeObserver:class{observe(){}}};
+const OriginalTrace = vm.runInNewContext(traceSource + '\nTrace;', {...browser,window:browser,clamp:previous.clamp});
+function draw(TraceClass, seconds, sr) {
+  const calls = [], context = new Proxy({}, {get:(_,key)=>(...args)=>calls.push([key,...args]),set:(_,key,value)=>{calls.push([key,value]);return true;}});
+  const canvas = {getContext:()=>context,getBoundingClientRect:()=>({width:360,height:140})};
+  let range = [-1.1,1.9];
+  const trace = new TraceClass(canvas,'#4ade80',seconds,sr,t=>Math.sin(t),()=>range,browser);
+  for (const t of [0,.01,.5,1,5.9,6.01,6.5,12.01]) {trace.draw(t,t===.5);trace.mark(t);}
+  range = [0,100];trace.draw(12.2,false);trace.resize();trace.draw(12.5,false);
+  return calls;
+}
+for (const [seconds,sr] of [[6,400],[6,120],[12,60],[12,50]]) assert.deepEqual(draw(Trace,seconds,sr),draw(OriginalTrace,seconds,sr));
+
+// Verifica todos os imports locais e registra o grafo para o mapa de manutenção.
+const modules = fs.readdirSync(path.join(root,'public/js')).filter(file=>file.endsWith('.js'));
+const dependencies = {};
+for (const file of modules) {
+  const source = fs.readFileSync(path.join(root,'public/js',file),'utf8');
+  dependencies[file] = [...source.matchAll(/(?:from\s*|import\s*\()(['"])(\.\.?\/[^'"]+)\1/g)].map(m=>m[2]);
+  for (const dependency of dependencies[file]) assert.ok(fs.existsSync(path.resolve(root,'public/js',dependency)),file+' → '+dependency);
+}
+const report = {backupVerified:manifest.files.length,protectedFiles:protectedFiles.length,sharedExports:Object.keys(current).length,scenarioSteps:steps,validationComparisons:validations,readingComparisons:readings,traceComparisons:4,dependencies};
+fs.writeFileSync(path.join(root,'auditoria/refatoracao-preservacao.json'),JSON.stringify(report,null,2)+'\n');
+console.log(JSON.stringify({...report,dependencies:undefined},null,2));

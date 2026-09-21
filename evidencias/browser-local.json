@@ -1,0 +1,191 @@
+{
+  "baseline": false,
+  "origin": "http://127.0.0.1:8788",
+  "completed": true,
+  "checks": [
+    "Padrão sem diagnóstico de ritmo; tempos decrescentes desde 5 min",
+    "Silenciar todos os sons sincroniza nos dois sentidos",
+    "SpO2: hipoperfusão e ausente preservam valor; normal recupera leitura; ordem e menu corrigidos",
+    "Ícones de raio-X e ECG abrem catálogos corretos e exibem imagens locais",
+    "Mais opções mantém acesso a marcapasso, PNI e catálogo de ritmos; IDs únicos",
+    "TVSP → aumentar EtCO₂: 2",
+    "Toque ajusta; arrastar sobre seta não ajusta",
+    "4 atalhos EtCO₂, mantendo ausência de pulso",
+    "Sinais sem digitação; setas EtCO₂ aumentam e diminuem",
+    "Recarga do monitor recupera comandos",
+    "Duplicação bloqueia; fechar duplicado recupera",
+    "Servidor Windows interrompido/reiniciado; comando offline descartado; novo comando executado",
+    "Carregar e chocar pelo controle",
+    "Caso inicia pausado e zerado; ECG ausente em PCR não recebe associação incompatível",
+    "Avanço temporizado inicia desligado; ativar e selecionar tempo avança caso automaticamente",
+    "Botões do monitor avançam, voltam, pausam e retomam; estado sincronizado com controle",
+    "Setas no topo avançam e voltam etapa; pausa disponível em todas as abas",
+    "Caso ativo primeiro; comandos secundários recolhidos; painel aberto persiste após atualização",
+    "Pausa congela ECG, cronômetro e carga; retomada sem pular; avanço manual impede salto após choque; avaliação oculta diagnóstico no monitor",
+    "Anotação manual identificada e debrief exportado",
+    "Exames associados à etapa: TSV e pós-cardioversão; abre também com caso pausado",
+    "Duplicar/editar/iniciar caso, sem HTML injetado; cópia e caso ativo persistem em recargas"
+  ],
+  "errors": [],
+  "external": [],
+  "layouts": [
+    {
+      "page": "monitor",
+      "width": 1366,
+      "overflow": false,
+      "buttons": [
+        {
+          "id": "bNibp",
+          "x": 1165.53125,
+          "y": 318.046875,
+          "width": 181.046875,
+          "height": 44,
+          "visible": true
+        },
+        {
+          "id": "bShock",
+          "x": 702.40625,
+          "y": 677.375,
+          "width": 340.578125,
+          "height": 75.984375,
+          "visible": true
+        },
+        {
+          "id": "bPacer",
+          "x": 209.125,
+          "y": 575.640625,
+          "width": 283.625,
+          "height": 44,
+          "visible": true
+        },
+        {
+          "id": "bMonitorPrev",
+          "x": 992.859375,
+          "y": 12.328125,
+          "width": 44,
+          "height": 44,
+          "visible": true
+        },
+        {
+          "id": "bMonitorPause",
+          "x": 1041.859375,
+          "y": 12.328125,
+          "width": 44,
+          "height": 44,
+          "visible": true
+        },
+        {
+          "id": "bMonitorNext",
+          "x": 1090.859375,
+          "y": 12.328125,
+          "width": 44,
+          "height": 44,
+          "visible": true
+        },
+        {
+          "id": "bMonitorXray",
+          "x": 524.09375,
+          "y": 709.359375,
+          "width": 70.484375,
+          "height": 44,
+          "visible": true
+        },
+        {
+          "id": "bMonitorECG",
+          "x": 600.578125,
+          "y": 709.359375,
+          "width": 70.484375,
+          "height": 44,
+          "visible": true
+        }
+      ]
+    },
+    {
+      "page": "monitor",
+      "width": 1024,
+      "overflow": false,
+      "buttons": [
+        {
+          "id": "bNibp",
+          "x": 873.96875,
+          "y": 323.671875,
+          "width": 135.21875,
+          "height": 44,
+          "visible": true
+        },
+        {
+          "id": "bShock",
+          "x": 513.421875,
+          "y": 677.25,
+          "width": 249.265625,
+          "height": 77.984375,
+          "visible": true
+        },
+        {
+          "id": "bPacer",
+          "x": 145.328125,
+          "y": 577.515625,
+          "width": 213.578125,
+          "height": 44,
+          "visible": true
+        },
+        {
+          "id": "bMonitorPrev",
+          "x": 693.203125,
+          "y": 10.453125,
+          "width": 44,
+          "height": 44,
+          "visible": true
+        },
+        {
+          "id": "bMonitorPause",
+          "x": 742.203125,
+          "y": 10.453125,
+          "width": 44,
+          "height": 44,
+          "visible": true
+        },
+        {
+          "id": "bMonitorNext",
+          "x": 791.203125,
+          "y": 10.453125,
+          "width": 44,
+          "height": 44,
+          "visible": true
+        },
+        {
+          "id": "bMonitorXray",
+          "x": 382.90625,
+          "y": 711.234375,
+          "width": 50.25,
+          "height": 44,
+          "visible": true
+        },
+        {
+          "id": "bMonitorECG",
+          "x": 439.15625,
+          "y": 711.234375,
+          "width": 50.265625,
+          "height": 44,
+          "visible": true
+        }
+      ]
+    },
+    {
+      "page": "controle",
+      "width": 320,
+      "overflow": false
+    },
+    {
+      "page": "controle",
+      "width": 360,
+      "overflow": false
+    },
+    {
+      "page": "controle",
+      "width": 390,
+      "overflow": false
+    }
+  ],
+  "etco2AfterArrow": "2"
+}

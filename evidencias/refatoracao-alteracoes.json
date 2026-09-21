@@ -1,0 +1,48 @@
+{
+  "changed": [
+    "BASE_E_ALTERACOES.json",
+    "LEIA-ME.md",
+    "package.json",
+    "public/js/case-exams.js",
+    "public/js/classroom-ui.js",
+    "public/js/classroom.js",
+    "public/js/controle.js",
+    "public/js/monitor.js",
+    "public/js/scenario-editor.js",
+    "public/js/shared.js",
+    "public/js/state-validation.js",
+    "tests/regression.test.js"
+  ],
+  "added": [
+    "public/js/controller-cases.js",
+    "public/js/descriptions.js",
+    "public/js/monitor-audio.js",
+    "public/js/monitor-readings.js",
+    "public/js/rhythm-catalog.js",
+    "public/js/scenario-catalog.js",
+    "public/js/simulation-config.js",
+    "public/js/simulation-state.js",
+    "public/js/trace-renderer.js",
+    "scripts/audit-refactor.mjs",
+    "tests/organization.test.js",
+    "MAPA_DO_CODIGO.md",
+    "REORGANIZACAO_DO_CODIGO.md"
+  ],
+  "metrics": [
+    {
+      "file": "public/js/monitor.js",
+      "before": 754,
+      "after": 643
+    },
+    {
+      "file": "public/js/controle.js",
+      "before": 568,
+      "after": 511
+    },
+    {
+      "file": "public/js/shared.js",
+      "before": 406,
+      "after": 7
+    }
+  ]
+}

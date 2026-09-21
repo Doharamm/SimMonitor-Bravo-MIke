@@ -1,0 +1,10 @@
+=== RUN   TestConcurrentAdmission
+--- PASS: TestConcurrentAdmission (0.33s)
+=== RUN   TestRoomValidationAndIsolation
+--- PASS: TestRoomValidationAndIsolation (0.05s)
+=== RUN   TestSocketIdentityAndPrivateReplies
+--- PASS: TestSocketIdentityAndPrivateReplies (0.05s)
+=== RUN   TestLANBeforeVPN
+--- PASS: TestLANBeforeVPN (0.00s)
+PASS
+ok  	bravomike/simmonitor	1.187s
