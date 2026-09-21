@@ -1,12 +1,22 @@
 # Entrega para revisão — SimMonitor 2.3.3-online
 
-**21/09/2026. Nada foi publicado na Vercel — essa parte é sua.**
+**21/09/2026. No ar: https://bravomike-simmonitor.vercel.app**
 
-O Supabase está pronto e conferido: as duas migrações aplicadas (a seu pedido),
-os dois ajustes do painel feitos por você, e a suíte de aceite online **19 / 19
-aprovadas**. Localmente, **177 testes** passam, mais os 4 do servidor Go.
+| Etapa | Situação |
+| --- | --- |
+| Migrações no Supabase | aplicadas e conferidas |
+| Ajustes do painel do Supabase | feitos por você |
+| Suíte de aceite online | **19 / 19 aprovadas** |
+| Testes locais | **178** + 4 do servidor Go |
+| Proteção de acesso da Vercel | desligada por você |
+| Código no GitHub | `Doharamm/SimMonitor-Bravo-MIke`, branch `main` |
+| Publicação | automática pelo GitHub; deploy de produção **READY** |
+| Conferido no ar | monitor carrega em modo online e abriu sala no Supabase real |
 
-Falta só publicar (seção 5, passo 5) e conferir as duas telas (passo 6).
+Monitor: `https://bravomike-simmonitor.vercel.app/monitor.html`
+Controle: `https://bravomike-simmonitor.vercel.app/controle.html`
+
+A partir daqui, **cada `git push` para `main` publica sozinho**.
 
 ---
 

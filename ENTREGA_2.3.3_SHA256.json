@@ -1,6 +1,6 @@
 {
  "versao": "2.3.3-online.20260921",
- "gerado_em": "2026-09-21T17:53:42.281Z",
+ "gerado_em": "2026-09-21T17:56:57.438Z",
  "files": [
   {
    "file": ".gitattributes",
@@ -29,8 +29,8 @@
   },
   {
    "file": "ENTREGA_PARA_REVISAO.md",
-   "bytes": 26590,
-   "sha256": "c2ecb82a740154f5c1305d13af7391803b3afcfa15b648c74e4c487407a36511"
+   "bytes": 26995,
+   "sha256": "e024298c297473f917efc29eb69c4e904f8b840628172c3660d7194892cf4855"
   },
   {
    "file": "evidencias/browser-depois.json",
