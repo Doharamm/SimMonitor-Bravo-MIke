@@ -87,7 +87,13 @@ export class SalaOnline {
     if (r.monitor?.chave && r.monitor?.dispositivo) {
       await this.guardarParticipante({ dispositivo: r.monitor.dispositivo, papel: 'monitor', situacao: 'autorizado', chave: r.monitor.chave });
     }
-    await this.atualizarParticipantes(true);
+    // A primeira leitura da lista não pode derrubar a conexão: se ela falhar e
+    // a exceção subir, `salaId` já está preenchido, a retomada de startOnline()
+    // pula `conectar()` e as tarefas de fundo nunca começam — a sala ficaria
+    // sem fila de autorização, sem detectar revogação e com `visto_em` parado,
+    // o que deixaria outro aparelho assumir a sala em 30 s. O temporizador
+    // abaixo repete a leitura sozinho.
+    await this.atualizarParticipantes(true).catch(() => {});
     this.iniciarTarefas();
     return { salaId: this.salaId, topico: this.topico, situacao: this.situacao };
   }

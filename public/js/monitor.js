@@ -399,7 +399,12 @@ const transport = new Transport(room, msg => {
   if(msg.type==='pair-request' && typeof msg.from==='string' && /^c[a-f0-9]{32}$/.test(msg.from)){
     if(msg.version!==VERSION)return;
     peerLastSeen=Date.now();
-    if(!approved.has(msg.from)&&!pairRequests.has(msg.from)&&pairRequests.size<16){pairRequests.set(msg.from,VERSION);renderPairRequests();}
+    // No modo online a fila de autorização vem da sala, nunca da rede: só o
+    // banco sabe o id do participante, que é o que `autorizarControle` precisa
+    // para gravar a autorização. Criar aqui uma entrada sem esse id produziria
+    // um botão que aprova só nesta aba e é revertido na sincronização seguinte.
+    if(salaOnline){ salaOnline.atualizarParticipantes().then(sincronizarSala).catch(()=>{}); dirty=true; return; }
+    if(!approved.has(msg.from)&&!pairRequests.has(msg.from)&&pairRequests.size<16){pairRequests.set(msg.from,{version:VERSION,participanteId:null});renderPairRequests();}
     dirty=true;return;
   }
   if(msg.type==='peer-left'){approved.delete(msg.peer);pairRequests.delete(msg.peer);renderPairRequests();gate.invalidate();dirty=true;return;}

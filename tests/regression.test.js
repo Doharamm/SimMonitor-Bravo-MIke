@@ -64,7 +64,7 @@ function monitor(saved=null){
   setTimeout:(fn,ms)=>{const id=++next;timers.set(id,{fn:()=>{timers.delete(id);fn();},ms});return id;},clearTimeout:id=>timers.delete(id),setInterval:(fn,ms)=>{timers.set(++next,{fn,ms});return next;},clearInterval:id=>timers.delete(id),requestAnimationFrame(){}
  };
  const code=fs.readFileSync(new URL('../public/js/monitor.js',import.meta.url),'utf8').replace(/^import .*$/gm,'');
- vm.runInNewContext(code+'\napproved.add("ctrl");\nglobalThis.api = {action,applySet,publicState,simClock,approved,renderExam,transport,gate,getState:()=>S,getNext:()=>nextAutoNibp,deliverShock,evaluate,frame,getAlarms:()=>alarmsNow,engine:()=>eng,pleth:t=>tr.spo2.fn(t),setAudio:v=>ac=v,tone,chargeSound,shockSound,pairRequests,renderPairRequests};',sandbox);
+ vm.runInNewContext(code+'\napproved.add("ctrl");\nglobalThis.api = {action,applySet,publicState,simClock,approved,renderExam,transport,gate,getState:()=>S,getNext:()=>nextAutoNibp,deliverShock,evaluate,frame,getAlarms:()=>alarmsNow,engine:()=>eng,pleth:t=>tr.spo2.fn(t),setAudio:v=>ac=v,tone,chargeSound,shockSound,pairRequests,renderPairRequests,setSalaOnline:s=>{salaOnline=s;}};',sandbox);
  return {api:sandbox.api,timers,elements:dom.elements,sent,document:dom.doc,advance:ms=>now+=ms};
 }
 test('loading a new scenario clears pacer, charge, NIBP and pending shock effect',()=>{
@@ -901,4 +901,45 @@ test('EMPACOTAMENTO: todo JSON do projeto é válido e sem BOM',()=>{
  assert.equal(vercel.buildCommand,'npm run build:web');
  assert.equal(vercel.outputDirectory,'web/dist');
  assert.equal(vercel.cleanUrls,false,'cleanUrls true quebraria /monitor.html e /controle.html');
+});
+
+test('ONLINE: no modo online a fila de autorização vem da sala, nunca da rede',()=>{
+ // Uma entrada criada a partir do pair-request não carrega o id do participante
+ // no banco; autorizá-la aprovaria só nesta aba e a sincronização seguinte
+ // reverteria em silêncio. No modo online a rede só dispara a releitura.
+ const {api}=monitor();
+ api.transport.mode='online';
+ let releu=0;
+ api.setSalaOnline({atualizarParticipantes:()=>{releu++;return Promise.resolve();},autorizados:()=>[],pendentes:()=>[],salaId:'s1'});
+ const ctrl='c'+'a'.repeat(32);
+ api.transport.receive({type:'pair-request',from:ctrl,version:VERSION});
+ assert.equal(api.pairRequests.size,0,'nada pode entrar na fila pela rede no modo online');
+ assert.equal(releu,1,'a rede deve disparar a releitura da sala');
+
+ // Fora do modo online o comportamento antigo continua, e com o formato certo.
+ const local=monitor();
+ local.api.transport.mode='demo';local.api.approved.clear();
+ local.api.transport.receive({type:'pair-request',from:ctrl,version:VERSION});
+ assert.equal(local.api.pairRequests.size,1);
+ const valor=local.api.pairRequests.get(ctrl);
+ assert.equal(typeof valor,'object','o valor precisa ser objeto para autorizarControle ler participanteId');
+ assert.ok('participanteId' in valor);
+});
+
+test('ONLINE: mensagens saem na ordem de envio mesmo com assinatura lenta',async()=>{
+ // Assinatura de duração decrescente: sem fila, a segunda terminaria primeiro e
+ // o monitor recusaria a primeira como "comando repetido" (seq menor).
+ let n=0;
+ const {t,sockets}=transporteOnline({assinar:async m=>{
+  const espera=[40,0][n++]??0;
+  await new Promise(r=>setTimeout(r,espera));
+  return {...m,auth:{sig:'ok'}};
+ }});
+ const {ws}=await conectarCanal(t,sockets);
+ const antes=ws.enviados.length;
+ t.send({type:'cmd',cmd:'set',seq:1});
+ t.send({type:'cmd',cmd:'set',seq:2});
+ await t.filaEnvio;await new Promise(r=>setTimeout(r,60));
+ const saidas=ws.enviados.slice(antes).filter(m=>m.event==='broadcast').map(m=>m.payload.payload.seq);
+ assert.deepEqual(saidas,[1,2],'a ordem de envio precisa ser preservada');
 });

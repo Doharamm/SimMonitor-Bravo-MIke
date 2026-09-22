@@ -1,6 +1,6 @@
 {
  "versao": "2.3.3-online.20260921",
- "gerado_em": "2026-09-22T16:09:54.489Z",
+ "gerado_em": "2026-09-22T16:53:32.311Z",
  "files": [
   {
    "file": ".gitattributes",
@@ -554,8 +554,8 @@
   },
   {
    "file": "public/js/controle.js",
-   "bytes": 31997,
-   "sha256": "1badf5bc1c18ceaff68716de7d10698ba73f8cf8c2a98bb78ff816357b59db7d"
+   "bytes": 32446,
+   "sha256": "f8290724eaa5d3041dc645abcb41913859dfc2f7dbbf36228b95070dd546c1fd"
   },
   {
    "file": "public/js/controller-cases.js",
@@ -634,13 +634,13 @@
   },
   {
    "file": "public/js/monitor.js",
-   "bytes": 44019,
-   "sha256": "792e9e10da0647c25de79ba0a435d5db5f9baae906cbe6e77550f04a83806559"
+   "bytes": 44493,
+   "sha256": "a772793f315263e363599a9f78e1f260d70870c59553cd7287656afde76ca686"
   },
   {
    "file": "public/js/online-room.js",
-   "bytes": 8859,
-   "sha256": "ad945a0022e0b2e970552a8535db9c706bcd125ea4ce5243a9ddb108a8dbf6b0"
+   "bytes": 9323,
+   "sha256": "f812a358ccc84b0bade44a8a9255387d8ff903c83f8764f3e1388bae1da145e2"
   },
   {
    "file": "public/js/rhythm-catalog.js",
@@ -689,8 +689,8 @@
   },
   {
    "file": "public/js/supabase-rest.js",
-   "bytes": 5476,
-   "sha256": "5c56f07172e2b38086fd7b7ef69b512551254d30d7463af63c1ce77351ba6520"
+   "bytes": 5867,
+   "sha256": "7bea53647d2dba0c554e65334edbf6a1a5cfbae68265fd7a72ac56a4b87e146a"
   },
   {
    "file": "public/js/trace-renderer.js",
@@ -699,8 +699,8 @@
   },
   {
    "file": "public/js/transport.js",
-   "bytes": 10598,
-   "sha256": "920706cdc6b59c4420be04adab2ad8357bb0ea06b3ef75b5a25fd071584f1720"
+   "bytes": 11179,
+   "sha256": "1d27867585e48f54fecf64eb37d0257830c968de9fff73212417ed9c5762227f"
   },
   {
    "file": "public/js/vendor/qrcode.mjs",
@@ -944,8 +944,8 @@
   },
   {
    "file": "tests/online-auth.test.js",
-   "bytes": 21381,
-   "sha256": "b0f4e6940b5dd263d8cd6cbc332c47388c882255bbe462f2aecf590e1136566a"
+   "bytes": 24259,
+   "sha256": "946536e969a57909c2b56717c54c77c60e63da963be26c208604a2099c243e2f"
   },
   {
    "file": "tests/organization.test.js",
@@ -954,8 +954,8 @@
   },
   {
    "file": "tests/regression.test.js",
-   "bytes": 69337,
-   "sha256": "f54a0631dca406453547d1a2f0c2733a34f4be81af785a475bc9277c47201aff"
+   "bytes": 71472,
+   "sha256": "93f708a73aeb55f8a0e2ff4b850470e6ac979c6c097c89bb1ba50ca0cdd21b5f"
   },
   {
    "file": "VALIDACAO_DO_PACOTE.md",

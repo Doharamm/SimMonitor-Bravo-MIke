@@ -96,12 +96,16 @@ export class SupabaseSessao {
   get token() { return this.sessao?.access_token || null; }
   get usuario() { return this.sessao?.user_id || null; }
 
-  async rpc(nome, args) {
+  // `jaRenovou` corta o 401 em uma única segunda tentativa. Sem esse limite, um
+  // 401 permanente (usuário anônimo apagado, chave rotacionada) vira laço
+  // infinito: cada volta cria outro usuário anônimo e esgota a cota de 30 por
+  // hora por IP, trancando a turma inteira que estiver no mesmo Wi-Fi.
+  async rpc(nome, args, jaRenovou = false) {
     await this.garantir();
     const r = await this.fetch(`${this.url}/rest/v1/rpc/${nome}`, {
       method: 'POST', headers: this.cabecalhos(), body: JSON.stringify(args || {}),
     });
-    if (r.status === 401) { await this.garantir(true); return this.rpc(nome, args); }
+    if (r.status === 401 && !jaRenovou) { await this.garantir(true); return this.rpc(nome, args, true); }
     const corpo = await r.json().catch(() => null);
     if (!r.ok) {
       const erro = new Error(corpo?.message || corpo?.hint || `rpc ${nome} falhou (${r.status})`);
@@ -111,10 +115,10 @@ export class SupabaseSessao {
     return corpo;
   }
 
-  async selecionar(caminho) {
+  async selecionar(caminho, jaRenovou = false) {
     await this.garantir();
     const r = await this.fetch(`${this.url}/rest/v1/${caminho}`, { headers: this.cabecalhos() });
-    if (r.status === 401) { await this.garantir(true); return this.selecionar(caminho); }
+    if (r.status === 401 && !jaRenovou) { await this.garantir(true); return this.selecionar(caminho, true); }
     const corpo = await r.json().catch(() => null);
     if (!r.ok) {
       const erro = new Error(corpo?.message || `consulta falhou (${r.status})`);

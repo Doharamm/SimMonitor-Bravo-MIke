@@ -21,13 +21,21 @@ const $$ = (sel, el = document) => [...el.querySelectorAll(sel)];
 const LS_ROOM = 'bmsim-ctrl-room';
 const LS_ID = 'bmsim-ctrl-id';
 let myId = null;
-// O identificador do aparelho é guardado: sem isso, cada recarga da página
-// viraria um controle novo e o instrutor teria de autorizar outra vez. Quem foi
-// revogado continua revogado — a situação vive na sala, não aqui.
-try { const guardado = localStorage.getItem(LS_ID); if (/^c[a-f0-9]{32}$/.test(guardado || '')) myId = guardado; } catch (e) {}
+// O identificador do aparelho sobrevive à recarga: sem isso, cada recarga
+// viraria um controle novo e o instrutor teria de autorizar outra vez.
+//
+// Fica em sessionStorage, e não em localStorage, porque localStorage é
+// compartilhado entre as abas: duas abas de controle no mesmo navegador
+// passariam a ser o mesmo aparelho para o monitor, enquanto cada uma mantém seu
+// próprio contador `seq`. A segunda aba levaria "comando repetido" em tudo, já
+// que o CommandGate recusa sequência não crescente por remetente. É a mesma
+// escolha feita para o identificador do monitor.
+//
+// Quem foi revogado continua revogado — a situação vive na sala, não aqui.
+try { const guardado = sessionStorage.getItem(LS_ID); if (/^c[a-f0-9]{32}$/.test(guardado || '')) myId = guardado; } catch (e) {}
 if (!myId) {
   myId = 'c' + Array.from(crypto.getRandomValues(new Uint8Array(16)), n => n.toString(16).padStart(2,'0')).join('');
-  try { localStorage.setItem(LS_ID, myId); } catch (e) {}
+  try { sessionStorage.setItem(LS_ID, myId); } catch (e) {}
 }
 
 let classroomUI=null;

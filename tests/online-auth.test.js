@@ -417,3 +417,58 @@ test('ONLINE: sem WebCrypto a sala recusa com uma frase legível, antes de qualq
     assert.equal(chamouRede, false, 'não pode nem tentar criar usuário sem ter como assinar');
   } finally { Object.defineProperty(globalThis, 'crypto', original); }
 });
+
+// ---------------------------------------------- correções da revisão 22/09 ---
+
+test('ONLINE: 401 permanente tenta renovar uma vez só e desiste, sem queimar a cota', async () => {
+  let chamadas = 0, logins = 0;
+  const f = async (url) => {
+    chamadas++;
+    if (String(url).includes('/auth/v1/signup')) {
+      logins++;
+      return { ok: true, status: 200, json: async () => ({ access_token: 't' + logins, refresh_token: null, expires_in: 3600, user: { id: 'u1' } }) };
+    }
+    return { ok: false, status: 401, json: async () => ({ message: 'JWT rejeitado' }) };
+  };
+  const s = new SupabaseSessao({ url: 'https://x.invalid', chave: 'pub', armazenamento: armazenamentoDeMemoria(), fetchImpl: f });
+
+  await assert.rejects(() => s.rpc('sim_ping', {}), e => e.status === 401);
+  // Um login inicial, uma renovação, e para. Nunca um laço.
+  assert.ok(logins <= 2, 'gastou ' + logins + ' logins anônimos; o limite do Supabase é 30 por hora por IP');
+  assert.ok(chamadas <= 4, 'fez ' + chamadas + ' chamadas de rede para uma única RPC');
+
+  chamadas = 0; logins = 0;
+  const s2 = new SupabaseSessao({ url: 'https://x.invalid', chave: 'pub', armazenamento: armazenamentoDeMemoria(), fetchImpl: f });
+  await assert.rejects(() => s2.selecionar('sim_participantes?select=id'), e => e.status === 401);
+  assert.ok(logins <= 2 && chamadas <= 4, 'selecionar() também precisa parar');
+});
+
+test('ONLINE: leitura inicial de participantes que falha não impede as tarefas de fundo', async () => {
+  const guarda = armazenamentoDeMemoria();
+  let listar = 0;
+  const f = async (url, o) => {
+    if (String(url).includes('/auth/v1/signup'))
+      return { ok: true, status: 200, json: async () => ({ access_token: 't1', refresh_token: 'r1', expires_in: 3600, user: { id: 'u1' } }) };
+    if (String(url).includes('/rest/v1/rpc/sim_abrir_sala'))
+      return { ok: true, status: 200, json: async () => ({ sala_id: SALA, topico: 'sala-abc', participante_id: 'pm', papel: 'monitor' }) };
+    if (String(url).includes('/rest/v1/sim_participantes')) {
+      listar++;
+      if (listar === 1) throw new Error('rede oscilou');     // só a primeira falha
+      return { ok: true, status: 200, json: async () => [] };
+    }
+    return { ok: false, status: 404, json: async () => ({}) };
+  };
+  const sala = new SalaOnline({
+    url: 'https://x.invalid', chave: 'pub', codigo: '4321',
+    dispositivo: 'm1', papel: 'monitor', armazenamento: guarda, fetchImpl: f,
+  });
+
+  await assert.doesNotReject(() => sala.conectar(), 'a falha na lista não pode derrubar a conexão');
+  try {
+    assert.equal(sala.salaId, SALA);
+    assert.ok(sala.timers.length > 0, 'sem temporizador, a sala não relê participantes nem bate ponto');
+    // E a releitura seguinte funciona.
+    await sala.atualizarParticipantes(true);
+    assert.equal(listar, 2);
+  } finally { sala.pararTarefas(); }
+});

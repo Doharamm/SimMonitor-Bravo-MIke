@@ -44,7 +44,8 @@ export class Transport {
     this.seguranca = null;
     this.motivo = '';
     this.geracao = 0;
-    this.fila = Promise.resolve();
+    this.fila = Promise.resolve();        // ordem na entrada
+    this.filaEnvio = Promise.resolve();   // ordem na saída
   }
 
   async start() {
@@ -92,8 +93,15 @@ export class Transport {
         // A assinatura é assíncrona, mas nada fica guardado: se a conexão cair
         // ou for substituída antes de assinar, a mensagem morre aqui. Um
         // "Choque" tocado sem conexão continua não acontecendo mais tarde.
+        //
+        // A fila mantém a ordem de envio. Sem ela, duas assinaturas disparadas
+        // quase juntas poderiam terminar fora de ordem e um comando legítimo
+        // chegaria com sequência menor que outro já visto — o CommandGate do
+        // monitor o recusaria como "comando repetido".
         const geracao = this.geracao, ws = this.rt;
-        this.seguranca.assinar(msg).then(assinado => {
+        this.filaEnvio = this.filaEnvio.then(async () => {
+          if (this.geracao !== geracao || this.rt !== ws || ws.readyState !== WebSocket.OPEN || !this.joined) return;
+          const assinado = await this.seguranca.assinar(msg);
           if (this.geracao !== geracao || this.rt !== ws || ws.readyState !== WebSocket.OPEN || !this.joined) return;
           this.rtPush('broadcast', { type: 'broadcast', event: 'm', payload: assinado });
         }).catch(() => {});
