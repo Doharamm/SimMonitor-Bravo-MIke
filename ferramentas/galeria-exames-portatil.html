@@ -38,14 +38,12 @@
 </style></head><body>
 <h1>Exames — ECG e radiografias</h1>
 <p class="sub">57 imagens: 37 ECGs e 20 radiografias.
-Borda verde = já usada por algum caso do SimMonitor. Clique na imagem para abrir em
-tamanho real, ou em <b>copiar id</b> para pegar o identificador.</p>
+Clique na imagem para abrir em tamanho real, ou em <b>copiar id</b> para pegar o identificador.</p>
 <p class="aviso"><b>A leitura inicial não é laudo.</b> Foi feita por observação das
 imagens, como ponto de partida, e traz o nível de confiança em cada uma. Corrija o
 que estiver errado antes de usar em aula.<br><br><b>Esta é a versão portátil:</b> as imagens vêm de
 <code>https://bravomike-simmonitor.vercel.app/</code>. Funciona em qualquer lugar, mas precisa de internet —
-e se aquele endereço mudar, troque a constante <code>BASE</code> no topo do código
-desta página.</p>
+e se aquele endereço mudar, troque a constante no código desta página.</p>
 <div class="barra">
   <input id="busca" placeholder="buscar por id, arquivo ou leitura…">
   <button class="filtro ativo" data-kind="">Todos</button>
@@ -58,7 +56,6 @@ desta página.</p>
 <textarea id="saida" readonly></textarea>
 
 <h2 id="tituloEcg">ECG — 37 imagens</h2>
-<p class="sub">Catalogadas só pelo nome do arquivo. É aqui que falta nome clínico.</p>
 <div class="grade"><figure class="card usada" data-kind="ecg" data-busca="ecg-0 exams/ecg/01_lead.jpg ritmo sinusal, ~75 bpm — traçado sem alteração evidente tsv · pós-cardioversão assis · rce">
     <a href="https://bravomike-simmonitor.vercel.app/exams/ecg/01_Lead.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://bravomike-simmonitor.vercel.app/exams/ecg/01_Lead.jpg" alt="ECG de 12 derivações — 01_Lead"></a>
     <figcaption>
@@ -432,7 +429,6 @@ desta página.</p>
   </figure></div>
 
 <h2 id="tituloRx">Radiografias — 20 imagens</h2>
-<p class="sub">Estas já vêm com nome descritivo, em inglês.</p>
 <div class="grade"><figure class="card" data-kind="xray" data-busca="xray-0 exams/xray/11yo-severe-bilateral-infiltrates.jpg  ">
     <a href="https://bravomike-simmonitor.vercel.app/exams/xray/11yo-severe-bilateral-infiltrates.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://bravomike-simmonitor.vercel.app/exams/xray/11yo-severe-bilateral-infiltrates.jpg" alt="RX — 11yo severe bilateral infiltrates"></a>
     <figcaption>
@@ -636,7 +632,6 @@ desta página.</p>
   </figure></div>
 
 <script>
-  var BASE = "https://bravomike-simmonitor.vercel.app/";
   var campos = document.querySelectorAll('.nota');
   var cartoes = document.querySelectorAll('.card');
   var chave = 'galeria-exames-notas';
