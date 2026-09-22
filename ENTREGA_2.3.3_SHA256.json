@@ -1,6 +1,6 @@
 {
  "versao": "2.3.3-online.20260921",
- "gerado_em": "2026-09-22T01:48:14.299Z",
+ "gerado_em": "2026-09-22T13:29:04.209Z",
  "files": [
   {
    "file": ".gitattributes",
@@ -9,8 +9,8 @@
   },
   {
    "file": ".gitignore",
-   "bytes": 108,
-   "sha256": "0de7b24f4946feb52b1d13556fb6a82f27e40442f3cc949bd4110feb8ffa813e"
+   "bytes": 141,
+   "sha256": "336caa40465d7f92c73a19db8dd038f6b75d29a31cdf9c4413f567e707534c6b"
   },
   {
    "file": ".vercelignore",
@@ -21,6 +21,11 @@
    "file": "CASOS.md",
    "bytes": 10208,
    "sha256": "b9c0faf39421bed171e4c89fab24da2f9dd8092146c0cfc8898e20c47f891279"
+  },
+  {
+   "file": "CATALOGO.md",
+   "bytes": 9925,
+   "sha256": "51614b27c6a6c124edfdbba9bf5abe08fcb5f6a8dac419ce547b699edc969b73"
   },
   {
    "file": "CLAUDE.md",
