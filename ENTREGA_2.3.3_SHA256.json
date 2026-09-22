@@ -1,6 +1,6 @@
 {
  "versao": "2.3.3-online.20260921",
- "gerado_em": "2026-09-22T13:56:10.487Z",
+ "gerado_em": "2026-09-22T16:09:54.489Z",
  "files": [
   {
    "file": ".gitattributes",
@@ -9,8 +9,8 @@
   },
   {
    "file": ".gitignore",
-   "bytes": 135,
-   "sha256": "ee2d49cda2867e135dc6f4b372e055b2a80693089b98f7188deb67f20ec66af1"
+   "bytes": 154,
+   "sha256": "17cd2f6cb574fffa87d0a91f7e11a42d47c57877a54e8afa9a662c880c1f24c8"
   },
   {
    "file": ".vercelignore",
@@ -159,8 +159,8 @@
   },
   {
    "file": "package.json",
-   "bytes": 706,
-   "sha256": "896958bc3fc164161132987d461c83c0772b83b93f722ddaae1f0df3ba777ef6"
+   "bytes": 773,
+   "sha256": "a82eca7f47944802672c16e8edc2c9d190fa8d91a0c9166c5504b9fc9d0def16"
   },
   {
    "file": "PROMPT_PARA_CLAUDE.txt",
@@ -504,8 +504,8 @@
   },
   {
    "file": "public/galeria-exames.html",
-   "bytes": 53206,
-   "sha256": "cc8efaf6eaf181650ade6497392bbc37e48c2fdcbe3a54aeb04014d7ac155124"
+   "bytes": 52978,
+   "sha256": "1a265d170ec18d409d5ed17ca0fbb484a2f6787b5cbd9c5da49d39098c2ae22a"
   },
   {
    "file": "public/img/icon-180.png",
@@ -954,8 +954,8 @@
   },
   {
    "file": "tests/regression.test.js",
-   "bytes": 68045,
-   "sha256": "c239c262bc03887170b8ddb1c16cd76828d69928c5d03ce57775c42804dc1ad9"
+   "bytes": 69337,
+   "sha256": "f54a0631dca406453547d1a2f0c2733a34f4be81af785a475bc9277c47201aff"
   },
   {
    "file": "VALIDACAO_DO_PACOTE.md",

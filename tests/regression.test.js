@@ -880,3 +880,25 @@ test('ONLINE: a caixa de autorização só é redesenhada quando a lista muda',(
  api.pairRequests.clear();
  api.renderPairRequests();assert.equal(redesenhos,3,'fila vazia precisa limpar a caixa');
 });
+
+test('EMPACOTAMENTO: todo JSON do projeto é válido e sem BOM',()=>{
+ // Um BOM em package.json quebra a build da Vercel: o passo de instalação lê o
+ // arquivo e falha antes de chegar ao build. Já aconteceu uma vez, por gravar
+ // com PowerShell. Barato conferir aqui.
+ const raiz=new URL('../',import.meta.url);
+ const alvos=['package.json','vercel.json','ENTREGA_SHA256.json','ENTREGA_2.3.3_SHA256.json','ferramentas/ecg-leitura-inicial.json'];
+ for(const nome of alvos){
+  const caminho=new URL(nome,raiz);
+  if(!fs.existsSync(caminho))continue;
+  const bytes=fs.readFileSync(caminho);
+  assert.ok(!(bytes[0]===0xEF&&bytes[1]===0xBB&&bytes[2]===0xBF),nome+' começa com BOM');
+  assert.doesNotThrow(()=>JSON.parse(bytes.toString('utf8')),nome+' não é JSON válido');
+ }
+ // E o que a Vercel precisa encontrar para construir.
+ const pkg=JSON.parse(fs.readFileSync(new URL('package.json',raiz),'utf8'));
+ assert.equal(typeof pkg.scripts['build:web'],'string','a Vercel chama npm run build:web');
+ const vercel=JSON.parse(fs.readFileSync(new URL('vercel.json',raiz),'utf8'));
+ assert.equal(vercel.buildCommand,'npm run build:web');
+ assert.equal(vercel.outputDirectory,'web/dist');
+ assert.equal(vercel.cleanUrls,false,'cleanUrls true quebraria /monitor.html e /controle.html');
+});
