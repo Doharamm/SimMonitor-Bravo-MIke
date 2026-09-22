@@ -199,18 +199,67 @@ Estas já vêm com nome descritivo, em inglês.
 
 ---
 
-## 5. Como ver todas as imagens de uma vez
+## 5. Leitura inicial dos 37 ECGs
 
-```sh
-node ferramentas/gerar-galeria-exames.mjs
-```
+Feita por **observação das imagens**, para dar um ponto de partida na hora de
+escolher qual associar a uma etapa. **Não é laudo** — a confiança de cada linha
+está marcada, e a palavra final é de quem dá a aula.
 
-Abre `ferramentas/galeria-exames.html` com dois cliques. Mostra as 57 imagens
-lado a lado, com o `id` ao lado de cada uma, borda verde nas que já são usadas, e
-um campo para você escrever o que cada uma mostra. O botão **Copiar anotações**
-junta tudo num texto — cole para mim e eu passo os nomes para `exams.js`.
+### Confiança alta — categorias inequívocas
 
-É ferramenta de trabalho: fica fora da build publicada.
+| id | Leitura |
+| --- | --- |
+| `ecg-0` | Ritmo sinusal, ~75 bpm, sem alteração evidente |
+| `ecg-2` | Taquicardia sinusal, QRS estreito, ~120-130 bpm |
+| `ecg-5` | Taquicardia regular de QRS estreito, ~200+ bpm — TSV (ou flutter 2:1) |
+| `ecg-6` | Taquicardia regular de QRS estreito, ~180-200 bpm — TSV |
+| `ecg-13` | Bradicardia grave, ~30-35 bpm — compatível com BAV total |
+| `ecg-15` | FV grossa / flutter ventricular — ritmo chocável |
+| `ecg-16` | FV fina — ritmo chocável, baixa amplitude |
+| `ecg-17` | Assistolia — linha isoelétrica em todas as derivações |
+| `ecg-18` | Assistolia — praticamente igual ao `ecg-17` |
+| `ecg-19` | Ritmo organizado degenerando em TV/FV — bom para ensinar deterioração |
+| `ecg-36` | FV grossa — ritmo chocável |
+
+### Confiança média — provável, confirme antes de usar
+
+| id | Leitura |
+| --- | --- |
+| `ecg-1` | Ritmo sinusal, ~65 bpm |
+| `ecg-3` | Ritmo sinusal, ~85-95 bpm |
+| `ecg-4` | Supradesnivelamento de ST — padrão de SCA com supra |
+| `ecg-7` | Taquicardia de QRS estreito, ~150 bpm — taqui sinusal ou flutter |
+| `ecg-8` | Taquicardia de QRS estreito, ~150 bpm |
+| `ecg-9` | Ritmo sinusal, ~70 bpm |
+| `ecg-11` | Ritmo sinusal, ~80 bpm |
+| `ecg-12` | Bradicardia acentuada, ~40-45 bpm — tipo de bloqueio a confirmar |
+| `ecg-20` | Taquicardia ~130-150 bpm com alteração de ST precordial |
+| `ecg-22` | QRS alargado com supra de ST extenso — IAM extenso ou BRE |
+| `ecg-25` | Taquicardia regular, ~130-150 bpm |
+| `ecg-26` | Ritmo sinusal, ~85-95 bpm |
+| `ecg-28` | Taquicardia de QRS estreito, ~130-150 bpm, baixa voltagem |
+| `ecg-29` | Taquicardia de QRS estreito, ~130-150 bpm, baixa voltagem |
+| `ecg-31` | Taquicardia de QRS estreito, ~130-150 bpm |
+| `ecg-32` | Ritmo regular, ~100-110 bpm |
+| `ecg-33` | Taquicardia ~140-160 bpm com infradesnivelamento de ST |
+
+### Confiança baixa — distinções que a imagem não sustenta
+
+| id | Leitura |
+| --- | --- |
+| `ecg-10` | Traçado clínico com marcações; ondas T amplas / alteração de ST |
+| `ecg-14` | Ritmo lento com QRS alargado e supra de ST — hipercalemia? IAM? |
+| `ecg-21` | ~90-110 bpm com alteração de ST/T de parede inferior |
+| `ecg-23` | Taquicardia ~120 bpm com complexos largos intercalados — ESV? |
+| `ecg-24` | Traçado didático com marcações 1 e 2 — duas morfologias alternadas |
+| `ecg-27` | ~80-90 bpm, complexos amplos com alteração de ST — HVE? bloqueio de ramo? |
+| `ecg-30` | ~75-90 bpm, R proeminente em V2-V3 com alteração de ST |
+| `ecg-34` | **Parece visualmente idêntico ao `ecg-31`** — conferir se é repetição |
+| `ecg-35` | ~70-80 bpm com supra de ST |
+
+> Para ver as imagens lado a lado existe um pacote à parte,
+> `exames-ecg-raiox.zip`, que fica fora deste projeto: ele é hospedado no site
+> da Bravo Mike, não no SimMonitor.
 
 ---
 

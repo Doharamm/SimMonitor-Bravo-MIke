@@ -1,6 +1,6 @@
 {
  "versao": "2.3.3-online.20260921",
- "gerado_em": "2026-09-22T16:53:32.311Z",
+ "gerado_em": "2026-09-22T16:56:54.398Z",
  "files": [
   {
    "file": ".gitattributes",
@@ -9,8 +9,8 @@
   },
   {
    "file": ".gitignore",
-   "bytes": 154,
-   "sha256": "17cd2f6cb574fffa87d0a91f7e11a42d47c57877a54e8afa9a662c880c1f24c8"
+   "bytes": 108,
+   "sha256": "0de7b24f4946feb52b1d13556fb6a82f27e40442f3cc949bd4110feb8ffa813e"
   },
   {
    "file": ".vercelignore",
@@ -24,8 +24,8 @@
   },
   {
    "file": "CATALOGO.md",
-   "bytes": 9925,
-   "sha256": "51614b27c6a6c124edfdbba9bf5abe08fcb5f6a8dac419ce547b699edc969b73"
+   "bytes": 12600,
+   "sha256": "012cb506d37e65a12fe3df3d99a91df9b2a166fc7bdea511273b8bc2ee3e4dd4"
   },
   {
    "file": "CLAUDE.md",
@@ -159,8 +159,8 @@
   },
   {
    "file": "package.json",
-   "bytes": 773,
-   "sha256": "a82eca7f47944802672c16e8edc2c9d190fa8d91a0c9166c5504b9fc9d0def16"
+   "bytes": 862,
+   "sha256": "e5512bbbc2e81b194609dc287e8ed7116b6fa56a043109e8983b1653d155b71d"
   },
   {
    "file": "PROMPT_PARA_CLAUDE.txt",
@@ -501,11 +501,6 @@
    "file": "public/fonts/public-sans-latin-800-normal.woff2",
    "bytes": 14772,
    "sha256": "e16804f79bc244ab4b40f7e3e1a9b5b626bbbac4d7bc0a0864ce45b50490da19"
-  },
-  {
-   "file": "public/galeria-exames.html",
-   "bytes": 52978,
-   "sha256": "1a265d170ec18d409d5ed17ca0fbb484a2f6787b5cbd9c5da49d39098c2ae22a"
   },
   {
    "file": "public/img/icon-180.png",
@@ -879,8 +874,8 @@
   },
   {
    "file": "scripts/prepare-go.mjs",
-   "bytes": 539,
-   "sha256": "60890278270671b3ffb3327bb7510f9d68223c074bea3536ec2c8e3e715052b5"
+   "bytes": 516,
+   "sha256": "f1f0ec8a077f31b48d0e8583f1a1cedc14bb351c8533778381d79b245ebced23"
   },
   {
    "file": "scripts/preview-online.mjs",
@@ -969,8 +964,8 @@
   },
   {
    "file": "web/build.mjs",
-   "bytes": 458,
-   "sha256": "6a51ebffc8ee68778312835d4705e1d4dfdbc522225f94744f4f3884b495b7c0"
+   "bytes": 435,
+   "sha256": "7dd6257df7297807eaa0716cba7f12869f15f1abbc2bdf31cb1b7268bd41e564"
   }
  ]
 }
