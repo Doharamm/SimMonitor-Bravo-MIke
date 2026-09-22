@@ -9,4 +9,4 @@ auditoria/
 .env
 .env.*
 !.env.example
-ferramentas/galeria-exames.html
+public/galeria-exames.html

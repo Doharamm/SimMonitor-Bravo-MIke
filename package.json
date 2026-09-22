@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "test": "node --test tests/*.test.js",
+    "galeria": "node ferramentas/gerar-galeria-exames.mjs",
     "preview": "node scripts/preview.mjs",
     "preview:online": "node scripts/preview-online.mjs",
     "prepare:go": "node scripts/prepare-go.mjs",

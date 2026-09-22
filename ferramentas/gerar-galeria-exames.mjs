@@ -6,10 +6,18 @@
 // associar a uma etapa. Esta página põe todas lado a lado com o id ao lado, e
 // tem um campo para você anotar o que cada uma é.
 //
-//   node ferramentas/gerar-galeria-exames.mjs
+//   npm run galeria      (ou: node ferramentas/gerar-galeria-exames.mjs)
+//   npm run preview
+//   http://127.0.0.1:8799/galeria-exames.html
 //
-// A saída fica em ferramentas/galeria-exames.html e abre com dois cliques. Não
-// entra na build publicada: é ferramenta de trabalho, não parte do site.
+// A saída vai para public/, junto das imagens, e é SERVIDA pelo servidor de
+// prévia. Abrir o arquivo direto com dois cliques (file://) não funciona bem:
+// os caminhos relativos das imagens quebram se o arquivo for movido de lugar, e
+// o navegador bloqueia armazenamento local em file://. Pelo servidor, os dois
+// funcionam.
+//
+// Não entra na build publicada nem no executável: `web/build.mjs` e
+// `scripts/prepare-go.mjs` pulam este arquivo, como já faziam com tracados.html.
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
@@ -40,7 +48,7 @@ function cartao(e) {
     ? `<p class="uso">em uso: ${usos.map(esc).join(' · ')}</p>`
     : `<p class="livre">sem uso em nenhum caso</p>`;
   return `<figure class="card${usos.length ? ' usada' : ''}">
-    <a href="../public/${esc(e.src)}" target="_blank"><img loading="lazy" src="../public/${esc(e.src)}" alt="${esc(e.label)}"></a>
+    <a href="${esc(e.src)}" target="_blank"><img loading="lazy" src="${esc(e.src)}" alt="${esc(e.label)}"></a>
     <figcaption>
       <code>${esc(e.id)}</code>
       <span class="arq">${esc(e.src.split('/').pop())}</span>
@@ -134,8 +142,9 @@ resultado para mim e eu passo os nomes para <code>exams.js</code>.</p>
 </script>
 </body></html>`;
 
-const destino = path.join(raiz, 'ferramentas', 'galeria-exames.html');
+const destino = path.join(raiz, 'public', 'galeria-exames.html');
 writeFileSync(destino, html);
 const semUso = EXAMS.filter(e => !uso.has(e.id)).length;
-console.log(`galeria gerada: ferramentas/galeria-exames.html`);
+console.log('galeria gerada: public/galeria-exames.html');
+console.log('abra com: npm run preview  →  http://127.0.0.1:8799/galeria-exames.html');
 console.log(`${EXAMS.length} imagens — ${EXAMS.length - semUso} em uso, ${semUso} sem uso em nenhum caso.`);
