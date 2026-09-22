@@ -1,0 +1,58 @@
+Quero refinar os casos clínicos do SimMonitor.
+
+Leia CASOS.md primeiro: ele mapeia os seis arquivos que formam um caso, todos os
+campos aceitos em `set`, as pegadinhas e os testes que guardam o catálogo.
+Depois leia public/js/scenario-catalog.js inteiro.
+
+CONTEXTO
+Os casos são código, em public/js/scenario-catalog.js. Não ficam no Supabase, e
+não devem passar a ficar: o Supabase cuida só da conversa entre monitor e
+controle. Refinar é editar arquivo, rodar teste e dar push — a Vercel publica.
+Projeto no ar: https://bravomike-simmonitor.vercel.app
+
+PRESERVAR
+- Não encoste em dart-data.js, dart-player.js, ecg-shapes.js, engine.js,
+  trace-renderer.js nem no CSS/HTML. Traçados, velocidades e layout ficam como
+  estão.
+- Não edite server-go/public/ nem web/dist/: são cópias geradas.
+- Os 178 testes continuam passando. Teste novo é bem-vindo; teste enfraquecido
+  não.
+
+O QUE EU QUERO MUDAR
+<<< descreva aqui, caso por caso. Exemplos do tipo de coisa:
+    - "no caso fv, a etapa 2 devia ter EtCO2 mais baixo"
+    - "quero uma etapa nova no tce, entre as duas atuais"
+    - "o texto da nota do aesp está longo demais para ler em aula"
+    - "quero um caso novo de hipercalemia"
+    - "a permanência de 120 s é curta para o bradi"
+    - "trocar o ECG associado da etapa 1 do iam" >>>
+
+COMO TRABALHAR
+1. Antes de editar, rode `npm test` e me diga o ponto de partida.
+2. Para cada caso que eu pedir, me mostre ANTES o que você entendeu que vai
+   mudar — valores atuais e propostos, lado a lado — e espere eu confirmar. É a
+   única parte em que quero confirmar; o resto siga direto.
+3. Lembre que `set` é cumulativo entre etapas. Ao mudar ou inserir etapa,
+   confira o que as etapas seguintes herdam e o que precisa ser declarado de
+   novo para desfazer (`cpr`, `spo2Signal`, `pulse`, `capno`).
+4. Etapa acrescentada ou removida exige mexer em case-exams.js na mesma hora:
+   uma entrada por etapa, ausência declarada com `entry()`.
+5. Mudança de conteúdo clínico exige atualizar a entrada do caso em
+   clinical-review.js (source, url, change). Se eu não der a fonte, PERGUNTE.
+   Não invente conduta e não escreva que houve revisão clínica humana.
+6. Rode `npm test` depois. Se algum teste quebrar porque a contagem de etapas
+   mudou, atualize o teste explicitamente e me diga qual e por quê.
+7. Confira na tela com `npm run preview`, em modo demonstração, percorrendo as
+   etapas do caso alterado.
+8. Commit e push só quando eu disser. Me mostre antes o resumo do que mudou.
+
+ENTREGA
+No fim: lista dos arquivos alterados, o que mudou em cada caso, resultado dos
+testes antes e depois, o que ficou pendente de fonte clínica, e o que eu preciso
+conferir na tela com meus olhos.
+
+SE ALGO NÃO FECHAR
+Se um refinamento que eu pedir for incompatível com o motor (por exemplo, um
+sinal fora da faixa de VITAL_DEFS, ou um ritmo que não existe em
+rhythm-catalog.js), diga na hora qual é o limite e o que daria para fazer em
+vez disso. Não force um valor para caber.

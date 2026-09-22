@@ -1,6 +1,6 @@
 {
  "versao": "2.3.3-online.20260921",
- "gerado_em": "2026-09-21T17:56:57.438Z",
+ "gerado_em": "2026-09-22T01:48:14.299Z",
  "files": [
   {
    "file": ".gitattributes",
@@ -16,6 +16,11 @@
    "file": ".vercelignore",
    "bytes": 128,
    "sha256": "466a750fd1da336a122ac7e0b5766b48bfeee3aa7d699e47ecf267023ae2a78f"
+  },
+  {
+   "file": "CASOS.md",
+   "bytes": 10208,
+   "sha256": "b9c0faf39421bed171e4c89fab24da2f9dd8092146c0cfc8898e20c47f891279"
   },
   {
    "file": "CLAUDE.md",
@@ -156,6 +161,11 @@
    "file": "PROMPT_PARA_CLAUDE.txt",
    "bytes": 1349,
    "sha256": "10bfb13df20c4148e3a31730fc49cf2bc50ce385e6cc9a8c4344e3c23d6443ad"
+  },
+  {
+   "file": "PROMPT_REFINAR_CASOS.txt",
+   "bytes": 3016,
+   "sha256": "72cca343ec5545ac9af1c9792b2420ea4cfd744c3eee8e42cdb43e370569416d"
   },
   {
    "file": "public/controle.html",
