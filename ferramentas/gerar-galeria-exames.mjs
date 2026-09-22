@@ -42,18 +42,32 @@ for (const [caso, linhas] of Object.entries(CASE_EXAMS)) {
 
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
+// Leitura inicial de partida (observação das imagens, não laudo). Entra como
+// texto já preenchido no campo, para o instrutor corrigir em vez de digitar do
+// zero. A cor da tarja mostra o quanto essa leitura merece confiança.
+let leituras = {};
+try {
+  leituras = JSON.parse(readFileSync(new URL('./ecg-leitura-inicial.json', import.meta.url), 'utf8')).leituras || {};
+} catch (e) { /* sem palpite inicial, a galeria abre com os campos vazios */ }
+
 function cartao(e) {
   const usos = uso.get(e.id) || [];
   const selo = usos.length
     ? `<p class="uso">em uso: ${usos.map(esc).join(' · ')}</p>`
     : `<p class="livre">sem uso em nenhum caso</p>`;
+  const palpite = leituras[e.id];
+  const tarja = palpite
+    ? `<p class="conf conf-${esc(palpite.conf)}">leitura inicial · confiança ${esc(palpite.conf)}</p>`
+    : '';
   return `<figure class="card${usos.length ? ' usada' : ''}">
     <a href="${esc(e.src)}" target="_blank"><img loading="lazy" src="${esc(e.src)}" alt="${esc(e.label)}"></a>
     <figcaption>
       <code>${esc(e.id)}</code>
       <span class="arq">${esc(e.src.split('/').pop())}</span>
       ${selo}
-      <input class="nota" placeholder="o que esta imagem mostra" data-id="${esc(e.id)}">
+      ${tarja}
+      <input class="nota" placeholder="o que esta imagem mostra" data-id="${esc(e.id)}"
+             data-inicial="${esc(palpite ? palpite.texto : '')}">
     </figcaption>
   </figure>`;
 }
@@ -83,6 +97,8 @@ const html = `<!doctype html>
   .uso{margin:0;font-size:.74rem;color:var(--ok);font-weight:600}
   .livre{margin:0;font-size:.74rem;color:var(--mut)}
   .nota{margin-top:3px;padding:7px 9px;border:1px solid var(--bd);border-radius:7px;background:var(--bg);color:var(--fg);font:inherit;font-size:.85rem}
+  .conf{margin:0;font-size:.68rem;font-weight:700;letter-spacing:.03em;text-transform:uppercase}
+  .conf-alta{color:#1f8a4c}.conf-media{color:#b8831f}.conf-baixa{color:#a23421}
   .barra{position:sticky;top:0;z-index:5;background:var(--bg);padding:10px 0;border-bottom:1px solid var(--bd);display:flex;gap:10px;flex-wrap:wrap;align-items:center}
   button{padding:8px 15px;border-radius:999px;border:1px solid var(--bd);background:var(--surf);color:var(--fg);font:inherit;font-weight:600;cursor:pointer}
   button:hover{border-color:var(--ok)}
@@ -111,6 +127,8 @@ resultado para mim e eu passo os nomes para <code>exams.js</code>.</p>
 <script>
   var campos = document.querySelectorAll('.nota');
   var chave = 'galeria-exames-notas';
+  // Começa com a leitura inicial; o que você já corrigiu tem prioridade.
+  campos.forEach(function(c){ if (c.dataset.inicial) c.value = c.dataset.inicial; });
   try { var salvo = JSON.parse(localStorage.getItem(chave) || '{}');
         campos.forEach(function(c){ if (salvo[c.dataset.id]) c.value = salvo[c.dataset.id]; }); } catch (e) {}
   function contar(){
