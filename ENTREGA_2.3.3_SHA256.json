@@ -1,6 +1,6 @@
 {
  "versao": "2.3.3-online.20260921",
- "gerado_em": "2026-09-22T13:43:31.053Z",
+ "gerado_em": "2026-09-22T13:56:10.487Z",
  "files": [
   {
    "file": ".gitattributes",
@@ -504,8 +504,8 @@
   },
   {
    "file": "public/galeria-exames.html",
-   "bytes": 36412,
-   "sha256": "b5a37648587513eeef5bd826b87899c239a827d43c81bcca4625bb393a0c0994"
+   "bytes": 53206,
+   "sha256": "cc8efaf6eaf181650ade6497392bbc37e48c2fdcbe3a54aeb04014d7ac155124"
   },
   {
    "file": "public/img/icon-180.png",

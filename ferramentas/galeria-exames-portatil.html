@@ -1,0 +1,726 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Exames — ECG e radiografias</title>
+<style>
+  :root{color-scheme:light dark;--bg:#faf9f5;--fg:#1c2233;--mut:#5d6478;--bd:#e0dbcd;--surf:#fff;--ok:#1f8a4c;--av:#b8831f;--er:#a23421}
+  @media (prefers-color-scheme:dark){:root{--bg:#171410;--fg:#f3ede1;--mut:#b3a893;--bd:#3a3227;--surf:#211c16;--ok:#4ade80;--av:#f0b93a;--er:#e8776a}}
+  *{box-sizing:border-box}
+  body{margin:0;padding:24px;background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,-apple-system,sans-serif}
+  h1{margin:0 0 4px;font-size:1.5rem}
+  h2{margin:34px 0 4px;font-size:1.15rem;border-top:1px solid var(--bd);padding-top:22px}
+  p.sub{margin:0 0 8px;color:var(--mut);font-size:.9rem;max-width:72ch}
+  .grade{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px;margin-top:18px}
+  .card{margin:0;background:var(--surf);border:1px solid var(--bd);border-radius:12px;overflow:hidden;display:flex;flex-direction:column}
+  .card.usada{border-color:var(--ok);border-width:2px}
+  .card.oculta{display:none}
+  .card img{width:100%;height:190px;object-fit:cover;object-position:top;display:block;background:#fff;cursor:zoom-in}
+  figcaption{padding:10px 12px;display:flex;flex-direction:column;gap:5px}
+  .linha-id{display:flex;align-items:center;justify-content:space-between;gap:8px}
+  code{font:600 .85rem ui-monospace,monospace;color:var(--fg)}
+  .copiar-id{padding:3px 9px;font-size:.68rem;border-radius:999px;border:1px solid var(--bd);background:transparent;color:var(--mut);cursor:pointer}
+  .copiar-id:hover{border-color:var(--ok);color:var(--ok)}
+  .copiar-id.feito{border-color:var(--ok);color:var(--ok)}
+  .arq{font-size:.72rem;color:var(--mut);word-break:break-all}
+  .uso{margin:0;font-size:.74rem;color:var(--ok);font-weight:600}
+  .livre{margin:0;font-size:.74rem;color:var(--mut)}
+  .conf{margin:0;font-size:.68rem;font-weight:700;letter-spacing:.03em;text-transform:uppercase}
+  .conf-alta{color:var(--ok)}.conf-media{color:var(--av)}.conf-baixa{color:var(--er)}
+  .nota{margin-top:3px;padding:7px 9px;border:1px solid var(--bd);border-radius:7px;background:var(--bg);color:var(--fg);font:inherit;font-size:.85rem}
+  .barra{position:sticky;top:0;z-index:5;background:var(--bg);padding:12px 0;border-bottom:1px solid var(--bd);display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  button{padding:8px 15px;border-radius:999px;border:1px solid var(--bd);background:var(--surf);color:var(--fg);font:inherit;font-weight:600;cursor:pointer}
+  button:hover{border-color:var(--ok)}
+  button.ativo{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+  #busca{flex:1;min-width:190px;padding:8px 13px;border-radius:999px;border:1px solid var(--bd);background:var(--surf);color:var(--fg);font:inherit}
+  #saida{width:100%;min-height:150px;margin-top:12px;padding:11px;border:1px solid var(--bd);border-radius:9px;background:var(--surf);color:var(--fg);font:13px/1.5 ui-monospace,monospace;display:none}
+  .aviso{margin:14px 0 0;padding:11px 14px;border-left:3px solid var(--av);background:var(--surf);border-radius:0 8px 8px 0;font-size:.85rem;color:var(--mut);max-width:72ch}
+  @media(max-width:600px){body{padding:16px}.grade{grid-template-columns:1fr}}
+</style></head><body>
+<h1>Exames — ECG e radiografias</h1>
+<p class="sub">57 imagens: 37 ECGs e 20 radiografias.
+Borda verde = já usada por algum caso do SimMonitor. Clique na imagem para abrir em
+tamanho real, ou em <b>copiar id</b> para pegar o identificador.</p>
+<p class="aviso"><b>A leitura inicial não é laudo.</b> Foi feita por observação das
+imagens, como ponto de partida, e traz o nível de confiança em cada uma. Corrija o
+que estiver errado antes de usar em aula.<br><br><b>Esta é a versão portátil:</b> as imagens vêm de
+<code>https://bravomike-simmonitor.vercel.app/</code>. Funciona em qualquer lugar, mas precisa de internet —
+e se aquele endereço mudar, troque a constante <code>BASE</code> no topo do código
+desta página.</p>
+<div class="barra">
+  <input id="busca" placeholder="buscar por id, arquivo ou leitura…">
+  <button class="filtro ativo" data-kind="">Todos</button>
+  <button class="filtro" data-kind="ecg">ECG</button>
+  <button class="filtro" data-kind="xray">Raio-X</button>
+  <button id="bCopiar">Copiar anotações</button>
+  <button id="bLimpar">Limpar</button>
+  <span class="livre" id="contagem"></span>
+</div>
+<textarea id="saida" readonly></textarea>
+
+<h2 id="tituloEcg">ECG — 37 imagens</h2>
+<p class="sub">Catalogadas só pelo nome do arquivo. É aqui que falta nome clínico.</p>
+<div class="grade"><figure class="card usada" data-kind="ecg" data-busca="ecg-0 exams/ecg/01_lead.jpg ritmo sinusal, ~75 bpm — traçado sem alteração evidente tsv · pós-cardioversão assis · rce">
+    <a href="https://bravomike-simmonitor.vercel.app/exams/ecg/01_Lead.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://bravomike-simmonitor.vercel.app/exams/ecg/01_Lead.jpg" alt="ECG de 12 derivações — 01_Lead"></a>
+    <figcaption>
+      <div class="linha-id"><code>ecg-0</code><button class="copiar-id" data-id="ecg-0" title="copiar o id">copiar id</button></div>
+      <span class="arq">01_Lead.jpg</span>
+      <p class="uso">em uso: tsv · Pós-cardioversão · assis · RCE</p>
+      <p class="conf conf-alta">leitura inicial · confiança alta</p>
+      <input class="nota" placeholder="o que esta imagem mostra" data-id="ecg-0"
+             data-inicial="Ritmo sinusal, ~75 bpm — traçado sem alteração evidente">
+    </figcaption>
+  </figure><figure class="card usada" data-kind="ecg" data-busca="ecg-1 exams/ecg/02_lead.jpg ritmo sinusal, ~65 bpm — aparência normal tce · avaliação">
+    <a href="https://bravomike-simmonitor.vercel.app/exams/ecg/02_Lead.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://bravomike-simmonitor.vercel.app/exams/ecg/02_Lead.jpg" alt="ECG de 12 derivações — 02_Lead"></a>
+    <figcaption>
+      <div class="linha-id"><code>ecg-1</code><button class="copiar-id" data-id="ecg-1" title="copiar o id">copiar id</button></div>
+      <span class="arq">02_Lead.jpg</span>
+      <p class="uso">em uso: tce · Avaliação</p>
+      <p class="conf conf-media">leitura inicial · confiança media</p>
+      <input class="nota" placeholder="o que esta imagem mostra" data-id="ecg-1"
+             data-inicial="Ritmo sinusal, ~65 bpm — aparência normal">
+    </figcaption>
+  </figure><figure class="card usada" data-kind="ecg" data-busca="ecg-2 exams/ecg/03_lead.jpg taquicardia sinusal, qrs estreito, ~120-130 bpm fv · rce aesp · cena / avaliação primária aesp · deterioração aesp · rce asma · crise asma · fadiga respiratória asma · após iot e ventilação">
+    <a href="https://bravomike-simmonitor.vercel.app/exams/ecg/03_Lead.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://bravomike-simmonitor.vercel.app/exams/ecg/03_Lead.jpg" alt="ECG de 12 derivações — 03_Lead"></a>
+    <figcaption>
+      <div class="linha-id"><code>ecg-2</code><button class="copiar-id" data-id="ecg-2" title="copiar o id">copiar id</button></div>
+      <span class="arq">03_Lead.jpg</span>
+      <p class="uso">em uso: fv · RCE · aesp · Cena / avaliação primária · aesp · Deterioração · aesp · RCE · asma · Crise · asma · Fadiga respiratória · asma · Após IOT e ventilação</p>
+      <p class="conf conf-alta">leitura inicial · confiança alta</p>
+      <input class="nota" placeholder="o que esta imagem mostra" data-id="ecg-2"
+             data-inicial="Taquicardia sinusal, QRS estreito, ~120-130 bpm">
+    </figcaption>
+  </figure><figure class="card" data-kind="ecg" data-busca="ecg-3 exams/ecg/04_lead.jpg ritmo sinusal, ~85-95 bpm, sem alteração marcante ">
+    <a href="https://bravomike-simmonitor.vercel.app/exams/ecg/04_Lead.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://bravomike-simmonitor.vercel.app/exams/ecg/04_Lead.jpg" alt="ECG de 12 derivações — 04_Lead"></a>
+    <figcaption>
+      <div class="linha-id"><code>ecg-3</code><button class="copiar-id" data-id="ecg-3" title="copiar o id">copiar id</button></div>
+      <span class="arq">04_Lead.jpg</span>
+      <p class="livre">sem uso em nenhum caso</p>
+      <p class="conf conf-media">leitura inicial · confiança media</p>
+      <input class="nota" placeholder="o que esta imagem mostra" data-id="ecg-3"
+             data-inicial="Ritmo sinusal, ~85-95 bpm, sem alteração marcante">
+    </figcaption>
+  </figure><figure class="card" data-kind="ecg" data-busca="ecg-4 exams/ecg/05_lead.jpg supradesnivelamento de st — padrão de sca com supra (traçado clínico real) ">
+    <a href="https://bravomike-simmonitor.vercel.app/exams/ecg/05_Lead.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://bravomike-simmonitor.vercel.app/exams/ecg/05_Lead.jpg" alt="ECG de 12 derivações — 05_Lead"></a>
+    <figcaption>
+      <div class="linha-id"><code>ecg-4</code><button class="copiar-id" data-id="ecg-4" title="copiar o id">copiar id</button></div>
+      <span class="arq">05_Lead.jpg</span>
+      <p class="livre">sem uso em nenhum caso</p>
+      <p class="conf conf-media">leitura inicial · confiança media</p>
+      <input class="nota" placeholder="o que esta imagem mostra" data-id="ecg-4"
+             data-inicial="Supradesnivelamento de ST — padrão de SCA com supra (traçado clínico real)">
+    </figcaption>
+  </figure><figure class="card" data-kind="ecg" data-busca="ecg-5 exams/ecg/06_lead.jpg taquicardia regular de qrs estreito, ~200+ bpm — tsv (ou flutter 2:1) ">
+    <a href="https://bravomike-simmonitor.vercel.app/exams/ecg/06_Lead.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://bravomike-simmonitor.vercel.app/exams/ecg/06_Lead.jpg" alt="ECG de 12 derivações — 06_Lead"></a>
+    <figcaption>
+      <div class="linha-id"><code>ecg-5</code><button class="copiar-id" data-id="ecg-5" title="copiar o id">copiar id</button></div>
+      <span class="arq">06_Lead.jpg</span>
+      <p class="livre">sem uso em nenhum caso</p>
+      <p class="conf conf-alta">leitura inicial · confiança alta</p>
+      <input class="nota" placeholder="o que esta imagem mostra" data-id="ecg-5"
+             data-inicial="Taquicardia regular de QRS estreito, ~200+ bpm — TSV (ou flutter 2:1)">
+    </figcaption>
+  </figure><figure class="card usada" data-kind="ecg" data-busca="ecg-6 exams/ecg/07_lead.jpg taquicardia regular de qrs estreito, ~180-200 bpm — tsv tsv · avaliação">
+    <a href="https://bravomike-simmonitor.vercel.app/exams/ecg/07_Lead.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://bravomike-simmonitor.vercel.app/exams/ecg/07_Lead.jpg" alt="ECG de 12 derivações — 07_Lead"></a>
+    <figcaption>
+      <div class="linha-id"><code>ecg-6</code><button class="copiar-id" data-id="ecg-6" title="copiar o id">copiar id</button></div>
+      <span class="arq">07_Lead.jpg</span>
+      <p class="uso">em uso: tsv · Avaliação</p>
+      <p class="conf conf-alta">leitura inicial · confiança alta</p>
+      <input class="nota" placeholder="o que esta imagem mostra" data-id="ecg-6"
+             data-inicial="Taquicardia regular de QRS estreito, ~180-200 bpm — TSV">
+    </figcaption>
+  </figure><figure class="card" data-kind="ecg" data-busca="ecg-7 exams/ecg/08_lead.jpg taquicardia de qrs estreito, ~150 bpm — taqui sinusal ou flutter ">
+    <a href="https://bravomike-simmonitor.vercel.app/exams/ecg/08_Lead.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://bravomike-simmonitor.vercel.app/exams/ecg/08_Lead.jpg" alt="ECG de 12 derivações — 08_Lead"></a>
+    <figcaption>
+      <div class="linha-id"><code>ecg-7</code><button class="copiar-id" data-id="ecg-7" title="copiar o id">copiar id</button></div>
+      <span class="arq">08_Lead.jpg</span>
+      <p class="livre">sem uso em nenhum caso</p>
+      <p class="conf conf-media">leitura inicial · confiança media</p>
+      <input class="nota" placeholder="o que esta imagem mostra" data-id="ecg-7"
+             data-inicial="Taquicardia de QRS estreito, ~150 bpm — taqui sinusal ou flutter">
+    </figcaption>
+  </figure><figure class="card" data-kind="ecg" data-busca="ecg-8 exams/ecg/09_lead.jpg taquicardia de qrs estreito, ~150 bpm ">
+    <a href="https://bravomike-simmonitor.vercel.app/exams/ecg/09_Lead.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://bravomike-simmonitor.vercel.app/exams/ecg/09_Lead.jpg" alt="ECG de 12 derivações — 09_Lead"></a>
+    <figcaption>
+      <div class="linha-id"><code>ecg-8</code><button class="copiar-id" data-id="ecg-8" title="copiar o id">copiar id</button></div>
+      <span class="arq">09_Lead.jpg</span>
+      <p class="livre">sem uso em nenhum caso</p>
+      <p class="conf conf-media">leitura inicial · confiança media</p>
+      <input class="nota" placeholder="o que esta imagem mostra" data-id="ecg-8"
+             data-inicial="Taquicardia de QRS estreito, ~150 bpm">
+    </figcaption>
+  </figure><figure class="card" data-kind="ecg" data-busca="ecg-9 exams/ecg/10_lead.jpg ritmo sinusal, ~70 bpm — aparência normal ">
+    <a href="https://bravomike-simmonitor.vercel.app/exams/ecg/10_Lead.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://bravomike-simmonitor.vercel.app/exams/ecg/10_Lead.jpg" alt="ECG de 12 derivações — 10_Lead"></a>
+    <figcaption>
+      <div class="linha-id"><code>ecg-9</code><button class="copiar-id" data-id="ecg-9" title="copiar o id">copiar id</button></div>
+      <span class="arq">10_Lead.jpg</span>
+      <p class="livre">sem uso em nenhum caso</p>
+      <p class="conf conf-media">leitura inicial · confiança media</p>
+      <input class="nota" placeholder="o que esta imagem mostra" data-id="ecg-9"
+             data-inicial="Ritmo sinusal, ~70 bpm — aparência normal">
+    </figcaption>
+  </figure><figure class="card" data-kind="ecg" data-busca="ecg-10 exams/ecg/11_lead.jpg traçado clínico com marcações; ondas t amplas / alteração de st ">
+    <a href="https://bravomike-simmonitor.vercel.app/exams/ecg/11_Lead.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://bravomike-simmonitor.vercel.app/exams/ecg/11_Lead.jpg" alt="ECG de 12 derivações — 11_Lead"></a>
+    <figcaption>
+      <div class="linha-id"><code>ecg-10</code><button class="copiar-id" data-id="ecg-10" title="copiar o id">copiar id</button></div>
+      <span class="arq">11_Lead.jpg</span>
+      <p class="livre">sem uso em nenhum caso</p>
+      <p class="conf conf-baixa">leitura inicial · confiança baixa</p>
+      <input class="nota" placeholder="o que esta imagem mostra" data-id="ecg-10"
+             data-inicial="Traçado clínico com marcações; ondas T amplas / alteração de ST">
+    </figcaption>
+  </figure><figure class="card" data-kind="ecg" data-busca="ecg-11 exams/ecg/12_lead.jpg ritmo sinusal, ~80 bpm ">
+    <a href="https://bravomike-simmonitor.vercel.app/exams/ecg/12_Lead.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://bravomike-simmonitor.vercel.app/exams/ecg/12_Lead.jpg" alt="ECG de 12 derivações — 12_Lead"></a>
+    <figcaption>
+      <div class="linha-id"><code>ecg-11</code><button class="copiar-id" data-id="ecg-11" title="copiar o id">copiar id</button></div>
+      <span class="arq">12_Lead.jpg</span>
+      <p class="livre">sem uso em nenhum caso</p>
+      <p class="conf conf-media">leitura inicial · confiança media</p>
+      <input class="nota" placeholder="o que esta imagem mostra" data-id="ecg-11"
+             data-inicial="Ritmo sinusal, ~80 bpm">
+    </figcaption>
+  </figure><figure class="card" data-kind="ecg" data-busca="ecg-12 exams/ecg/13_lead.jpg bradicardia acentuada, ~40-45 bpm — tipo de bloqueio a confirmar ">
+    <a href="https://bravomike-simmonitor.vercel.app/exams/ecg/13_Lead.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://bravomike-simmonitor.vercel.app/exams/ecg/13_Lead.jpg" alt="ECG de 12 derivações — 13_Lead"></a>
+    <figcaption>
+      <div class="linha-id"><code>ecg-12</code><button class="copiar-id" data-id="ecg-12" title="copiar o id">copiar id</button></div>
+      <span class="arq">13_Lead.jpg</span>
+      <p class="livre">sem uso em nenhum caso</p>
+      <p class="conf conf-media">leitura inicial · confiança media</p>
+      <input class="nota" placeholder="o que esta imagem mostra" data-id="ecg-12"
+             data-inicial="Bradicardia acentuada, ~40-45 bpm — tipo de bloqueio a confirmar">
+    </figcaption>
+  </figure><figure class="card usada" data-kind="ecg" data-busca="ecg-13 exams/ecg/14_lead.jpg bradicardia grave, ~30-35 bpm — compatível com bav total bradi · chegada bradi · sem resposta à atropina">
+    <a href="https://bravomike-simmonitor.vercel.app/exams/ecg/14_Lead.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://bravomike-simmonitor.vercel.app/exams/ecg/14_Lead.jpg" alt="ECG de 12 derivações — 14_Lead"></a>
+    <figcaption>
+      <div class="linha-id"><code>ecg-13</code><button class="copiar-id" data-id="ecg-13" title="copiar o id">copiar id</button></div>
+      <span class="arq">14_Lead.jpg</span>
+      <p class="uso">em uso: bradi · Chegada · bradi · Sem resposta à atropina</p>
+      <p class="conf conf-alta">leitura inicial · confiança alta</p>
+      <input class="nota" placeholder="o que esta imagem mostra" data-id="ecg-13"
+             data-inicial="Bradicardia grave, ~30-35 bpm — compatível com BAV total">
+    </figcaption>
+  </figure><figure class="card" data-kind="ecg" data-busca="ecg-14 exams/ecg/15_lead.jpg ritmo lento com qrs alargado e supra de st — hipercalemia? iam? ">
+    <a href="https://bravomike-simmonitor.vercel.app/exams/ecg/15_Lead.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://bravomike-simmonitor.vercel.app/exams/ecg/15_Lead.jpg" alt="ECG de 12 derivações — 15_Lead"></a>
+    <figcaption>
+      <div class="linha-id"><code>ecg-14</code><button class="copiar-id" data-id="ecg-14" title="copiar o id">copiar id</button></div>
+      <span class="arq">15_Lead.jpg</span>
+      <p class="livre">sem uso em nenhum caso</p>
+      <p class="conf conf-baixa">leitura inicial · confiança baixa</p>
+      <input class="nota" placeholder="o que esta imagem mostra" data-id="ecg-14"
+             data-inicial="Ritmo lento com QRS alargado e supra de ST — hipercalemia? IAM?">
+    </figcaption>
+  </figure><figure class="card" data-kind="ecg" data-busca="ecg-15 exams/ecg/16_lead.jpg fv grossa / flutter ventricular — ritmo chocável ">
+    <a href="https://bravomike-simmonitor.vercel.app/exams/ecg/16_Lead.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://bravomike-simmonitor.vercel.app/exams/ecg/16_Lead.jpg" alt="ECG de 12 derivações — 16_Lead"></a>
+    <figcaption>
+      <div class="linha-id"><code>ecg-15</code><button class="copiar-id" data-id="ecg-15" title="copiar o id">copiar id</button></div>
+      <span class="arq">16_Lead.jpg</span>
+      <p class="livre">sem uso em nenhum caso</p>
+      <p class="conf conf-alta">leitura inicial · confiança alta</p>
+      <input class="nota" placeholder="o que esta imagem mostra" data-id="ecg-15"
+             data-inicial="FV grossa / flutter ventricular — ritmo chocável">
+    </figcaption>
+  </figure><figure class="card" data-kind="ecg" data-busca="ecg-16 exams/ecg/17_lead.jpg fv fina — ritmo chocável, baixa amplitude ">
+    <a href="https://bravomike-simmonitor.vercel.app/exams/ecg/17_Lead.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://bravomike-simmonitor.vercel.app/exams/ecg/17_Lead.jpg" alt="ECG de 12 derivações — 17_Lead"></a>
+    <figcaption>
+      <div class="linha-id"><code>ecg-16</code><button class="copiar-id" data-id="ecg-16" title="copiar o id">copiar id</button></div>
+      <span class="arq">17_Lead.jpg</span>
+      <p class="livre">sem uso em nenhum caso</p>
+      <p class="conf conf-alta">leitura inicial · confiança alta</p>
+      <input class="nota" placeholder="o que esta imagem mostra" data-id="ecg-16"
+             data-inicial="FV fina — ritmo chocável, baixa amplitude">
+    </figcaption>
+  </figure><figure class="card" data-kind="ecg" data-busca="ecg-17 exams/ecg/18_lead.jpg assistolia — linha isoelétrica em todas as derivações ">
+    <a href="https://bravomike-simmonitor.vercel.app/exams/ecg/18_Lead.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://bravomike-simmonitor.vercel.app/exams/ecg/18_Lead.jpg" alt="ECG de 12 derivações — 18_Lead"></a>
+    <figcaption>
+      <div class="linha-id"><code>ecg-17</code><button class="copiar-id" data-id="ecg-17" title="copiar o id">copiar id</button></div>
+      <span class="arq">18_Lead.jpg</span>
+      <p class="livre">sem uso em nenhum caso</p>
+      <p class="conf conf-alta">leitura inicial · confiança alta</p>
+      <input class="nota" placeholder="o que esta imagem mostra" data-id="ecg-17"
+             data-inicial="Assistolia — linha isoelétrica em todas as derivações">
+    </figcaption>
+  </figure><figure class="card" data-kind="ecg" data-busca="ecg-18 exams/ecg/19_lead.jpg assistolia — praticamente igual ao ecg-17 ">
+    <a href="https://bravomike-simmonitor.vercel.app/exams/ecg/19_Lead.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://bravomike-simmonitor.vercel.app/exams/ecg/19_Lead.jpg" alt="ECG de 12 derivações — 19_Lead"></a>
+    <figcaption>
+      <div class="linha-id"><code>ecg-18</code><button class="copiar-id" data-id="ecg-18" title="copiar o id">copiar id</button></div>
+      <span class="arq">19_Lead.jpg</span>
+      <p class="livre">sem uso em nenhum caso</p>
+      <p class="conf conf-alta">leitura inicial · confiança alta</p>
+      <input class="nota" placeholder="o que esta imagem mostra" data-id="ecg-18"
+             data-inicial="Assistolia — praticamente igual ao ecg-17">
+    </figcaption>
+  </figure><figure class="card" data-kind="ecg" data-busca="ecg-19 exams/ecg/20_lead.jpg ritmo organizado degenerando em tv/fv — ótimo para ensinar deterioração ">
+    <a href="https://bravomike-simmonitor.vercel.app/exams/ecg/20_Lead.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://bravomike-simmonitor.vercel.app/exams/ecg/20_Lead.jpg" alt="ECG de 12 derivações — 20_Lead"></a>
+    <figcaption>
+      <div class="linha-id"><code>ecg-19</code><button class="copiar-id" data-id="ecg-19" title="copiar o id">copiar id</button></div>
+      <span class="arq">20_Lead.jpg</span>
+      <p class="livre">sem uso em nenhum caso</p>
+      <p class="conf conf-alta">leitura inicial · confiança alta</p>
+      <input class="nota" placeholder="o que esta imagem mostra" data-id="ecg-19"
+             data-inicial="Ritmo organizado degenerando em TV/FV — ótimo para ensinar deterioração">
+    </figcaption>
+  </figure><figure class="card usada" data-kind="ecg" data-busca="ecg-20 exams/ecg/21_lead.jpg taquicardia ~130-150 bpm com alteração de st precordial iam · dor torácica iam · rce com supra">
+    <a href="https://bravomike-simmonitor.vercel.app/exams/ecg/21_Lead.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://bravomike-simmonitor.vercel.app/exams/ecg/21_Lead.jpg" alt="ECG de 12 derivações — 21_Lead"></a>
+    <figcaption>
+      <div class="linha-id"><code>ecg-20</code><button class="copiar-id" data-id="ecg-20" title="copiar o id">copiar id</button></div>
+      <span class="arq">21_Lead.jpg</span>
+      <p class="uso">em uso: iam · Dor torácica · iam · RCE com supra</p>
+      <p class="conf conf-media">leitura inicial · confiança media</p>
+      <input class="nota" placeholder="o que esta imagem mostra" data-id="ecg-20"
+             data-inicial="Taquicardia ~130-150 bpm com alteração de ST precordial">
+    </figcaption>
+  </figure><figure class="card" data-kind="ecg" data-busca="ecg-21 exams/ecg/22_lead.jpg ~90-110 bpm com alteração de st/t de parede inferior ">
+    <a href="https://bravomike-simmonitor.vercel.app/exams/ecg/22_Lead.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://bravomike-simmonitor.vercel.app/exams/ecg/22_Lead.jpg" alt="ECG de 12 derivações — 22_Lead"></a>
+    <figcaption>
+      <div class="linha-id"><code>ecg-21</code><button class="copiar-id" data-id="ecg-21" title="copiar o id">copiar id</button></div>
+      <span class="arq">22_Lead.jpg</span>
+      <p class="livre">sem uso em nenhum caso</p>
+      <p class="conf conf-baixa">leitura inicial · confiança baixa</p>
+      <input class="nota" placeholder="o que esta imagem mostra" data-id="ecg-21"
+             data-inicial="~90-110 bpm com alteração de ST/T de parede inferior">
+    </figcaption>
+  </figure><figure class="card" data-kind="ecg" data-busca="ecg-22 exams/ecg/23_lead.jpg qrs alargado com supra de st extenso — iam extenso ou bre ">
+    <a href="https://bravomike-simmonitor.vercel.app/exams/ecg/23_Lead.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://bravomike-simmonitor.vercel.app/exams/ecg/23_Lead.jpg" alt="ECG de 12 derivações — 23_Lead"></a>
+    <figcaption>
+      <div class="linha-id"><code>ecg-22</code><button class="copiar-id" data-id="ecg-22" title="copiar o id">copiar id</button></div>
+      <span class="arq">23_Lead.jpg</span>
+      <p class="livre">sem uso em nenhum caso</p>
+      <p class="conf conf-media">leitura inicial · confiança media</p>
+      <input class="nota" placeholder="o que esta imagem mostra" data-id="ecg-22"
+             data-inicial="QRS alargado com supra de ST extenso — IAM extenso ou BRE">
+    </figcaption>
+  </figure><figure class="card" data-kind="ecg" data-busca="ecg-23 exams/ecg/24_lead.jpg taquicardia ~120 bpm com complexos largos intercalados — esv? ">
+    <a href="https://bravomike-simmonitor.vercel.app/exams/ecg/24_Lead.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://bravomike-simmonitor.vercel.app/exams/ecg/24_Lead.jpg" alt="ECG de 12 derivações — 24_Lead"></a>
+    <figcaption>
+      <div class="linha-id"><code>ecg-23</code><button class="copiar-id" data-id="ecg-23" title="copiar o id">copiar id</button></div>
+      <span class="arq">24_Lead.jpg</span>
+      <p class="livre">sem uso em nenhum caso</p>
+      <p class="conf conf-baixa">leitura inicial · confiança baixa</p>
+      <input class="nota" placeholder="o que esta imagem mostra" data-id="ecg-23"
+             data-inicial="Taquicardia ~120 bpm com complexos largos intercalados — ESV?">
+    </figcaption>
+  </figure><figure class="card" data-kind="ecg" data-busca="ecg-24 exams/ecg/25_lead.jpg traçado didático com marcações 1 e 2 — duas morfologias alternadas ">
+    <a href="https://bravomike-simmonitor.vercel.app/exams/ecg/25_Lead.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://bravomike-simmonitor.vercel.app/exams/ecg/25_Lead.jpg" alt="ECG de 12 derivações — 25_Lead"></a>
+    <figcaption>
+      <div class="linha-id"><code>ecg-24</code><button class="copiar-id" data-id="ecg-24" title="copiar o id">copiar id</button></div>
+      <span class="arq">25_Lead.jpg</span>
+      <p class="livre">sem uso em nenhum caso</p>
+      <p class="conf conf-baixa">leitura inicial · confiança baixa</p>
+      <input class="nota" placeholder="o que esta imagem mostra" data-id="ecg-24"
+             data-inicial="Traçado didático com marcações 1 e 2 — duas morfologias alternadas">
+    </figcaption>
+  </figure><figure class="card" data-kind="ecg" data-busca="ecg-25 exams/ecg/26_lead.jpg taquicardia regular, ~130-150 bpm ">
+    <a href="https://bravomike-simmonitor.vercel.app/exams/ecg/26_Lead.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://bravomike-simmonitor.vercel.app/exams/ecg/26_Lead.jpg" alt="ECG de 12 derivações — 26_Lead"></a>
+    <figcaption>
+      <div class="linha-id"><code>ecg-25</code><button class="copiar-id" data-id="ecg-25" title="copiar o id">copiar id</button></div>
+      <span class="arq">26_Lead.jpg</span>
+      <p class="livre">sem uso em nenhum caso</p>
+      <p class="conf conf-media">leitura inicial · confiança media</p>
+      <input class="nota" placeholder="o que esta imagem mostra" data-id="ecg-25"
+             data-inicial="Taquicardia regular, ~130-150 bpm">
+    </figcaption>
+  </figure><figure class="card" data-kind="ecg" data-busca="ecg-26 exams/ecg/27_lead.jpg ritmo sinusal, ~85-95 bpm ">
+    <a href="https://bravomike-simmonitor.vercel.app/exams/ecg/27_Lead.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://bravomike-simmonitor.vercel.app/exams/ecg/27_Lead.jpg" alt="ECG de 12 derivações — 27_Lead"></a>
+    <figcaption>
+      <div class="linha-id"><code>ecg-26</code><button class="copiar-id" data-id="ecg-26" title="copiar o id">copiar id</button></div>
+      <span class="arq">27_Lead.jpg</span>
+      <p class="livre">sem uso em nenhum caso</p>
+      <p class="conf conf-media">leitura inicial · confiança media</p>
+      <input class="nota" placeholder="o que esta imagem mostra" data-id="ecg-26"
+             data-inicial="Ritmo sinusal, ~85-95 bpm">
+    </figcaption>
+  </figure><figure class="card" data-kind="ecg" data-busca="ecg-27 exams/ecg/28_lead.jpg ~80-90 bpm, complexos amplos com alteração de st — hve com sobrecarga? bloqueio de ramo? ">
+    <a href="https://bravomike-simmonitor.vercel.app/exams/ecg/28_Lead.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://bravomike-simmonitor.vercel.app/exams/ecg/28_Lead.jpg" alt="ECG de 12 derivações — 28_Lead"></a>
+    <figcaption>
+      <div class="linha-id"><code>ecg-27</code><button class="copiar-id" data-id="ecg-27" title="copiar o id">copiar id</button></div>
+      <span class="arq">28_Lead.jpg</span>
+      <p class="livre">sem uso em nenhum caso</p>
+      <p class="conf conf-baixa">leitura inicial · confiança baixa</p>
+      <input class="nota" placeholder="o que esta imagem mostra" data-id="ecg-27"
+             data-inicial="~80-90 bpm, complexos amplos com alteração de ST — HVE com sobrecarga? bloqueio de ramo?">
+    </figcaption>
+  </figure><figure class="card" data-kind="ecg" data-busca="ecg-28 exams/ecg/29_lead.jpg taquicardia de qrs estreito, ~130-150 bpm, baixa voltagem ">
+    <a href="https://bravomike-simmonitor.vercel.app/exams/ecg/29_Lead.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://bravomike-simmonitor.vercel.app/exams/ecg/29_Lead.jpg" alt="ECG de 12 derivações — 29_Lead"></a>
+    <figcaption>
+      <div class="linha-id"><code>ecg-28</code><button class="copiar-id" data-id="ecg-28" title="copiar o id">copiar id</button></div>
+      <span class="arq">29_Lead.jpg</span>
+      <p class="livre">sem uso em nenhum caso</p>
+      <p class="conf conf-media">leitura inicial · confiança media</p>
+      <input class="nota" placeholder="o que esta imagem mostra" data-id="ecg-28"
+             data-inicial="Taquicardia de QRS estreito, ~130-150 bpm, baixa voltagem">
+    </figcaption>
+  </figure><figure class="card" data-kind="ecg" data-busca="ecg-29 exams/ecg/30_lead.jpg taquicardia de qrs estreito, ~130-150 bpm, baixa voltagem ">
+    <a href="https://bravomike-simmonitor.vercel.app/exams/ecg/30_Lead.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://bravomike-simmonitor.vercel.app/exams/ecg/30_Lead.jpg" alt="ECG de 12 derivações — 30_Lead"></a>
+    <figcaption>
+      <div class="linha-id"><code>ecg-29</code><button class="copiar-id" data-id="ecg-29" title="copiar o id">copiar id</button></div>
+      <span class="arq">30_Lead.jpg</span>
+      <p class="livre">sem uso em nenhum caso</p>
+      <p class="conf conf-media">leitura inicial · confiança media</p>
+      <input class="nota" placeholder="o que esta imagem mostra" data-id="ecg-29"
+             data-inicial="Taquicardia de QRS estreito, ~130-150 bpm, baixa voltagem">
+    </figcaption>
+  </figure><figure class="card" data-kind="ecg" data-busca="ecg-30 exams/ecg/31_lead.jpg ~75-90 bpm, r proeminente em v2-v3 com alteração de st ">
+    <a href="https://bravomike-simmonitor.vercel.app/exams/ecg/31_Lead.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://bravomike-simmonitor.vercel.app/exams/ecg/31_Lead.jpg" alt="ECG de 12 derivações — 31_Lead"></a>
+    <figcaption>
+      <div class="linha-id"><code>ecg-30</code><button class="copiar-id" data-id="ecg-30" title="copiar o id">copiar id</button></div>
+      <span class="arq">31_Lead.jpg</span>
+      <p class="livre">sem uso em nenhum caso</p>
+      <p class="conf conf-baixa">leitura inicial · confiança baixa</p>
+      <input class="nota" placeholder="o que esta imagem mostra" data-id="ecg-30"
+             data-inicial="~75-90 bpm, R proeminente em V2-V3 com alteração de ST">
+    </figcaption>
+  </figure><figure class="card" data-kind="ecg" data-busca="ecg-31 exams/ecg/32_lead.jpg taquicardia de qrs estreito, ~130-150 bpm ">
+    <a href="https://bravomike-simmonitor.vercel.app/exams/ecg/32_Lead.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://bravomike-simmonitor.vercel.app/exams/ecg/32_Lead.jpg" alt="ECG de 12 derivações — 32_Lead"></a>
+    <figcaption>
+      <div class="linha-id"><code>ecg-31</code><button class="copiar-id" data-id="ecg-31" title="copiar o id">copiar id</button></div>
+      <span class="arq">32_Lead.jpg</span>
+      <p class="livre">sem uso em nenhum caso</p>
+      <p class="conf conf-media">leitura inicial · confiança media</p>
+      <input class="nota" placeholder="o que esta imagem mostra" data-id="ecg-31"
+             data-inicial="Taquicardia de QRS estreito, ~130-150 bpm">
+    </figcaption>
+  </figure><figure class="card" data-kind="ecg" data-busca="ecg-32 exams/ecg/33_lead.jpg ritmo regular, ~100-110 bpm ">
+    <a href="https://bravomike-simmonitor.vercel.app/exams/ecg/33_Lead.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://bravomike-simmonitor.vercel.app/exams/ecg/33_Lead.jpg" alt="ECG de 12 derivações — 33_Lead"></a>
+    <figcaption>
+      <div class="linha-id"><code>ecg-32</code><button class="copiar-id" data-id="ecg-32" title="copiar o id">copiar id</button></div>
+      <span class="arq">33_Lead.jpg</span>
+      <p class="livre">sem uso em nenhum caso</p>
+      <p class="conf conf-media">leitura inicial · confiança media</p>
+      <input class="nota" placeholder="o que esta imagem mostra" data-id="ecg-32"
+             data-inicial="Ritmo regular, ~100-110 bpm">
+    </figcaption>
+  </figure><figure class="card" data-kind="ecg" data-busca="ecg-33 exams/ecg/34_lead.jpg taquicardia ~140-160 bpm com infradesnivelamento de st ">
+    <a href="https://bravomike-simmonitor.vercel.app/exams/ecg/34_Lead.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://bravomike-simmonitor.vercel.app/exams/ecg/34_Lead.jpg" alt="ECG de 12 derivações — 34_Lead"></a>
+    <figcaption>
+      <div class="linha-id"><code>ecg-33</code><button class="copiar-id" data-id="ecg-33" title="copiar o id">copiar id</button></div>
+      <span class="arq">34_Lead.jpg</span>
+      <p class="livre">sem uso em nenhum caso</p>
+      <p class="conf conf-media">leitura inicial · confiança media</p>
+      <input class="nota" placeholder="o que esta imagem mostra" data-id="ecg-33"
+             data-inicial="Taquicardia ~140-160 bpm com infradesnivelamento de ST">
+    </figcaption>
+  </figure><figure class="card" data-kind="ecg" data-busca="ecg-34 exams/ecg/35_lead.jpg atenção: parece visualmente idêntico ao ecg-31 — conferir se é repetição ">
+    <a href="https://bravomike-simmonitor.vercel.app/exams/ecg/35_Lead.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://bravomike-simmonitor.vercel.app/exams/ecg/35_Lead.jpg" alt="ECG de 12 derivações — 35_Lead"></a>
+    <figcaption>
+      <div class="linha-id"><code>ecg-34</code><button class="copiar-id" data-id="ecg-34" title="copiar o id">copiar id</button></div>
+      <span class="arq">35_Lead.jpg</span>
+      <p class="livre">sem uso em nenhum caso</p>
+      <p class="conf conf-baixa">leitura inicial · confiança baixa</p>
+      <input class="nota" placeholder="o que esta imagem mostra" data-id="ecg-34"
+             data-inicial="ATENÇÃO: parece visualmente idêntico ao ecg-31 — conferir se é repetição">
+    </figcaption>
+  </figure><figure class="card" data-kind="ecg" data-busca="ecg-35 exams/ecg/36_lead.jpg ~70-80 bpm com supra de st ">
+    <a href="https://bravomike-simmonitor.vercel.app/exams/ecg/36_Lead.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://bravomike-simmonitor.vercel.app/exams/ecg/36_Lead.jpg" alt="ECG de 12 derivações — 36_Lead"></a>
+    <figcaption>
+      <div class="linha-id"><code>ecg-35</code><button class="copiar-id" data-id="ecg-35" title="copiar o id">copiar id</button></div>
+      <span class="arq">36_Lead.jpg</span>
+      <p class="livre">sem uso em nenhum caso</p>
+      <p class="conf conf-baixa">leitura inicial · confiança baixa</p>
+      <input class="nota" placeholder="o que esta imagem mostra" data-id="ecg-35"
+             data-inicial="~70-80 bpm com supra de ST">
+    </figcaption>
+  </figure><figure class="card" data-kind="ecg" data-busca="ecg-36 exams/ecg/37_lead.jpg fv grossa — ritmo chocável ">
+    <a href="https://bravomike-simmonitor.vercel.app/exams/ecg/37_Lead.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://bravomike-simmonitor.vercel.app/exams/ecg/37_Lead.jpg" alt="ECG de 12 derivações — 37_Lead"></a>
+    <figcaption>
+      <div class="linha-id"><code>ecg-36</code><button class="copiar-id" data-id="ecg-36" title="copiar o id">copiar id</button></div>
+      <span class="arq">37_Lead.jpg</span>
+      <p class="livre">sem uso em nenhum caso</p>
+      <p class="conf conf-alta">leitura inicial · confiança alta</p>
+      <input class="nota" placeholder="o que esta imagem mostra" data-id="ecg-36"
+             data-inicial="FV grossa — ritmo chocável">
+    </figcaption>
+  </figure></div>
+
+<h2 id="tituloRx">Radiografias — 20 imagens</h2>
+<p class="sub">Estas já vêm com nome descritivo, em inglês.</p>
+<div class="grade"><figure class="card" data-kind="xray" data-busca="xray-0 exams/xray/11yo-severe-bilateral-infiltrates.jpg  ">
+    <a href="https://bravomike-simmonitor.vercel.app/exams/xray/11yo-severe-bilateral-infiltrates.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://bravomike-simmonitor.vercel.app/exams/xray/11yo-severe-bilateral-infiltrates.jpg" alt="RX — 11yo severe bilateral infiltrates"></a>
+    <figcaption>
+      <div class="linha-id"><code>xray-0</code><button class="copiar-id" data-id="xray-0" title="copiar o id">copiar id</button></div>
+      <span class="arq">11yo-severe-bilateral-infiltrates.jpg</span>
+      <p class="livre">sem uso em nenhum caso</p>
+      
+      <input class="nota" placeholder="o que esta imagem mostra" data-id="xray-0"
+             data-inicial="">
+    </figcaption>
+  </figure><figure class="card" data-kind="xray" data-busca="xray-1 exams/xray/2month-old-right-mainstem-intubation.jpg  ">
+    <a href="https://bravomike-simmonitor.vercel.app/exams/xray/2month-old-right-mainstem-intubation.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://bravomike-simmonitor.vercel.app/exams/xray/2month-old-right-mainstem-intubation.jpg" alt="RX — 2month old right mainstem intubation"></a>
+    <figcaption>
+      <div class="linha-id"><code>xray-1</code><button class="copiar-id" data-id="xray-1" title="copiar o id">copiar id</button></div>
+      <span class="arq">2month-old-right-mainstem-intubation.jpg</span>
+      <p class="livre">sem uso em nenhum caso</p>
+      
+      <input class="nota" placeholder="o que esta imagem mostra" data-id="xray-1"
+             data-inicial="">
+    </figcaption>
+  </figure><figure class="card" data-kind="xray" data-busca="xray-2 exams/xray/adult-cardiac-tamponade.jpg  ">
+    <a href="https://bravomike-simmonitor.vercel.app/exams/xray/Adult-Cardiac-Tamponade.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://bravomike-simmonitor.vercel.app/exams/xray/Adult-Cardiac-Tamponade.jpg" alt="RX — Adult Cardiac Tamponade"></a>
+    <figcaption>
+      <div class="linha-id"><code>xray-2</code><button class="copiar-id" data-id="xray-2" title="copiar o id">copiar id</button></div>
+      <span class="arq">Adult-Cardiac-Tamponade.jpg</span>
+      <p class="livre">sem uso em nenhum caso</p>
+      
+      <input class="nota" placeholder="o que esta imagem mostra" data-id="xray-2"
+             data-inicial="">
+    </figcaption>
+  </figure><figure class="card" data-kind="xray" data-busca="xray-3 exams/xray/collapse-of-left-upper_right-middle-and-right-lower-lobe.jpg  ">
+    <a href="https://bravomike-simmonitor.vercel.app/exams/xray/Collapse-of-left-upper_right-middle-and-right-lower-lobe.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://bravomike-simmonitor.vercel.app/exams/xray/Collapse-of-left-upper_right-middle-and-right-lower-lobe.jpg" alt="RX — Collapse of left upper-right-middle and right lower lobe"></a>
+    <figcaption>
+      <div class="linha-id"><code>xray-3</code><button class="copiar-id" data-id="xray-3" title="copiar o id">copiar id</button></div>
+      <span class="arq">Collapse-of-left-upper_right-middle-and-right-lower-lobe.jpg</span>
+      <p class="livre">sem uso em nenhum caso</p>
+      
+      <input class="nota" placeholder="o que esta imagem mostra" data-id="xray-3"
+             data-inicial="">
+    </figcaption>
+  </figure><figure class="card" data-kind="xray" data-busca="xray-4 exams/xray/copd.jpg  ">
+    <a href="https://bravomike-simmonitor.vercel.app/exams/xray/COPD.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://bravomike-simmonitor.vercel.app/exams/xray/COPD.jpg" alt="RX — COPD"></a>
+    <figcaption>
+      <div class="linha-id"><code>xray-4</code><button class="copiar-id" data-id="xray-4" title="copiar o id">copiar id</button></div>
+      <span class="arq">COPD.jpg</span>
+      <p class="livre">sem uso em nenhum caso</p>
+      
+      <input class="nota" placeholder="o que esta imagem mostra" data-id="xray-4"
+             data-inicial="">
+    </figcaption>
+  </figure><figure class="card" data-kind="xray" data-busca="xray-5 exams/xray/croup.jpg  ">
+    <a href="https://bravomike-simmonitor.vercel.app/exams/xray/Croup.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://bravomike-simmonitor.vercel.app/exams/xray/Croup.jpg" alt="RX — Croup"></a>
+    <figcaption>
+      <div class="linha-id"><code>xray-5</code><button class="copiar-id" data-id="xray-5" title="copiar o id">copiar id</button></div>
+      <span class="arq">Croup.jpg</span>
+      <p class="livre">sem uso em nenhum caso</p>
+      
+      <input class="nota" placeholder="o que esta imagem mostra" data-id="xray-5"
+             data-inicial="">
+    </figcaption>
+  </figure><figure class="card" data-kind="xray" data-busca="xray-6 exams/xray/diffuse-bilateral-pulmonary-infiltrates-.jpg  ">
+    <a href="https://bravomike-simmonitor.vercel.app/exams/xray/Diffuse-bilateral-pulmonary-infiltrates-.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://bravomike-simmonitor.vercel.app/exams/xray/Diffuse-bilateral-pulmonary-infiltrates-.jpg" alt="RX — Diffuse bilateral pulmonary infiltrates"></a>
+    <figcaption>
+      <div class="linha-id"><code>xray-6</code><button class="copiar-id" data-id="xray-6" title="copiar o id">copiar id</button></div>
+      <span class="arq">Diffuse-bilateral-pulmonary-infiltrates-.jpg</span>
+      <p class="livre">sem uso em nenhum caso</p>
+      
+      <input class="nota" placeholder="o que esta imagem mostra" data-id="xray-6"
+             data-inicial="">
+    </figcaption>
+  </figure><figure class="card" data-kind="xray" data-busca="xray-7 exams/xray/infant-cardiac-tamponade-.jpg  ">
+    <a href="https://bravomike-simmonitor.vercel.app/exams/xray/Infant-Cardiac-Tamponade-.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://bravomike-simmonitor.vercel.app/exams/xray/Infant-Cardiac-Tamponade-.jpg" alt="RX — Infant Cardiac Tamponade"></a>
+    <figcaption>
+      <div class="linha-id"><code>xray-7</code><button class="copiar-id" data-id="xray-7" title="copiar o id">copiar id</button></div>
+      <span class="arq">Infant-Cardiac-Tamponade-.jpg</span>
+      <p class="livre">sem uso em nenhum caso</p>
+      
+      <input class="nota" placeholder="o que esta imagem mostra" data-id="xray-7"
+             data-inicial="">
+    </figcaption>
+  </figure><figure class="card" data-kind="xray" data-busca="xray-8 exams/xray/mediastinal-emphysema_bilateral-pleural-effusions.jpg  ">
+    <a href="https://bravomike-simmonitor.vercel.app/exams/xray/Mediastinal-emphysema_Bilateral-pleural-effusions.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://bravomike-simmonitor.vercel.app/exams/xray/Mediastinal-emphysema_Bilateral-pleural-effusions.jpg" alt="RX — Mediastinal emphysema Bilateral pleural effusions"></a>
+    <figcaption>
+      <div class="linha-id"><code>xray-8</code><button class="copiar-id" data-id="xray-8" title="copiar o id">copiar id</button></div>
+      <span class="arq">Mediastinal-emphysema_Bilateral-pleural-effusions.jpg</span>
+      <p class="livre">sem uso em nenhum caso</p>
+      
+      <input class="nota" placeholder="o que esta imagem mostra" data-id="xray-8"
+             data-inicial="">
+    </figcaption>
+  </figure><figure class="card usada" data-kind="xray" data-busca="xray-9 exams/xray/normal-chest-xray.jpg  asma · crise">
+    <a href="https://bravomike-simmonitor.vercel.app/exams/xray/normal-chest-Xray.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://bravomike-simmonitor.vercel.app/exams/xray/normal-chest-Xray.jpg" alt="RX — normal chest Xray"></a>
+    <figcaption>
+      <div class="linha-id"><code>xray-9</code><button class="copiar-id" data-id="xray-9" title="copiar o id">copiar id</button></div>
+      <span class="arq">normal-chest-Xray.jpg</span>
+      <p class="uso">em uso: asma · Crise</p>
+      
+      <input class="nota" placeholder="o que esta imagem mostra" data-id="xray-9"
+             data-inicial="">
+    </figcaption>
+  </figure><figure class="card" data-kind="xray" data-busca="xray-10 exams/xray/pneumonia.jpg  ">
+    <a href="https://bravomike-simmonitor.vercel.app/exams/xray/Pneumonia.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://bravomike-simmonitor.vercel.app/exams/xray/Pneumonia.jpg" alt="RX — Pneumonia"></a>
+    <figcaption>
+      <div class="linha-id"><code>xray-10</code><button class="copiar-id" data-id="xray-10" title="copiar o id">copiar id</button></div>
+      <span class="arq">Pneumonia.jpg</span>
+      <p class="livre">sem uso em nenhum caso</p>
+      
+      <input class="nota" placeholder="o que esta imagem mostra" data-id="xray-10"
+             data-inicial="">
+    </figcaption>
+  </figure><figure class="card" data-kind="xray" data-busca="xray-11 exams/xray/pneumonia-left-lower-lobe.jpg  ">
+    <a href="https://bravomike-simmonitor.vercel.app/exams/xray/Pneumonia-left-lower-lobe.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://bravomike-simmonitor.vercel.app/exams/xray/Pneumonia-left-lower-lobe.jpg" alt="RX — Pneumonia left-lower lobe"></a>
+    <figcaption>
+      <div class="linha-id"><code>xray-11</code><button class="copiar-id" data-id="xray-11" title="copiar o id">copiar id</button></div>
+      <span class="arq">Pneumonia-left-lower-lobe.jpg</span>
+      <p class="livre">sem uso em nenhum caso</p>
+      
+      <input class="nota" placeholder="o que esta imagem mostra" data-id="xray-11"
+             data-inicial="">
+    </figcaption>
+  </figure><figure class="card" data-kind="xray" data-busca="xray-12 exams/xray/pulmonary-edema.jpg  ">
+    <a href="https://bravomike-simmonitor.vercel.app/exams/xray/Pulmonary-Edema.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://bravomike-simmonitor.vercel.app/exams/xray/Pulmonary-Edema.jpg" alt="RX — Pulmonary Edema"></a>
+    <figcaption>
+      <div class="linha-id"><code>xray-12</code><button class="copiar-id" data-id="xray-12" title="copiar o id">copiar id</button></div>
+      <span class="arq">Pulmonary-Edema.jpg</span>
+      <p class="livre">sem uso em nenhum caso</p>
+      
+      <input class="nota" placeholder="o que esta imagem mostra" data-id="xray-12"
+             data-inicial="">
+    </figcaption>
+  </figure><figure class="card" data-kind="xray" data-busca="xray-13 exams/xray/pulmonary-tuberculosis.jpg  ">
+    <a href="https://bravomike-simmonitor.vercel.app/exams/xray/Pulmonary-tuberculosis.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://bravomike-simmonitor.vercel.app/exams/xray/Pulmonary-tuberculosis.jpg" alt="RX — Pulmonary tuberculosis"></a>
+    <figcaption>
+      <div class="linha-id"><code>xray-13</code><button class="copiar-id" data-id="xray-13" title="copiar o id">copiar id</button></div>
+      <span class="arq">Pulmonary-tuberculosis.jpg</span>
+      <p class="livre">sem uso em nenhum caso</p>
+      
+      <input class="nota" placeholder="o que esta imagem mostra" data-id="xray-13"
+             data-inicial="">
+    </figcaption>
+  </figure><figure class="card" data-kind="xray" data-busca="xray-14 exams/xray/right_mainstem_intubation.jpg  ">
+    <a href="https://bravomike-simmonitor.vercel.app/exams/xray/right_mainstem_intubation.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://bravomike-simmonitor.vercel.app/exams/xray/right_mainstem_intubation.jpg" alt="RX — right mainstem intubation"></a>
+    <figcaption>
+      <div class="linha-id"><code>xray-14</code><button class="copiar-id" data-id="xray-14" title="copiar o id">copiar id</button></div>
+      <span class="arq">right_mainstem_intubation.jpg</span>
+      <p class="livre">sem uso em nenhum caso</p>
+      
+      <input class="nota" placeholder="o que esta imagem mostra" data-id="xray-14"
+             data-inicial="">
+    </figcaption>
+  </figure><figure class="card" data-kind="xray" data-busca="xray-15 exams/xray/right-upper-lobe-collapse-.jpg  ">
+    <a href="https://bravomike-simmonitor.vercel.app/exams/xray/Right-upper-lobe-collapse-.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://bravomike-simmonitor.vercel.app/exams/xray/Right-upper-lobe-collapse-.jpg" alt="RX — Right upper lobe collapse"></a>
+    <figcaption>
+      <div class="linha-id"><code>xray-15</code><button class="copiar-id" data-id="xray-15" title="copiar o id">copiar id</button></div>
+      <span class="arq">Right-upper-lobe-collapse-.jpg</span>
+      <p class="livre">sem uso em nenhum caso</p>
+      
+      <input class="nota" placeholder="o que esta imagem mostra" data-id="xray-15"
+             data-inicial="">
+    </figcaption>
+  </figure><figure class="card" data-kind="xray" data-busca="xray-16 exams/xray/tension_hemopneumothorax.jpg  ">
+    <a href="https://bravomike-simmonitor.vercel.app/exams/xray/Tension_Hemopneumothorax.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://bravomike-simmonitor.vercel.app/exams/xray/Tension_Hemopneumothorax.jpg" alt="RX — Tension Hemopneumothorax"></a>
+    <figcaption>
+      <div class="linha-id"><code>xray-16</code><button class="copiar-id" data-id="xray-16" title="copiar o id">copiar id</button></div>
+      <span class="arq">Tension_Hemopneumothorax.jpg</span>
+      <p class="livre">sem uso em nenhum caso</p>
+      
+      <input class="nota" placeholder="o que esta imagem mostra" data-id="xray-16"
+             data-inicial="">
+    </figcaption>
+  </figure><figure class="card" data-kind="xray" data-busca="xray-17 exams/xray/tension-pneumothorax.jpg  ">
+    <a href="https://bravomike-simmonitor.vercel.app/exams/xray/Tension-pneumothorax.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://bravomike-simmonitor.vercel.app/exams/xray/Tension-pneumothorax.jpg" alt="RX — Tension pneumothorax"></a>
+    <figcaption>
+      <div class="linha-id"><code>xray-17</code><button class="copiar-id" data-id="xray-17" title="copiar o id">copiar id</button></div>
+      <span class="arq">Tension-pneumothorax.jpg</span>
+      <p class="livre">sem uso em nenhum caso</p>
+      
+      <input class="nota" placeholder="o que esta imagem mostra" data-id="xray-17"
+             data-inicial="">
+    </figcaption>
+  </figure><figure class="card" data-kind="xray" data-busca="xray-18 exams/xray/trauma_rib-fractures.jpg  ">
+    <a href="https://bravomike-simmonitor.vercel.app/exams/xray/Trauma_rib-fractures.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://bravomike-simmonitor.vercel.app/exams/xray/Trauma_rib-fractures.jpg" alt="RX — Trauma rib fractures"></a>
+    <figcaption>
+      <div class="linha-id"><code>xray-18</code><button class="copiar-id" data-id="xray-18" title="copiar o id">copiar id</button></div>
+      <span class="arq">Trauma_rib-fractures.jpg</span>
+      <p class="livre">sem uso em nenhum caso</p>
+      
+      <input class="nota" placeholder="o que esta imagem mostra" data-id="xray-18"
+             data-inicial="">
+    </figcaption>
+  </figure><figure class="card" data-kind="xray" data-busca="xray-19 exams/xray/white-out-on-right-lung.jpg  ">
+    <a href="https://bravomike-simmonitor.vercel.app/exams/xray/White-out-on-right-lung.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://bravomike-simmonitor.vercel.app/exams/xray/White-out-on-right-lung.jpg" alt="RX — White out on right lung"></a>
+    <figcaption>
+      <div class="linha-id"><code>xray-19</code><button class="copiar-id" data-id="xray-19" title="copiar o id">copiar id</button></div>
+      <span class="arq">White-out-on-right-lung.jpg</span>
+      <p class="livre">sem uso em nenhum caso</p>
+      
+      <input class="nota" placeholder="o que esta imagem mostra" data-id="xray-19"
+             data-inicial="">
+    </figcaption>
+  </figure></div>
+
+<script>
+  var BASE = "https://bravomike-simmonitor.vercel.app/";
+  var campos = document.querySelectorAll('.nota');
+  var cartoes = document.querySelectorAll('.card');
+  var chave = 'galeria-exames-notas';
+
+  // Começa com a leitura inicial; o que você já corrigiu tem prioridade.
+  campos.forEach(function(c){ if (c.dataset.inicial) c.value = c.dataset.inicial; });
+  try { var salvo = JSON.parse(localStorage.getItem(chave) || '{}');
+        campos.forEach(function(c){ if (salvo[c.dataset.id]) c.value = salvo[c.dataset.id]; }); } catch (e) {}
+
+  function contar(){
+    var n = 0; campos.forEach(function(c){ if (c.value.trim()) n++; });
+    document.getElementById('contagem').textContent = n + ' de ' + campos.length + ' anotadas';
+  }
+  function guardar(){
+    var o = {}; campos.forEach(function(c){ if (c.value.trim()) o[c.dataset.id] = c.value.trim(); });
+    try { localStorage.setItem(chave, JSON.stringify(o)); } catch (e) {}
+    contar();
+  }
+  campos.forEach(function(c){ c.addEventListener('input', guardar); });
+  contar();
+
+  var kindAtual = '', termoAtual = '';
+  function aplicarFiltro(){
+    var visiveis = { ecg: 0, xray: 0 };
+    cartoes.forEach(function(card){
+      var okKind = !kindAtual || card.dataset.kind === kindAtual;
+      var nota = card.querySelector('.nota');
+      var texto = card.dataset.busca + ' ' + (nota ? nota.value.toLowerCase() : '');
+      var okTermo = !termoAtual || texto.indexOf(termoAtual) !== -1;
+      var mostrar = okKind && okTermo;
+      card.classList.toggle('oculta', !mostrar);
+      if (mostrar) visiveis[card.dataset.kind]++;
+    });
+    document.getElementById('tituloEcg').style.display = visiveis.ecg ? '' : 'none';
+    document.getElementById('tituloRx').style.display = visiveis.xray ? '' : 'none';
+  }
+  document.getElementById('busca').addEventListener('input', function(e){
+    termoAtual = e.target.value.trim().toLowerCase(); aplicarFiltro();
+  });
+  document.querySelectorAll('.filtro').forEach(function(b){
+    b.onclick = function(){
+      document.querySelectorAll('.filtro').forEach(function(x){ x.classList.remove('ativo'); });
+      b.classList.add('ativo'); kindAtual = b.dataset.kind; aplicarFiltro();
+    };
+  });
+
+  function paraAreaDeTransferencia(texto, aoTerminar){
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(texto).then(aoTerminar, aoTerminar);
+      return;
+    }
+    var t = document.createElement('textarea');
+    t.value = texto; t.style.position = 'fixed'; t.style.opacity = '0';
+    document.body.appendChild(t); t.select();
+    try { document.execCommand('copy'); } catch (e) {}
+    document.body.removeChild(t); aoTerminar();
+  }
+
+  document.querySelectorAll('.copiar-id').forEach(function(b){
+    b.onclick = function(){
+      paraAreaDeTransferencia(b.dataset.id, function(){
+        var antes = b.textContent; b.textContent = 'copiado'; b.classList.add('feito');
+        setTimeout(function(){ b.textContent = antes; b.classList.remove('feito'); }, 1200);
+      });
+    };
+  });
+
+  document.getElementById('bCopiar').onclick = function(){
+    var linhas = [];
+    campos.forEach(function(c){
+      if (c.closest('.card').classList.contains('oculta')) return;
+      if (c.value.trim()) linhas.push(c.dataset.id + ': ' + c.value.trim());
+    });
+    var texto = linhas.length ? linhas.join('\n') : 'Nenhuma anotação ainda.';
+    var saida = document.getElementById('saida');
+    saida.value = texto; saida.style.display = 'block';
+    paraAreaDeTransferencia(texto, function(){});
+  };
+  document.getElementById('bLimpar').onclick = function(){
+    if (!confirm('Apagar todas as anotações desta página? A leitura inicial volta.')) return;
+    try { localStorage.removeItem(chave); } catch (e) {}
+    campos.forEach(function(c){ c.value = c.dataset.inicial || ''; });
+    guardar(); aplicarFiltro();
+    document.getElementById('saida').style.display = 'none';
+  };
+</script>
+</body></html>
