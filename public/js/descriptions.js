@@ -64,6 +64,7 @@ export function describeAction(name, arg) {
     case 'shock': return 'Choque';
     case 'disarm': return 'Desarmar desfibrilador';
     case 'nibp': return 'Medir PNI';
+    case 'nibp-stop': return 'Parar PNI';
     case 'silence': return 'Silenciar alarmes';
     case 'timer': return { start: 'Iniciar cronômetro', pause: 'Pausar cronômetro', toggle: 'Cronômetro', reset: 'Zerar cronômetro' }[arg] || 'Cronômetro';
     case 'scn-load': return 'Iniciar cenário' + (SCENARIO_BY_ID[arg] ? ': ' + SCENARIO_BY_ID[arg].titulo : '');

@@ -10,12 +10,25 @@
 
 const MARGEM_MS = 60000; // renova antes de vencer, nunca em cima da hora
 
+// Quando a requisição nem chega ao Supabase, o navegador lança um TypeError com
+// texto próprio de cada um: 'Load failed' no Safari, 'Failed to fetch' no
+// Chrome, 'NetworkError…' no Firefox. Esse texto ia direto para a tela do
+// instrutor. A causa mais comum na prática é o projeto gratuito ter hibernado
+// depois de dias sem uso, então a mensagem diz isso e o que fazer.
+export const SEM_SERVICO = 'o serviço online não respondeu. Se o app ficou dias sem uso, ele pode estar religando: aguarde 2 minutos e tente de novo';
+
 export class SupabaseSessao {
   // `armazenamento` precisa de getItem/setItem/removeItem; em teste pode ser um Map adaptado.
   constructor({ url, chave, armazenamento, fetchImpl, chaveArmazenamento = 'bmsim-sessao', agora = () => Date.now() }) {
     this.url = String(url || '').replace(/\/$/, '');
     this.chave = chave;
-    this.fetch = fetchImpl || ((...a) => globalThis.fetch(...a));
+    const bruto = fetchImpl || ((...a) => globalThis.fetch(...a));
+    // Só a falha de rede é traduzida. Respostas HTTP (401, 429, 500…) chegam
+    // normalmente e continuam sendo tratadas por quem chamou.
+    this.fetch = async (...a) => {
+      try { return await bruto(...a); }
+      catch (e) { if (e instanceof TypeError) throw new Error(SEM_SERVICO); throw e; }
+    };
     this.agora = agora;
     this.nomeChave = chaveArmazenamento;
     this.armazenamento = armazenamento || memoria();

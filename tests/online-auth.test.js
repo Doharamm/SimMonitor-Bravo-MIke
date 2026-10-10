@@ -8,7 +8,7 @@ import {
   canonical, conteudoAssinado, gerarParDeChaves, exportarPublica, importarPublica,
   criarAssinador, verificarMensagem, JanelaDeRepeticao, PAPEL_POR_TIPO, ROLE_DO_PAPEL, MOTIVO,
 } from '../public/js/crypto-identity.js';
-import { SupabaseSessao, armazenamentoDeMemoria } from '../public/js/supabase-rest.js';
+import { SupabaseSessao, armazenamentoDeMemoria, SEM_SERVICO } from '../public/js/supabase-rest.js';
 import { SalaOnline } from '../public/js/online-room.js';
 
 const SALA = '11111111-1111-4111-8111-111111111111';
@@ -471,4 +471,34 @@ test('ONLINE: leitura inicial de participantes que falha não impede as tarefas 
     await sala.atualizarParticipantes(true);
     assert.equal(listar, 2);
   } finally { sala.pararTarefas(); }
+});
+
+test('rede fora do ar vira mensagem legível, não o texto cru do navegador', async () => {
+  // Cada navegador lança um TypeError com texto próprio quando a requisição nem
+  // chega ao servidor — é o que acontece com o projeto Supabase hibernado.
+  for (const cru of ['Load failed', 'Failed to fetch', 'NetworkError when attempting to fetch resource.']) {
+    const s = new SupabaseSessao({ url: 'https://x.invalid', chave: 'pub', armazenamento: armazenamentoDeMemoria(),
+      fetchImpl: async () => { throw new TypeError(cru); } });
+    await assert.rejects(s.garantir(), e => {
+      assert.equal(e.message, SEM_SERVICO);
+      assert.ok(!e.message.includes(cru), 'vazou o texto do navegador: ' + cru);
+      return true;
+    });
+  }
+});
+
+test('resposta HTTP de erro não é confundida com rede fora do ar', async () => {
+  // 429 (limite de logins) e 500 chegam do servidor: precisam continuar com o
+  // tratamento próprio, e não virar "aguarde 2 minutos".
+  for (const status of [429, 500]) {
+    const s = new SupabaseSessao({ url: 'https://x.invalid', chave: 'pub', armazenamento: armazenamentoDeMemoria(),
+      fetchImpl: async () => new Response(JSON.stringify({ msg: 'x' }), { status }) });
+    await assert.rejects(s.garantir(), e => { assert.notEqual(e.message, SEM_SERVICO); return true; });
+  }
+});
+
+test('outros erros que não são de rede passam sem tradução', async () => {
+  const s = new SupabaseSessao({ url: 'https://x.invalid', chave: 'pub', armazenamento: armazenamentoDeMemoria(),
+    fetchImpl: async () => { throw new RangeError('algo interno'); } });
+  await assert.rejects(s.garantir(), /algo interno/);
 });

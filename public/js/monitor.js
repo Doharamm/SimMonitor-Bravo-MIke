@@ -4,6 +4,8 @@ import { evaluateReadings } from './monitor-readings.js';
 import { SimulationClock } from './simulation-clock.js';
 import { VERSION, registerScenario } from './classroom.js';
 import { initMonitorExams } from './monitor-exams.js';
+import { initEdicaoRapida } from './monitor-edicao.js';
+import { createControllerCases } from './controller-cases.js';
 import { ExamViewer } from './exam-viewer.js';
 import { EventHistory } from './history.js';
 import { CommandGate, REFUSAL_TEXT } from './session.js';
@@ -11,7 +13,9 @@ import { EXAM_BY_ID } from './exams.js';
 import { RHYTHM_BY_ID } from './rhythm-catalog.js';
 import { ENERGIES, PACER_LIMITS } from './simulation-config.js';
 import { SCENARIO_BY_ID } from './scenario-catalog.js';
-import { scenarioStepSet, defaultState, interruptedActivities, hasPulse, mapOf, clamp, timerSeconds, fmtTime, sanitizeSet, restoreState } from './simulation-state.js';
+import { scenarioStepSet, defaultState, interruptedActivities, hasPulse, mapOf, clamp, timerSeconds, fmtTime, sanitizeSet, nibpPlan } from './simulation-state.js';
+import { lerGuardado, estadoParaGuardar } from './monitor-persistence.js';
+import { criarSalaUi } from './monitor-room-ui.js';
 import { describeSet, describeAction, setMergeKey } from './descriptions.js';
 import { Engine } from './engine.js';
 import { Transport } from './transport.js';
@@ -31,6 +35,8 @@ const approved=new Set(), pairRequests=new Map();
 // dispositivo → id do participante no banco (só é preenchido no modo online)
 const autorizadosOnline=new Map();
 let salaOnline=null;
+// Releitura periódica da sala; criada em criarSeguranca(), mais abaixo.
+let salaOnlineTimer=null;
 let debriefSnapshot=[];
 let peerLastSeen=0,caseRun=Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,8),syncActor='sistema';
 function pauseSimulation(){
@@ -69,9 +75,18 @@ function renderPairRequests(forcar){
     row.append(b);box.append(row);
   }
 }
-function autorizarControle(id,participanteId){
+// O controle que abre pelo QR entra sem o instrutor autorizar. A autorização
+// automática vale uma vez por aparelho em cada conexão: só um controle comanda
+// por vez, e sem essa trava dois controles abertos se derrubariam sem parar.
+// O aparelho que perdeu a vez volta pelo botão "Autorizar".
+const autoAprovados=new Set();
+function autoAprovar(id,participanteId){
+  if(autoAprovados.has(id))return false;
+  autoAprovados.add(id);autorizarControle(id,participanteId,true);return true;
+}
+function autorizarControle(id,participanteId,automatico=false){
   approved.clear();approved.add(id);pairRequests.delete(id);gate.rotate();
-  logEvent('Instrutor autorizou controle '+id.slice(-6));
+  logEvent((automatico?'Controle conectado pelo QR ':'Instrutor autorizou controle ')+id.slice(-6));
   if(salaOnline&&participanteId){
     // Autorização exclusiva: os demais voltam a pendente, como no modo local.
     for(const [outro,pid] of autorizadosOnline) if(outro!==id&&pid) salaOnline.definirSituacao(pid,'pendente').catch(()=>{});
@@ -94,6 +109,8 @@ function sincronizarSala(){
   for(const c of salaOnline.autorizados()){approved.add(c.dispositivo);autorizadosOnline.set(c.dispositivo,c.id);}
   pairRequests.clear();
   for(const p of salaOnline.pendentes())pairRequests.set(p.dispositivo,{version:VERSION,participanteId:p.id});
+  const novo=salaOnline.pendentes().filter(p=>!autoAprovados.has(p.dispositivo)).at(-1);
+  if(novo){for(const p of salaOnline.pendentes())autoAprovados.add(p.dispositivo);autorizarControle(novo.dispositivo,novo.id,true);return;}
   renderPairRequests();
   if([...approved].sort().join(',')!==antes){gate.rotate();dirty=true;broadcast(true);}
 }
@@ -103,8 +120,20 @@ const examViewer = new ExamViewer(document.getElementById('examOverlay'));
 function logEvent(text, key = '') { history.add(text, key,{elapsedMs:Math.max(0,simClock.now()-caseStart),actor,origin:text.startsWith('Informado:')?'informado':'detectado',caseName,caseRun}); dirty = true; }
 
 // ---------------- Estado ----------------
-let S = defaultState(), monitorExams;
-try { const saved=JSON.parse(localStorage.getItem(LS_STATE));if(saved?.classroom?.customScenario)registerScenario(saved.classroom.customScenario);S=restoreState(saved);const c=saved?.classroom;if(c){automatic=c.automatic!==false;assessment=c.assessmentPreference!==false;caseRun=typeof c.caseRun==='string'?c.caseRun.slice(0,80):caseRun;caseName=String(c.caseName||'Livre').slice(0,100);if(Number.isFinite(c.caseElapsed))caseStart=simClock.now()-Math.max(0,c.caseElapsed);if(c.paused===true){simClock.pause();S.timer.running=c.timerWasRunning===true;S.timer.startedAt=simNow();}} } catch (e) { S = defaultState(); }
+let S = defaultState(), monitorExams, casosMonitor = null;
+// Recarga da página: retoma a aula de onde parou (ver monitor-persistence.js).
+try {
+  const { S: restaurado, aula } = lerGuardado(JSON.parse(localStorage.getItem(LS_STATE)));
+  S = restaurado;
+  if (aula) {
+    automatic = aula.automatic;
+    assessment = aula.assessment;
+    if (aula.caseRun !== undefined) caseRun = aula.caseRun;
+    caseName = aula.caseName;
+    if (aula.caseElapsed !== undefined) caseStart = simClock.now() - aula.caseElapsed;
+    if (aula.paused) { simClock.pause(); S.timer.running = aula.timerWasRunning; S.timer.startedAt = simNow(); }
+  }
+} catch (e) { S = defaultState(); }
 try { history.restore(JSON.parse(localStorage.getItem(LS_HIST))); } catch (e) {}
 S.cur = { ...S.vit };
 let trans = {}; // chave → {from, to, t0, dur}
@@ -126,7 +155,7 @@ let unloading = false;
 
 // ---------------- Áudio ----------------
 let ac = null;
-const { audioOutput, tone, alarmSound, chargeSound, shockSound, stopCharge } = createMonitorAudio({getContext: () => ac, isMuted: () => S.audioMuted});
+const { audioOutput, tone, alarmSound, chargeSound, shockSound, stopCharge, cuffSound, stopCuff } = createMonitorAudio({getContext: () => ac, isMuted: () => S.audioMuted});
 
 // ---------------- Canais ----------------
 // A escala só troca quando a varredura reinicia: senão a mesma tela mistura duas escalas.
@@ -163,7 +192,18 @@ function setRhythm(id, useTypical = false) {
   changed();
 }
 
+// Compressões começando: a capnografia passa a mostrar a ventilação e o EtCO₂
+// da RCP. Usa os valores da etapa do caso; fora dela, os do atalho de PCR do
+// controle (10 irpm, 15 mmHg). Paciente que já ventila não é alterado.
+function rcpIniciada() {
+  const sc = SCENARIO_BY_ID[S.scn.id];
+  const alvo = sc ? scenarioStepSet(sc, S.scn.step, { cpr: true }) : null;
+  if (alvo?.capno === 'rcp') applyVit({ rr: alvo.vit.rr, etco2: alvo.vit.etco2 });
+  else if (!(S.vit.rr > 0)) applyVit({ rr: 10, etco2: 15 });
+}
+
 function applySet(d, dur = 0) {
+  const comecouRcp = d.cpr === true && !S.cpr;
   if (d.vit) applyVit(d.vit, dur);
   if (d.rhythm) setRhythm(d.rhythm, d.typicalHr);
   for (const k of ['spo2Signal', 'pulse', 'vfAmp', 'capno', 'cpr', 'shockTo', 'studentPanel']) if (k in d) S[k] = d[k];
@@ -176,6 +216,7 @@ function applySet(d, dur = 0) {
     }
   }
   if (d.nibp && 'interval' in d.nibp) nextAutoNibp = S.nibp.interval ? simNow() + S.nibp.interval * 60000 : 0;
+  if (comecouRcp && !d.vit) rcpIniciada();
   changed();
 }
 
@@ -247,13 +288,17 @@ function deliverShock(t) {
 let nibpTimer, nextAutoNibp = S.nibp.interval ? simNow() + S.nibp.interval * 60000 : 0, cuff = 0;
 function startNibp() {
   if (S.nibp.measuring) return { done: false, note: 'medição já em andamento' };
-  S.nibp.measuring = true; cuff = 170; logEvent('Medição de PNI iniciada'); changed();
+  // Sem manguito não há medida. O controle mostra o mesmo aviso antes de pedir.
+  if (!S.show.nibp) return { done: false, note: 'manguito desligado — ligue a PA nos sinais' };
+  const plan = nibpPlan(S.cur.sys, S.cur.dia);
+  S.nibp.measuring = true; cuff = 0; logEvent('Medição de PNI iniciada'); changed();
+  cuffSound(plan);
   const t0 = simNow();
   simClear(nibpTimer);
   nibpTimer = simInterval(() => {
     const el = (simNow() - t0) / 1000;
-    cuff = el < 3 ? 40 + el * 45 : Math.max(0, 175 - (el - 3) * 17);
-    if (el >= 11) {
+    cuff = plan.cuffAt(el);
+    if (el >= plan.total) {
       simClear(nibpTimer);
       S.nibp.measuring = false;
       const ok = hasPulse(S) && S.cur.sys >= 30 && !S.cpr;
@@ -266,6 +311,12 @@ function startNibp() {
       changed();
     }
   }, 200);
+}
+// Tocar em "Medir" de novo no controle: cancela e solta o ar do manguito.
+function stopNibp() {
+  if (!S.nibp.measuring) return { done: false, note: 'nenhuma medição em andamento' };
+  simClear(nibpTimer); S.nibp.measuring = false; cuff = 0; stopCuff(true);
+  logEvent('Medição de PNI cancelada'); changed();
 }
 
 // Cenários
@@ -296,7 +347,7 @@ function goStep(i) {
   wasCaptured = false;
   logEvent(sc.titulo+" — etapa "+(i+1)+": "+sc.etapas[i].titulo);
   const e = sc.etapas[i];
-  applySet(scenarioStepSet(sc,i), e.dur || 0);
+  applySet(scenarioStepSet(sc,i,S), e.dur || 0);
   scheduleStage();
   changed();
 }
@@ -317,10 +368,12 @@ function pendingSummary() { return interruptedActivities(S, trans); }
 function resetSimulation() {
   timedAdvance=false;stageWaitOverride=null;cancelStageTimer();
   gate.rotate();
-  generation++; simClear(effectTimer); simClear(captureTimer); simClear(nibpTimer); disarm();
-  // Preferências do instrutor sobrevivem à troca de caso: parâmetros visíveis, botões dos alunos, alarmes e bipe.
-  const audioMuted=S.audioMuted, show = S.show, studentPanel = S.studentPanel, alarmsOn = S.alarms.enabled, beep = S.alarms.beep;
-  S = defaultState(); S.audioMuted=audioMuted; S.show = show; S.studentPanel = studentPanel; S.alarms.enabled = alarmsOn; S.alarms.beep = beep; S.cur = { ...S.vit };
+  generation++; simClear(effectTimer); simClear(captureTimer); simClear(nibpTimer); stopCuff(); disarm();
+  // Preferências do instrutor sobrevivem à troca de caso: botões dos alunos,
+  // alarmes, bipe e silêncio. Os sensores não: caso novo é paciente novo, e o
+  // aluno precisa pedir a monitorização de novo.
+  const audioMuted=S.audioMuted, studentPanel = S.studentPanel, alarmsOn = S.alarms.enabled, beep = S.alarms.beep;
+  S = defaultState(); S.audioMuted=audioMuted; S.studentPanel = studentPanel; S.alarms.enabled = alarmsOn; S.alarms.beep = beep; S.cur = { ...S.vit };
   trans = {}; nextAutoNibp = 0; cuff = 0; wasCaptured = false; eng = new Engine(); acquisitionUntil = nowS() + 4;
   changed();
 }
@@ -355,6 +408,7 @@ function action(name, arg) {
     case 'shock': return shock();
     case 'disarm': return disarm();
     case 'nibp': return startNibp();
+    case 'nibp-stop': return stopNibp();
         case 'silence': {
       const on = simNow() < S.alarms.silencedUntil;
       S.alarms.silencedUntil = on ? 0 : simNow() + 120000;
@@ -404,7 +458,7 @@ const transport = new Transport(room, msg => {
     // para gravar a autorização. Criar aqui uma entrada sem esse id produziria
     // um botão que aprova só nesta aba e é revertido na sincronização seguinte.
     if(salaOnline){ salaOnline.atualizarParticipantes().then(sincronizarSala).catch(()=>{}); dirty=true; return; }
-    if(!approved.has(msg.from)&&!pairRequests.has(msg.from)&&pairRequests.size<16){pairRequests.set(msg.from,{version:VERSION,participanteId:null});renderPairRequests();}
+    if(!approved.has(msg.from)&&!autoAprovar(msg.from,null)&&!pairRequests.has(msg.from)&&pairRequests.size<16){pairRequests.set(msg.from,{version:VERSION,participanteId:null});renderPairRequests();}
     dirty=true;return;
   }
   if(msg.type==='peer-left'){approved.delete(msg.peer);pairRequests.delete(msg.peer);renderPairRequests();gate.invalidate();dirty=true;return;}
@@ -438,7 +492,7 @@ const transport = new Transport(room, msg => {
   }
 }, (st, mode) => {
   $('connDot').className = 'dot ' + st;
-  gate.invalidate();approved.clear();pairRequests.clear();autorizadosOnline.clear();
+  gate.invalidate();approved.clear();pairRequests.clear();autorizadosOnline.clear();autoAprovados.clear();
   if (st === 'on') {
     dirty = true; offlineSince = 0;
     // A sala do banco é a fonte da autorização online; recupera na hora para
@@ -462,21 +516,61 @@ const transport = new Transport(room, msg => {
   },
   aoRecusar: (motivo) => { logEvent('Mensagem online recusada: ' + motivo, 'online-recusa'); },
 });
-let salaOnlineTimer = null;
 let offlineSince = Date.now();
 
 let displayed = {}, alarmsNow = [];
 function transLeft() { const t = nowS(), o = {}; for (const [k, tr_] of Object.entries(trans)) o[k] = Math.max(0, Math.round((tr_.t0 + tr_.dur - t) * 1000)); return o; }
+// O que o controle recebe. Validado do outro lado por state-validation.js:
+// um campo novo aqui precisa ser aceito lá.
+// Atenção: gate.issue() emite uma autorização temporária nova a cada chamada.
+// Monte o estado uma vez por envio e reaproveite.
 function publicState() {
-  return { ...S, timedAdvance,stageWait:stageWait(),stageRemaining:stageDeadline?Math.max(0,Math.ceil((stageDeadline-simClock.now())/1000)):0, version:VERSION, paused:simClock.paused, automatic, assessment, authorized:[...approved], customScenario:S.scn.id?.startsWith('custom-')?SCENARIO_BY_ID[S.scn.id]:null, peerRecent:Date.now()-peerLastSeen<5000, protocol: 2, history: history.snapshot(), ...gate.issue(), timer: {...S.timer, running:S.timer.running&&!simClock.paused, elapsedMs: Math.max(0, S.timer.acc + (S.timer.running ? simNow() - S.timer.startedAt : 0))}, displayed, alarmsNow, captured: eng.captured(), perfusing: hasPulse(S), transLeft: transLeft(), room, mode: transport.mode, hidden: document.visibilityState === 'hidden', nibp: { ...S.nibp, cuff: S.nibp.measuring ? Math.round(cuff) : null } };
+  return {
+    ...S,
+    timedAdvance,
+    stageWait: stageWait(),
+    stageRemaining: stageDeadline ? Math.max(0, Math.ceil((stageDeadline - simClock.now()) / 1000)) : 0,
+    version: VERSION,
+    paused: simClock.paused,
+    automatic,
+    assessment,
+    authorized: [...approved],
+    customScenario: S.scn.id?.startsWith('custom-') ? SCENARIO_BY_ID[S.scn.id] : null,
+    peerRecent: Date.now() - peerLastSeen < 5000,
+    protocol: 2,
+    history: history.snapshot(),
+    ...gate.issue(),
+    timer: {
+      ...S.timer,
+      running: S.timer.running && !simClock.paused,
+      elapsedMs: Math.max(0, S.timer.acc + (S.timer.running ? simNow() - S.timer.startedAt : 0)),
+    },
+    displayed,
+    alarmsNow,
+    captured: eng.captured(),
+    perfusing: hasPulse(S),
+    transLeft: transLeft(),
+    room,
+    mode: transport.mode,
+    hidden: document.visibilityState === 'hidden',
+    nibp: { ...S.nibp, cuff: S.nibp.measuring ? Math.round(cuff) : null },
+  };
 }
 let lastBroadcast = 0;
 function broadcast(force) {
   const n = Date.now();
   if (!force && n - lastBroadcast < 900) return;
   lastBroadcast = n; dirty = false;
-  transport.send({ type: 'state', boot: BOOT, state: publicState() });
-  try { const { cur, ...save } = S; localStorage.setItem(LS_STATE, JSON.stringify({...save,timer:{...S.timer,acc:publicState().timer.elapsedMs,startedAt:Date.now(),running:S.timer.running&&!simClock.paused},classroom:{timerWasRunning:S.timer.running,caseElapsed:simClock.now()-caseStart,caseName,caseRun,automatic,assessment,assessmentPreference:assessment,paused:simClock.paused,customScenario:publicState().customScenario}})); localStorage.setItem(LS_HIST, JSON.stringify(history.events)); } catch (e) {}
+  const estado = publicState();
+  transport.send({ type: 'state', boot: BOOT, state: estado });
+  try {
+    localStorage.setItem(LS_STATE, JSON.stringify(estadoParaGuardar(S, {
+      elapsedMs: estado.timer.elapsedMs, agora: Date.now(), paused: simClock.paused,
+      caseElapsed: simClock.now() - caseStart, caseName, caseRun, automatic, assessment,
+      customScenario: estado.customScenario,
+    })));
+    localStorage.setItem(LS_HIST, JSON.stringify(history.events));
+  } catch (e) {}
 }
 
 // ---------------- Alarmes e números ----------------
@@ -503,7 +597,7 @@ function evaluate() {
   if (!simClock.paused && S.pacer.on && cap !== lastCapLogged) logEvent(cap ? 'Captura do marcapasso obtida' + (hasPulse(S) ? '' : ' — elétrica, sem pulso') : 'Captura do marcapasso perdida');
   lastCapLogged = S.pacer.on ? cap : false;
   // PNI automática
-  if (!simClock.paused && S.nibp.interval && nextAutoNibp && simNow() > nextAutoNibp && !S.nibp.measuring) startNibp();
+  if (!simClock.paused && S.show.nibp && S.nibp.interval && nextAutoNibp && simNow() > nextAutoNibp && !S.nibp.measuring) startNibp();
   render(silenced);
 }
 
@@ -512,6 +606,7 @@ function renderExam() {
   examViewer.show(EXAM_BY_ID[S.exam] || null);
   setTxt('examSimulationStatus',simClock.paused?'Simulação pausada.':S.audioMuted?'Simulação em andamento · todos os sons silenciados.':'Simulação em andamento.');
   monitorExams?.refresh();
+  if ($('monitorCasePicker')?.open) casosMonitor?.renderScenario();
 }
 function renderScenarioControls() {
   const scenario=SCENARIO_BY_ID[S.scn.id];
@@ -528,19 +623,23 @@ function render(silenced) {
   renderScenarioControls();
   renderExam();
   const d = displayed;
-  setTxt('nHr', d.hr ?? '--');
-  setTxt('nSpo2', d.spo2 ?? '--');
-  setTxt('nEtco2', S.capno === 'none' || S.cur.rr === 0 ? '--' : d.etco2);
-  setTxt('nRr', d.rr);
-  setTxt('nTemp', d.temp.toFixed(1).replace('.', ','));
-  if (S.nibp.measuring) { setTxt('nSys', Math.round(cuff)); setTxt('nDia', '--'); setTxt('nMap', '--'); setTxt('nibpInfo', 'medindo…'); }
+  // Sensor desligado mostra "---" (sem sensor), diferente de "--" (sensor
+  // ligado, mas sem leitura: assistolia, sem pulso, sem ventilação).
+  const semSensor = ch => !S.show[ch];
+  setTxt('nHr', semSensor('ecg') ? '---' : d.hr ?? '--');
+  setTxt('nSpo2', semSensor('spo2') ? '---' : d.spo2 ?? '--');
+  setTxt('nEtco2', semSensor('capno') ? '---' : S.capno === 'none' || S.cur.rr === 0 ? '--' : d.etco2);
+  setTxt('nRr', semSensor('resp') ? '---' : d.rr);
+  setTxt('nTemp', semSensor('temp') ? '---' : d.temp.toFixed(1).replace('.', ','));
+  if (semSensor('nibp')) { setTxt('nSys', '---'); setTxt('nDia', '---'); setTxt('nMap', '---'); setTxt('nibpInfo', 'sem manguito'); }
+  else if (S.nibp.measuring) { setTxt('nSys', Math.round(cuff)); setTxt('nDia', '--'); setTxt('nMap', '--'); setTxt('nibpInfo', 'medindo…'); }
   else {
     setTxt('nSys', S.nibp.sys ?? '--'); setTxt('nDia', S.nibp.dia ?? '--'); setTxt('nMap', S.nibp.map ?? '--');
     setTxt('nibpInfo', S.nibp.at ? new Date(S.nibp.at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) + (S.nibp.interval ? ` · ${S.nibp.interval} min` : '') : 'mmHg');
   }
   $('perfBar').style.width = (d.spo2 ? clamp((S.cur.sys - 35) / 70, 0.1, 1) * 100 : 0) + '%';
-  // visibilidade
-  document.querySelectorAll('[data-ch]').forEach(el => el.classList.toggle('hiddenCh', !S.show[el.dataset.ch]));
+  // Sensor desligado: o canal continua na tela, em estado "desconectado".
+  document.querySelectorAll('[data-ch]').forEach(el => el.classList.toggle('offCh', !S.show[el.dataset.ch]));
   // alarmes
   const alarmChs = new Set(alarmsNow.map(a => a.ch));
   document.querySelectorAll('.num[data-ch], .num.split > div[data-ch]').forEach(el => el.classList.toggle('alarm', alarmChs.has(el.dataset.ch)));
@@ -611,8 +710,50 @@ function frame() {
 // ---------------- Controles do monitor ----------------
 const on = (id, fn) => $(id).addEventListener('click', e=>{if(simClock.paused&&!['roomChip','bCloseQr','bNewRoom','bStart'].includes(id))return toast('Simulação pausada');const prev=actor;actor='aluno';try{return fn(e);}finally{actor=prev;}});
 $('bCloseExam').addEventListener('click',()=>action('exam',null));
-monitorExams=initMonitorExams({getState:()=>S,show:id=>{const previousActor=actor;actor='instrutor';try{action('exam',id);}finally{actor=previousActor;}}});
-on('bNibp', () => startNibp());
+// Atalhos do próprio monitor: valem como comandos do instrutor, sem controle remoto.
+const comoInstrutor=fn=>{const previousActor=actor;actor='instrutor';try{return fn();}finally{actor=previousActor;}};
+monitorExams=initMonitorExams({getState:()=>S,
+  show:id=>comoInstrutor(()=>action('exam',id)),
+  hide:()=>comoInstrutor(()=>action('exam',null)),
+  // Escolher o ritmo no monitor já liga o ECG. Vale também pausado: o ritmo
+  // aparece quando a simulação voltar a andar.
+  setRhythm:id=>{
+    const patch=sanitizeSet({rhythm:id,typicalHr:true,pulse:'auto',show:{ecg:true}});
+    comoInstrutor(()=>{applySet(patch);logEvent('Monitor: '+describeSet(patch),'mon:rhythm');});
+    mostrarSePausado();
+  }});
+// Pausado, o quadro não é redesenhado; o que foi ajustado no monitor aparece já.
+function mostrarSePausado(){if(simClock.paused){evaluate();render(simNow()<S.alarms.silencedUntil);}}
+// Casos escolhidos no próprio monitor: o mesmo seletor de cartões do controle,
+// com uma confirmação própria. O caso carrega pausado; o play do monitor começa.
+function confirmarNoMonitor(titulo,texto,rotulo,aoConfirmar){
+  const d=$('monitorConfirm');$('mcTitulo').textContent=titulo;$('mcTexto').textContent=texto;$('mcSim').textContent=rotulo;
+  $('mcSim').onclick=()=>{d.close?.();aoConfirmar();};$('mcNao').onclick=()=>d.close?.();d.showModal?.();
+}
+casosMonitor=createControllerCases({document,getState:()=>S,vibrate(){},confirmAction:confirmarNoMonitor,
+  interruptList:()=>interruptedActivities(S,trans),
+  act:(nome,arg)=>{
+    const r=comoInstrutor(()=>action(nome,arg));
+    if(r&&r.done===false)toast(r.note);
+    else if(nome==='scn-load'){$('monitorCasePicker').close?.();toast('Caso carregado — aperte play para começar',4000);}
+    mostrarSePausado();casosMonitor.renderScenario();return r;
+  }});
+casosMonitor.buildScenarios();
+$('bMonitorCases').addEventListener('click',()=>{casosMonitor.renderScenario();$('monitorCasePicker').showModal();});
+$('monitorCaseClose').addEventListener('click',()=>$('monitorCasePicker').close());
+// Valor digitado no próprio monitor (clique no número): entra na hora e liga o
+// sensor. Na PNI, a leitura informada aparece sem a animação do manguito.
+initEdicaoRapida({document,getState:()=>S,aplicar:(bruto,leituraPni)=>{
+  const patch=sanitizeSet(bruto);if(!Object.keys(patch).length)return;
+  comoInstrutor(()=>{
+    if((leituraPni||patch.show?.nibp===false)&&S.nibp.measuring)stopNibp();
+    applySet(patch);
+    if(leituraPni){S.nibp.sys=leituraPni.sys;S.nibp.dia=leituraPni.dia;S.nibp.map=mapOf(leituraPni.sys,leituraPni.dia);S.nibp.at=simNow();}
+    logEvent('Monitor: '+describeSet(patch)+(leituraPni?' (PNI informada)':''),'mon:digitado');
+  });
+  mostrarSePausado();
+}});
+on('bNibp', () => { const r = startNibp(); if (r?.done === false) toast('PNI: ' + r.note); });
 const energyLog = () => logEvent(`Monitor: energia ${S.defib.energy} J`, 'mon:energy');
 const energyStep = d => {
   const i = ENERGIES.indexOf(S.defib.energy);
@@ -628,7 +769,7 @@ on('bCharge', () => charge());
 on('bShock', () => shock());
 on('bDisarm', () => disarm());
 // Alunos: RCP, marcapasso e energia direto no monitor (registrados no histórico com o prefixo "Monitor:").
-on('bCpr', () => { S.cpr = !S.cpr; if (S.cpr) S.capno = 'rcp'; logEvent('Monitor: RCP ' + (S.cpr ? 'iniciada' : 'pausada')); changed(); });
+on('bCpr', () => { S.cpr = !S.cpr; if (S.cpr) { S.capno = 'rcp'; rcpIniciada(); } logEvent('Monitor: RCP ' + (S.cpr ? 'iniciada' : 'pausada')); changed(); });
 on('bPacer', () => { S.pacer.on = !S.pacer.on; logEvent('Monitor: marcapasso ' + (S.pacer.on ? 'ligado' : 'desligado')); changed(); });
 const pacerStep = (k, d, lim) => { S.pacer[k] = clamp(S.pacer[k] + d, ...lim); logEvent(k === 'ma' ? `Monitor: marcapasso ${S.pacer.ma} mA` : `Monitor: marcapasso ${S.pacer.rate} ppm`, 'mon:pacer:' + k); changed(); };
 on('bRateDown', () => pacerStep('rate', -5, PACER_LIMITS.rate));
@@ -638,57 +779,16 @@ on('bMaUp', () => pacerStep('ma', 5, PACER_LIMITS.ma));
 on('bSilence', () => action('silence'));
 $('bMonitorMute').addEventListener('click',()=>action('audio-mute',!S.audioMuted));
 
-// QR / sala
-let ipIdx = 0;
-function controlUrl() {
-  const info = transport.info;
-  let base;
-  if (transport.mode === 'local' && info?.ips?.length) base = `http://${info.ips[Math.min(ipIdx, info.ips.length - 1)]}:${info.port}`;
-  else base = location.origin + location.pathname.replace(/[^/]*$/, '');
-  return base.replace(/\/$/, '') + '/controle.html?sala=' + room + (transport.mode === 'demo' ? '&modo=demo' : '');
-}
-let qrcode = null;
-async function renderQr(el) {
-  try {
-    if (!qrcode) qrcode = (await import('./vendor/qrcode.mjs')).default;
-    const q = qrcode(0, 'M'); q.addData(controlUrl()); q.make();
-    el.innerHTML = q.createImgTag(6, 8, 'QR code do controle');
-  } catch (e) { el.innerHTML = '<div style="padding:20px;color:#111;line-height:1.3;font-weight:700">QR indisponível<br>use o código</div>'; }
-}
-function refreshRoomUi() {
-  ['roomCode', 'roomCodeBig', 'roomCodeModal'].forEach(id => setTxt(id, room));
-  const url = controlUrl();
-  setTxt('ctrlUrl', url.replace(/^https?:\/\//, '')); setTxt('ctrlUrl2', url.replace(/^https?:\/\//, ''));
-  renderQr($('qrStart')); renderQr($('qrModalBox'));
-  setTxt('modeLbl', { local: 'Modo local (Wi-Fi, sem internet)', online: 'Modo online', demo: 'Modo demonstração (mesmo aparelho)' }[transport.mode] || '');
-  // mais de uma rede (ex.: Wi-Fi e cabo): deixa escolher qual endereço vai no QR
-  const ips = transport.mode === 'local' ? (transport.info?.ips || []) : [];
-  ['ipPick', 'ipPick2'].forEach(id => {
-    const box = $(id);
-    box.hidden = ips.length < 2;
-    box.innerHTML = ips.length < 2 ? '' : '<span class="muted small">Rede do celular:</span>' + ips.map((ip, i) => `<button class="btn ghost small ${i === ipIdx ? 'on' : ''}" data-ip="${i}">${ip}</button>`).join('');
-  });
-}
-document.addEventListener('click', e => {
-  const b = e.target.closest('[data-ip]'); if (!b) return;
-  ipIdx = Number(b.dataset.ip); refreshRoomUi();
+// QR / sala (ver monitor-room-ui.js)
+const salaUi = criarSalaUi({
+  document, transport, room, toast,
+  pagina: () => location, agora: () => Date.now(), agendar: (f, ms) => setTimeout(f, ms),
+  guardarSala: n => { try { localStorage.setItem(LS_ROOM, n); } catch (e) {} },
+  irParaSala: n => { location.search = '?sala=' + n; },
 });
-on('roomChip', () => { refreshRoomUi(); $('qrModal').hidden = false; });
+on('roomChip', () => { salaUi.atualizar(); $('qrModal').hidden = false; });
 on('bCloseQr', () => { $('qrModal').hidden = true; });
-// Trocar de sala derruba o controle que já está pareado: exige confirmação em dois toques.
-let newRoomArmed = 0;
-on('bNewRoom', () => {
-  const b = $('bNewRoom');
-  if (Date.now() > newRoomArmed) {
-    newRoomArmed = Date.now() + 6000; b.textContent = 'Confirmar nova sala';
-    toast('O controle atual será desconectado. Toque de novo para confirmar.', 6000);
-    setTimeout(() => { if (Date.now() > newRoomArmed) b.textContent = 'Nova sala'; }, 6200);
-    return;
-  }
-  const n = String(Math.floor(1000 + Math.random() * 9000));
-  try { localStorage.setItem(LS_ROOM, n); } catch (e) {}
-  location.search = '?sala=' + n;
-});
+on('bNewRoom', () => salaUi.novaSala());
 
 async function keepAwake() { try { await navigator.wakeLock?.request('screen'); } catch (e) {} }
 document.addEventListener('visibilitychange', () => {
@@ -711,7 +811,7 @@ on('bStart', async () => {
 
 (async () => {
   await transport.start();
-  refreshRoomUi();
+  salaUi.atualizar();
   if(document.visibilityState==='hidden'&&!simClock.paused)pauseSimulation();
   requestAnimationFrame(frame);
 })();

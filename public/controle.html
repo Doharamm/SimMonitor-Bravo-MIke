@@ -1,48 +1,60 @@
 <!doctype html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-theme="claro">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=yes">
-<meta name="theme-color" content="#07090c">
+<meta name="theme-color" content="#e8ecf0">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="BM Controle">
 <link rel="apple-touch-icon" href="img/icon-180.png">
 <link rel="manifest" href="manifest.webmanifest">
+<meta name="mobile-web-app-capable" content="yes">
+<script type="module" src="js/pwa.js"></script>
 <link rel="icon" href="img/icon.svg">
 <title>Controle · Bravo Mike SimMonitor</title>
 <link rel="stylesheet" href="css/base.css">
 <link rel="stylesheet" href="css/controle.css">
+<link rel="stylesheet" href="css/exam-gallery.css">
+<link rel="stylesheet" href="css/case-picker.css">
 </head>
 <body>
 <div id="join" class="join" hidden>
   <div class="brandmark big"><span class="bm">BM</span><span>SimMonitor</span></div>
   <p class="muted">Digite o código da sala que aparece no monitor.</p>
-  <input id="joinCode" inputmode="numeric" maxlength="6" placeholder="0000" class="tnum">
+  <input id="joinCode" inputmode="numeric" maxlength="6" placeholder="0000" class="tnum" aria-label="Código da sala">
   <button class="btn primary" id="bJoin">Conectar</button>
 </div>
 
 <div id="app" hidden>
+  <!-- TOPO -->
   <header class="hdr">
     <div class="hdr-row">
-      <div class="conn"><span id="dot" class="dot"></span><b id="room" class="tnum">----</b></div>
-      <div id="lRhythm" class="rh"></div>
+      <span class="bmark">BM</span>
+      <span class="conn"><span id="dot" class="dot"></span><b class="tnum">Sala <span id="room">----</span></b></span>
+      <span id="rchip" class="rchip"><span id="lRhythm"></span><small id="lPulse"></small></span>
+      <span class="grow"></span>
+      <span id="lStage" class="stage"></span>
+      <span class="ctl" role="group" aria-label="Condução do cenário">
+        <button id="bCasePrev" class="ib" aria-label="Voltar uma etapa do cenário" title="Etapa anterior" disabled><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg></button>
+        <button id="bPauseAll" class="ib" aria-label="Pausar simulação" title="Pausar simulação" disabled><svg viewBox="0 0 24 24" class="fill"><path class="play-shape" d="M8 5v14l11-7z"/><g class="pause-shape"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></g></svg></button>
+        <button id="bCaseNext" class="ib" aria-label="Avançar uma etapa do cenário" title="Próxima etapa" disabled><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
+      </span>
       <span id="timer" class="timer tnum" aria-label="Tempo do cenário">00:00</span>
-      <button id="bMenu" class="icon-btn" aria-label="Ajustes do monitor">⋯</button>
+      <span class="ctl">
+        <button class="ib audio-toggle" id="bMuteAll" aria-label="Silenciar todos os sons" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z"/><path class="sound-waves" d="M16.5 8.5q3 3.5 0 7M19 5.5q5.5 6.5 0 13"/><path class="mute-slash" d="M17 9l5 6M22 9l-5 6"/></svg></button>
+        <button class="ib" id="bTheme" aria-label="Alternar tema claro e escuro"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M12 7a5 5 0 0 0 0 10z" class="meio"/><path d="M12 2v2.5M12 19.5V22M19.1 4.9l-1.8 1.8M22 12h-2.5M19.1 19.1l-1.8-1.8"/></svg></button>
+        <button class="ib" id="bMenu" aria-label="Mais opções"><svg viewBox="0 0 24 24"><path d="M5 12h.01M12 12h.01M19 12h.01"/></svg></button>
+      </span>
     </div>
-    <button class="icon-btn audio-toggle" id="bMuteAll" aria-label="Silenciar todos os sons" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9h4l5-4v14l-5-4H3z"/><path class="sound-waves" d="M16 8q5 4 0 8M19 4q9 8 0 16"/><path class="mute-slash" d="M3 3l18 18"/></svg></button>
-    <div class="scenario-toolbar" role="group" aria-label="Condução do cenário">
-      <button id="bCasePrev" class="icon-btn" aria-label="Voltar uma etapa do cenário" title="Etapa anterior" disabled>◀</button>
-      <button id="bPauseAll" class="icon-btn" aria-label="Pausar simulação" title="Pausar simulação" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path class="play-shape" d="M8 4v16l12-8z"/><g class="pause-shape"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></g></svg></button>
-      <button id="bCaseNext" class="icon-btn" aria-label="Avançar uma etapa do cenário" title="Próxima etapa" disabled>▶</button>
-    </div>
-    <div class="live">
-      <div class="lv" style="--c:var(--ecg)"><small>FC</small><b id="lHr">--</b></div>
-      <div class="lv" style="--c:var(--spo2)"><small>SpO₂</small><b id="lSpo2">--</b></div>
-      <div class="lv" style="--c:var(--nibp)"><small>PNI</small><b id="lBp">--/--</b></div>
-      <div class="lv" style="--c:var(--resp)"><small>FR</small><b id="lRr">--</b></div>
-      <div class="lv" style="--c:var(--co2)"><small>EtCO₂</small><b id="lEtco2">--</b></div>
-      <div class="lv" style="--c:var(--temp)"><small>T</small><b id="lTemp">--</b></div>
+    <!-- Celular: o que o monitor mostra agora, para quem está em outra aba -->
+    <div class="live" aria-label="Valores no monitor">
+      <span style="--c:var(--ecg)"><small>FC</small><b id="lHr">--</b></span>
+      <span style="--c:var(--spo2)"><small>SpO₂</small><b id="lSpo2">--</b></span>
+      <span style="--c:var(--nibp)"><small>PA</small><b id="lBp">--/--</b></span>
+      <span style="--c:var(--resp)"><small>FR</small><b id="lRr">--</b></span>
+      <span style="--c:var(--co2)"><small>CO₂</small><b id="lEtco2">--</b></span>
+      <span style="--c:var(--temp)"><small>T</small><b id="lTemp">--</b></span>
     </div>
     <div class="status"><span id="lBadges"></span><span id="lAlarm" class="al"></span></div>
     <div id="commandStatus" role="status" aria-live="polite"></div>
@@ -50,121 +62,133 @@
     <div id="waiting" class="waiting" hidden></div>
   </header>
 
-  <main>
-    <!-- CASO -->
-    <section class="tab" data-tab="caso">
-      <div id="scnActive"></div><div id="classroom"></div>
-      <details id="scnPicker" class="picker" open>
-        <summary id="scnPickerSummary" class="btn full">Cenários</summary>
-        <div id="scnList"></div>
-      </details>
-      <details class="card more-options" id="examOptions"><summary>Exames</summary>
-        <div class="lbl">Exame no monitor</div>
-        <p id="examActive" class="muted">Nenhum exame aberto no monitor</p>
-        <div class="grid2"><button class="btn" id="bOpenExams">Escolher exame…</button><button class="btn" id="bHideExam">Ocultar exame</button></div>
-      </details>
-      <details class="card more-options" id="historyOptions"><summary>Histórico</summary>
-        <div class="lbl">Histórico da aula</div>
-        <p id="historyEmpty" class="muted">Nenhum evento registrado.</p>
-        <ol id="historyRecent" class="hist"></ol>
-        <button class="btn" id="bHistoryAll">Ver histórico completo</button>
-      </details>
+  <main id="main">
+    <!-- SINAIS -->
+    <section class="sec tab ativa" data-tab="sinais" aria-label="Sinais vitais">
+      <div class="sh"><h2>Sinais</h2><span class="row"><span class="mini" id="transHint"></span><button class="btn chip" id="bAllOn">Ligar todos</button></span></div>
+      <div class="vit" id="vitals"></div>
+      <div class="extra">
+        <div class="sub"><span class="lbl">Transição</span>
+          <div class="seg" data-seg="dur"><button data-v="0">Já</button><button data-v="10">10 s</button><button data-v="30">30 s</button><button data-v="60">1 min</button><button data-v="120">2 min</button></div></div>
+        <div class="sub"><span class="lbl">PNI automática</span>
+          <div class="seg" data-seg="nibpInt"><button data-v="0">Manual</button><button data-v="3">3 min</button><button data-v="5">5 min</button><button data-v="10">10 min</button></div></div>
+        <div class="sub"><span class="lbl">Predefinições</span>
+          <div class="row presets"><button class="btn" data-preset="normal">Estável</button><button class="btn" data-preset="choque">Choque</button><button class="btn" data-preset="hipoxia">Hipoxemia</button><button class="btn" data-preset="hipert">Crise hipert.</button></div></div>
+        <div class="sub"><span class="lbl">Oxímetro</span>
+          <div class="seg" role="group" aria-label="Sinal do oxímetro"><button data-spo2-signal="normal">Normal</button><button data-spo2-signal="low">Hipoperfusão</button><button data-spo2-signal="absent">Ausente</button></div></div>
+        <div class="sub"><span class="lbl">Curva de capnografia</span>
+          <div class="seg" data-seg="capno"><button data-v="normal">Normal</button><button data-v="bronco">Bronco</button><button data-v="rcp">RCP</button></div></div>
+        <div class="sub largo"><span class="lbl">EtCO₂ agora</span>
+          <div class="atalhos">
+            <button class="btn" data-etco2="8" data-l="&lt;10" aria-label="RCP ineficaz, menor que 10. Aplica 8 mmHg">&lt;10<small>RCP ineficaz</small></button>
+            <button class="btn" data-etco2="17" data-l="≥10" aria-label="RCP de qualidade, 10 ou mais. Aplica 17 mmHg">≥10<small>RCP de qualidade</small></button>
+            <button class="btn" data-etco2="40" data-l="35–45" aria-label="Normal ou RCE, 35 a 45. Aplica 40 mmHg">35–45<small>Normal / RCE</small></button>
+          </div></div>
+      </div>
     </section>
 
     <!-- RITMO -->
-    <section class="tab" data-tab="ritmo" hidden>
-      <h3>PCR rápida</h3>
-      <div class="quick">
-        <button class="btn q crit" data-quick="vf">FV</button>
-        <button class="btn q crit" data-quick="tvsp">TV sem pulso</button>
-        <button class="btn q crit" data-quick="aesp">AESP</button>
-        <button class="btn q crit" data-quick="asys">Assistolia</button>
-        <button class="btn q ok" data-quick="rce">RCE</button>
+    <section class="sec tab" data-tab="ritmo" aria-label="Ritmo">
+      <div class="sh"><h2>Ritmo</h2></div>
+      <div class="pcr">
+        <button class="btn crit" data-quick="vf">FV</button>
+        <button class="btn crit" data-quick="tvsp">TV sem pulso</button>
+        <button class="btn crit" data-quick="aesp">AESP</button>
+        <button class="btn crit" data-quick="asys">Assistolia</button>
+        <button class="btn okb inteira" data-quick="rce">RCE</button>
       </div>
-      <div class="card">
-        <div><div class="lbl">Pulso</div>
-          <div class="seg" data-seg="pulse"><button data-v="on">Presente</button><button data-v="off">Ausente</button></div>
-          <p class="muted small hint">Ao trocar de ritmo, o pulso volta ao padrão do ritmo.</p></div>
-        <div id="vfAmpBox"><div class="lbl">Amplitude da FV</div>
-          <div class="seg" data-seg="vfAmp"><button data-v="grossa">Grossa</button><button data-v="fina">Fina</button></div></div>
-      </div>
-      <details class="card more-options" id="rhythmOptions"><summary>Todos os ritmos</summary><div id="rhythmGroups"></div></details>
-    </section>
-
-    <!-- SINAIS -->
-    <section class="tab" data-tab="sinais" hidden>
-      <details class="card more-options" id="presetOptions"><summary>Predefinições</summary>
-        <div class="lbl">Predefinições</div>
-        <div class="chips">
-          <button class="btn" data-preset="normal">Adulto estável</button>
-          <button class="btn" data-preset="choque">Choque</button>
-          <button class="btn" data-preset="hipoxia">Hipoxemia</button>
-          <button class="btn" data-preset="hipert">Crise hipertensiva</button>
-        </div>
-      </details>
-      <details class="card more-options" id="transitionOptions"><summary>Mais opções · Transição</summary>
-        <div class="lbl">Transição dos próximos ajustes</div>
-        <div class="seg" data-seg="dur"><button data-v="0">Imediata</button><button data-v="10">10 s</button><button data-v="30">30 s</button><button data-v="60">1 min</button><button data-v="120">2 min</button></div>
-      </details>
-      <div id="vitals"></div>
-      <details class="card more-options" id="capnoOptions"><summary>Mais opções · Capnografia</summary>
-        <div class="lbl">Curva de capnografia</div>
-        <div class="seg wrap" data-seg="capno"><button data-v="normal">Normal</button><button data-v="bronco">Broncoespasmo</button><button data-v="rcp">RCP</button><button data-v="none">Sem curva</button></div>
-      </details>
-
+      <div class="sub"><span class="lbl">Pulso</span>
+        <div class="seg" data-seg="pulse"><button data-v="on">Presente</button><button data-v="off">Ausente</button></div>
+        <p class="muted small">Ao trocar de ritmo, o pulso volta ao padrão do ritmo.</p></div>
+      <div class="sub" id="vfAmpBox"><span class="lbl">Amplitude da FV</span>
+        <div class="seg" data-seg="vfAmp"><button data-v="grossa">Grossa</button><button data-v="fina">Fina</button></div></div>
+      <div class="sub"><span class="lbl">Usados há pouco</span><div class="chips" id="recentes"></div></div>
+      <button class="btn full" id="bAllRhythms">Todos os ritmos</button>
     </section>
 
     <!-- TERAPIA -->
-    <section class="tab" data-tab="terapia" hidden>
+    <section class="sec tab" data-tab="terapia" aria-label="Terapia">
+      <div class="sh"><h2>Terapia</h2></div>
       <div class="card">
-        <div class="lbl">Desfibrilador <span id="defStatus" class="muted"></span></div>
-        <div class="stepper"><button class="btn sq" data-energy="-1" aria-label="Diminuir energia">−</button><div class="sv tnum"><b id="energy">150</b> J</div><button class="btn sq" data-energy="1" aria-label="Aumentar energia">+</button></div>
+        <h3>Desfibrilador <small id="defStatus"></small></h3>
+        <div class="stp"><button class="pm" data-energy="-1" aria-label="Diminuir energia">−</button><div class="v tnum"><span id="energy">150</span> <small>J</small></div><button class="pm" data-energy="1" aria-label="Aumentar energia">+</button></div>
+        <div class="grid2"><button class="btn" id="bSync" aria-pressed="false">SINC</button><button class="btn charge" id="bCharge">Carregar</button></div>
+        <button class="btn shock" id="bShock" disabled>Choque</button>
+        <button class="link" id="bDisarm" hidden>Desarmar</button>
+        <label class="sub"><span class="lbl">Após o choque, mudar para</span><select id="shockTo" class="sel"></select></label>
+      </div>
+      <div class="card">
+        <h3>Marcapasso <span id="capTag" class="cap"></span></h3>
+        <button class="btn full" id="bPacer" aria-pressed="false">Ligar marcapasso</button>
         <div class="grid2">
-          <button class="btn" id="bSync">SINC</button>
-          <button class="btn charge" id="bCharge">Carregar</button>
+          <div class="sub"><span class="lbl">Frequência</span><div class="stp mini"><button class="pm" data-pacer="rate:-5" aria-label="Diminuir frequência">−</button><div class="v tnum"><span id="pRate">70</span> <small>ppm</small></div><button class="pm" data-pacer="rate:5" aria-label="Aumentar frequência">+</button></div></div>
+          <div class="sub"><span class="lbl">Corrente</span><div class="stp mini"><button class="pm" data-pacer="ma:-5" aria-label="Diminuir corrente">−</button><div class="v tnum"><span id="pMa">0</span> <small>mA</small></div><button class="pm" data-pacer="ma:5" aria-label="Aumentar corrente">+</button></div></div>
         </div>
-        <button class="btn shock big" id="bShock">Choque</button>
-        <button class="btn ghost full" id="bDisarm">Desarmar</button>
-        <details class="instr more-options"><summary>Mais opções do instrutor</summary>
-          <label for="shockTo" class="lbl">Após o choque, mudar ritmo para</label>
-          <select id="shockTo" class="sel"></select>
+        <div class="sub instr"><span class="lbl">Limiar de captura · só o instrutor vê</span><div class="stp mini"><button class="pm" data-pacer="threshold:-5" aria-label="Diminuir limiar">−</button><div class="v tnum"><span id="pThr">15</span> <small>mA</small></div><button class="pm" data-pacer="threshold:5" aria-label="Aumentar limiar">+</button></div></div>
+        <p id="capStatus" class="muted small"></p>
+      </div>
+    </section>
+
+    <!-- CASO (no tablet ele vai para a janela "Caso e aula") -->
+    <section class="sec tab" data-tab="caso" aria-label="Caso" id="secCaso">
+      <div class="sh"><h2>Caso</h2></div>
+      <div id="painelCaso">
+        <div id="scnActive"></div>
+        <details id="scnPicker" class="picker" open>
+          <summary id="scnPickerSummary" class="btn full">Cenários</summary>
+          <div id="scnList"></div>
+        </details>
+        <div id="classroom"></div>
+        <details class="card more-options" id="historyOptions"><summary>Histórico</summary>
+          <p id="historyEmpty" class="muted">Nenhum evento registrado.</p>
+          <ol id="historyRecent" class="hist"></ol>
+          <button class="btn" id="bHistoryAll">Ver histórico completo</button>
         </details>
       </div>
-      <div class="card">
-        <div class="lbl">RCP</div>
-        <button class="btn big-toggle" id="bCpr">Iniciar compressões</button>
-      </div>
-      <details class="card more-options" id="pacerOptions"><summary>Marcapasso</summary>
-        <div class="lbl">Marcapasso</div>
-        <button class="btn full" id="bPacer">Ligar marcapasso</button>
-        <div class="kv3">
-          <div><small>Frequência</small><div class="stepper"><button class="btn sq" data-pacer="rate:-5" aria-label="Diminuir frequência">−</button><div class="sv tnum"><b id="pRate">70</b> ppm</div><button class="btn sq" data-pacer="rate:5" aria-label="Aumentar frequência">+</button></div></div>
-          <div><small>Corrente</small><div class="stepper"><button class="btn sq" data-pacer="ma:-5" aria-label="Diminuir corrente">−</button><div class="sv tnum"><b id="pMa">0</b> mA</div><button class="btn sq" data-pacer="ma:5" aria-label="Aumentar corrente">+</button></div></div>
-        </div>
-        <div id="capStatus" class="muted small"></div>
-        <div class="instr">
-          <small>Limiar de captura</small>
-          <div class="stepper"><button class="btn sq" data-pacer="threshold:-5" aria-label="Diminuir limiar">−</button><div class="sv tnum"><b id="pThr">60</b> mA</div><button class="btn sq" data-pacer="threshold:5" aria-label="Aumentar limiar">+</button></div>
-        </div>
-      </details>
-      <details class="card more-options" id="nibpOptions"><summary>Pressão não invasiva</summary>
-        <div class="lbl">PNI</div>
-        <button class="btn full" id="bNibp">Medir agora</button>
-        <div class="lbl mt">Medição automática</div>
-        <div class="seg" data-seg="nibpInt"><button data-v="0">Manual</button><button data-v="3">3 min</button><button data-v="5">5 min</button><button data-v="10">10 min</button></div>
-      </details>
-
     </section>
   </main>
 
-  <nav class="tabs">
-    <button data-go="caso" class="active"><svg viewBox="0 0 24 24"><path d="M5 4h14v16H5zM9 9h6M9 13h6M9 17h3"/></svg>Caso</button>
-    <button data-go="ritmo"><svg viewBox="0 0 24 24"><path d="M2 12h4l2-6 4 12 3-9 2 3h5"/></svg>Ritmo</button>
-    <button data-go="sinais"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Sinais</button>
-    <button data-go="terapia"><svg viewBox="0 0 24 24"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg>Terapia</button>
+  <!-- TABLET: rodapé com o caso e os atalhos, sempre à vista -->
+  <footer class="rodape">
+    <div class="rcaso">
+      <span class="lbl" id="fCasoEtapa">Caso</span>
+      <b id="fCasoTitulo">Nenhum caso em andamento</b>
+      <span class="mini" id="fCasoNota"></span>
+    </div>
+    <button class="btn" id="bCasoAula">Caso e aula</button>
+    <div class="atalhos-rapidos">
+      <span class="exame-agora" id="exameAgora" hidden><span></span><button class="link" data-hide-exam>Ocultar</button></span>
+      <button class="qb" data-exame="ecg" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M2 12h4l2-5 4 10 3-8 2 3h5"/></svg>ECG</button>
+      <button class="qb" data-exame="xray" aria-pressed="false"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M12 6v12M9 9q3 2 6 0M8.5 12.5q3.5 2 7 0M9 16q3 1.6 6 0"/></svg>Raio-X</button>
+      <button class="qb cpr" data-cpr aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/><path d="M8 12h2l1-2 2 4 1-2h2"/></svg><span class="cprl">Iniciar RCP</span></button>
+    </div>
+  </footer>
+
+  <!-- CELULAR: atalhos fixos e abas -->
+  <div class="doca" aria-label="Atalhos fixos">
+    <button class="qb" data-exame="ecg" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M2 12h4l2-5 4 10 3-8 2 3h5"/></svg>ECG</button>
+    <button class="qb" data-exame="xray" aria-pressed="false"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M12 6v12M9 9q3 2 6 0M8.5 12.5q3.5 2 7 0M9 16q3 1.6 6 0"/></svg>Raio-X</button>
+    <button class="qb qshock" id="dockShock" data-st="idle"><svg viewBox="0 0 24 24"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg><span id="dockShockL">Carregar</span></button>
+    <button class="qb cpr" data-cpr aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/><path d="M8 12h2l1-2 2 4 1-2h2"/></svg><span class="cprl">RCP</span></button>
+  </div>
+  <nav class="tabs" role="tablist" aria-label="Seções">
+    <button role="tab" data-go="sinais" aria-selected="true"><svg viewBox="0 0 24 24"><path d="M5 20V9M10 20V4M15 20v-8M20 20V7"/></svg>Sinais</button>
+    <button role="tab" data-go="ritmo" aria-selected="false"><svg viewBox="0 0 24 24"><path d="M2 12h4l2-6 4 12 3-9 2 3h5"/></svg>Ritmo</button>
+    <button role="tab" data-go="terapia" aria-selected="false"><svg viewBox="0 0 24 24"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg>Terapia</button>
+    <button role="tab" data-go="caso" aria-selected="false"><svg viewBox="0 0 24 24"><path d="M6 3h12v18H6zM9 8h6M9 12h6M9 16h3"/></svg>Caso</button>
   </nav>
-  <div id="toast" class="toast"></div>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
 </div>
+
+<dialog id="casoDialog" class="sheet largo">
+  <div class="sheet-head"><h2>Caso e aula</h2><button type="button" class="btn ghost" data-close>Fechar</button></div>
+  <div id="casoDialogCorpo"></div>
+</dialog>
+
+<dialog id="rhythmDialog" class="sheet largo">
+  <div class="sheet-head"><h2>Todos os ritmos</h2><button type="button" class="btn ghost" data-close>Fechar</button></div>
+  <div id="rhythmGroups"></div>
+</dialog>
 
 <dialog id="confirmDialog" class="sheet">
   <h2 id="confirmTitle">Confirmar</h2>
@@ -172,14 +196,10 @@
   <div class="grid2"><button type="button" id="confirmCancel" class="btn">Cancelar</button><button type="button" id="confirmOk" class="btn danger-solid">Confirmar</button></div>
 </dialog>
 
-<dialog id="examDialog" class="sheet">
-  <div class="sheet-head"><h2>Escolher exame</h2><button type="button" class="btn ghost" id="bCloseExams">Fechar</button></div>
-  <p class="muted small">Confira a imagem antes de mostrar. O monitor mostra só “ECG de 12 derivações” ou “Radiografia”, sem o nome do arquivo.</p>
-  <div class="grid2"><div><label for="examKind">Categoria</label><select id="examKind" class="sel"><option value="">Todos</option><option value="ecg">ECG</option><option value="xray">Radiografia</option></select></div><div><label for="examSearch">Buscar</label><input id="examSearch" class="sel" type="search" placeholder="Nome ou número"></div></div>
-  <p id="examCount" class="muted small" role="status"></p>
-  <label for="examSelect">Exame</label><select id="examSelect" class="sel"><option value="">Selecione um exame</option></select>
-  <img id="examPreview" alt="Prévia do exame selecionado" hidden>
-  <button class="btn full" id="bShowExam">Mostrar no monitor</button>
+<dialog id="examDialog" class="sheet largo">
+  <div class="sheet-head"><h2>Exames</h2><button type="button" class="btn ghost" id="bCloseExams">Fechar</button></div>
+  <p class="muted small">Toque numa imagem e depois em “Mostrar no monitor”. O monitor mostra só “ECG de 12 derivações” ou “Radiografia”, sem a descrição. As descrições dos ECGs são leituras iniciais, não laudo.</p>
+  <div id="examGallery"></div>
 </dialog>
 
 <dialog id="historyDialog" class="sheet">
@@ -190,24 +210,23 @@
 </dialog>
 
 <dialog id="settingsDialog" class="sheet">
-  <div class="sheet-head"><h2>Ajustes do monitor</h2><button type="button" class="btn ghost" id="bCloseSettings">Fechar</button></div>
+  <div class="sheet-head"><h2>Mais opções</h2><button type="button" class="btn ghost" id="bCloseSettings">Fechar</button></div>
   <p class="muted small">Conexão: <span id="modeTag"></span></p>
-      <details class="card more-options" id="timerOptions"><summary>Mais opções · Cronômetro e alarmes</summary>
-        <div class="lbl">Cronômetro e alarmes</div>
-        <div class="grid2"><button class="btn ghost" id="bTimerReset">Zerar</button></div>
-        <button class="btn full" id="bSilence">Silenciar alarmes por 2 min</button>
-      </details>
-  <div class="lbl">Alarmes e som</div>
-  <label class="switch"><input type="checkbox" id="swAlarms"><span>Alarmes ativados</span></label>
-  <label class="switch"><input type="checkbox" id="swBeep"><span>Bipe do QRS</span></label>
-  <div class="lbl mt">Parâmetros visíveis no monitor</div>
-  <div class="chips" id="showChips">
-    <button class="btn" data-show="ecg">ECG</button><button class="btn" data-show="spo2">SpO₂</button><button class="btn" data-show="nibp">PNI</button>
-    <button class="btn" data-show="capno">EtCO₂</button><button class="btn" data-show="resp">Resp</button><button class="btn" data-show="temp">Temp</button>
-  </div>
-  <label class="switch mt"><input type="checkbox" id="swStudent"><span>Botões dos alunos no monitor</span></label>
-  <p class="muted small">Estes ajustes são mantidos ao trocar de caso.</p>
-  <div class="grid2 mt"><button class="btn ghost danger" id="bReset">Reiniciar monitor</button><button class="btn ghost" id="bLeave">Trocar de sala</button></div>
+  <div class="sub"><span class="lbl">Tema</span>
+    <div class="seg" data-seg="tema"><button data-v="claro">Claro</button><button data-v="escuro">Escuro</button></div></div>
+  <div class="sub"><span class="lbl">Tela</span>
+    <button class="btn full" id="bFullscreen">Tela cheia</button>
+    <p class="muted small" id="fullscreenNote" hidden>Este navegador não deixa a página ocupar a tela toda. No iPhone: toque em Compartilhar → “Adicionar à Tela de Início” e abra o controle pelo ícone; ele abre sem as barras do navegador.</p></div>
+  <div class="sub"><span class="lbl">Alarmes e som</span>
+    <label class="switch"><input type="checkbox" id="swAlarms"><span>Alarmes ativados</span></label>
+    <label class="switch"><input type="checkbox" id="swBeep"><span>Bipe do QRS</span></label>
+    <button class="btn full" id="bSilence">Silenciar alarmes por 2 min</button></div>
+  <div class="sub"><span class="lbl">Monitor</span>
+    <label class="switch"><input type="checkbox" id="swStudent"><span>Botões dos alunos no monitor</span></label>
+    <button class="btn full" id="bTimerReset">Zerar cronômetro</button>
+    <button class="btn full" id="bHistoryMenu">Histórico da aula</button></div>
+  <p class="muted small">Alarmes, bipe e botões dos alunos são mantidos ao trocar de caso. Os sensores começam desligados em cada caso novo.</p>
+  <div class="grid2"><button class="btn ghost danger" id="bReset">Reiniciar monitor</button><button class="btn ghost" id="bLeave">Trocar de sala</button></div>
 </dialog>
 <dialog id="scenarioEditor" class="sheet"><form id="scenarioForm"><h2>Editar cópia do cenário</h2><p>O original será preservado. Alterações exigem nova revisão clínica.</p><label for="editTitle">Nome</label><input id="editTitle" class="sel" maxlength="100" required><label for="editSummary">Resumo</label><input id="editSummary" class="sel" maxlength="240" required><label for="editSources">Fontes e versão de referência</label><textarea id="editSources" class="sel" maxlength="500"></textarea><div id="editSteps"></div><button type="button" id="bAddStep" class="btn full">Adicionar etapa</button><div class="grid2"><button type="button" id="bCancelEdit" class="btn">Cancelar</button><button type="submit" class="btn">Salvar cópia</button></div></form></dialog><script type="module" src="js/controle.js"></script>
 </body>

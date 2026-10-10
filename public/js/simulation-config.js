@@ -12,6 +12,18 @@ export const VITAL_DEFS = {
 };
 
 
+// Valores aceitos para cada campo de escolha do estado. Fonte única: o
+// saneamento de comandos, a restauração do armazenamento e a validação do
+// estado no controle leem daqui. Antes eram cópias à mão em três arquivos, e
+// esquecer uma ao acrescentar um valor fazia o controle recusar todo estado.
+// O primeiro item de cada lista é o padrão.
+export const PULSE_MODES = ['auto', 'on', 'off'];          // auto = conforme o ritmo; off = AESP
+export const VF_AMPLITUDES = ['grossa', 'fina'];
+export const CAPNO_MODES = ['normal', 'bronco', 'rcp', 'none'];
+export const SPO2_SIGNALS = ['normal', 'low', 'absent'];
+// Canais que podem ser mostrados ou ocultados no monitor (`state.show`).
+export const CHANNELS = ['ecg', 'spo2', 'nibp', 'capno', 'resp', 'temp'];
+
 export const DEFAULT_VITALS = { hr: 78, spo2: 98, sys: 122, dia: 78, rr: 16, etco2: 36, temp: 36.6 };
 export const PACER_LIMITS = { rate: [30, 180], ma: [0, 200], threshold: [0, 200] };
 export const NIBP_INTERVALS = [0, 3, 5, 10];

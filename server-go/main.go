@@ -14,6 +14,7 @@ import (
 	"sort"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -31,6 +32,15 @@ type client struct {
 	out  chan []byte
 	once sync.Once
 	dead chan struct{}
+	// Última vez que o aparelho deu sinal (mensagem ou pong), em UnixNano.
+	lastSeen atomic.Int64
+	// Trocada por uma conexão nova da mesma identidade. Protegido por roomsMu.
+	replaced bool
+}
+
+func (c *client) seen() { c.lastSeen.Store(time.Now().UnixNano()) }
+func (c *client) silentFor() time.Duration {
+	return time.Since(time.Unix(0, c.lastSeen.Load()))
 }
 
 func (c *client) close() {
@@ -55,6 +65,11 @@ const (
 	pongWait       = 70 * time.Second
 	pingEvery      = 25 * time.Second
 )
+
+// Conexão calada há mais que isto é tratada como morta quando chega outra com a
+// mesma identidade. O controle fala a cada 4 s no máximo (ping) e o monitor a
+// cada segundo; 8 s dá folga. É variável só para o teste poder encurtar.
+var staleAfter = 8 * time.Second
 
 // Códigos de sala vêm do monitor (4 dígitos). Qualquer outra coisa é recusada.
 func validRoom(s string) bool {
@@ -156,6 +171,7 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	conn.SetReadLimit(64 * 1024)
 	c := &client{conn: conn, out: make(chan []byte, clientQueue), dead: make(chan struct{})}
+	c.seen()
 
 	roomsMu.Lock()
 	// O upgrade ocorre fora da trava. Revalidar antes de admitir evita que
@@ -176,7 +192,9 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 		c.close()
 		roomsMu.Lock()
 		delete(rooms[sala], c)
-		if c.id != "" {
+		// Uma conexão substituída não avisa saída: o aparelho continua na sala
+		// pela conexão nova, e o aviso faria o monitor retirar a autorização.
+		if c.id != "" && !c.replaced {
 			notice, _ := json.Marshal(map[string]string{"type": "peer-left", "peer": c.id, "from": "server"})
 			for p := range rooms[sala] {
 				p.push(notice)
@@ -214,12 +232,13 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 	}()
 
 	conn.SetReadDeadline(time.Now().Add(pongWait))
-	conn.SetPongHandler(func(string) error { return conn.SetReadDeadline(time.Now().Add(pongWait)) })
+	conn.SetPongHandler(func(string) error { c.seen(); return conn.SetReadDeadline(time.Now().Add(pongWait)) })
 	for {
 		_, msg, err := conn.ReadMessage()
 		if err != nil {
 			return
 		}
+		c.seen()
 		conn.SetReadDeadline(time.Now().Add(pongWait))
 		roomsMu.Lock()
 		// Bind the first claimed identity to this live socket; later spoofing is rejected.
@@ -237,17 +256,32 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 				continue
 			}
 			if c.id == "" {
+				// Mesma identidade já na sala. Se a outra conexão está viva, é aba
+				// duplicada ou alguém se passando pelo aparelho: recusa a nova.
+				// Se está calada além de staleAfter, é o resto de um Wi-Fi que caiu
+				// sem fechar a conexão: a nova assume na hora, em vez de esperar
+				// até pongWait (70 s) para o servidor perceber.
 				duplicate := false
+				var stale []*client
 				for p := range rooms[sala] {
-					if p != c && p.id == id {
+					if p == c || p.id != id {
+						continue
+					}
+					if p.silentFor() > staleAfter {
+						stale = append(stale, p)
+					} else {
 						duplicate = true
-						break
 					}
 				}
 				if duplicate {
 					roomsMu.Unlock()
 					c.close()
 					return
+				}
+				for _, p := range stale {
+					p.replaced = true
+					delete(rooms[sala], p)
+					p.close()
 				}
 				c.id = id
 				c.role = role
@@ -303,7 +337,7 @@ func main() {
 	mux.HandleFunc("/api/info", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.Header().Set("Cache-Control", "no-store")
-		json.NewEncoder(w).Encode(map[string]any{"local": true, "ips": lanIPs(), "port": port, "version": "2.3.3-online.20260921", "security": "socket-identity-v1"})
+		json.NewEncoder(w).Encode(map[string]any{"local": true, "ips": lanIPs(), "port": port, "version": "2.4.0-online.20261010", "security": "socket-identity-v1"})
 	})
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Cache-Control", "no-cache")

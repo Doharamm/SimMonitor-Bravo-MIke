@@ -1,0 +1,27 @@
+/* Galeria de exames (controle e monitor). Usa as cores de cada página. */
+.galeria { display: flex; flex-direction: column; gap: 10px; min-height: 0; flex: 1; }
+.gal-topo { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.gal-abas { display: flex; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--panel-2); }
+.gal-abas button { min-height: 40px; padding: 6px 16px; border: 0; background: none; color: var(--text); font: inherit; font-weight: 700; cursor: pointer; }
+.gal-abas button small { color: var(--muted); font-weight: 600; margin-left: 2px; }
+.gal-abas button[aria-selected="true"] { background: var(--text); color: var(--panel); }
+.gal-abas button[aria-selected="true"] small { color: inherit; opacity: .7; }
+.gal-busca { flex: 1 1 200px; min-width: 0; min-height: 40px; padding: 6px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--panel); color: var(--text); font: inherit; }
+.gal-desc { min-height: 40px; padding: 6px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--panel-2); color: var(--text); font: inherit; font-size: 13px; cursor: pointer; }
+.gal-lista { overflow: auto; flex: 1; min-height: 160px; max-height: 58dvh; padding: 2px; }
+.gal-lista h3 { margin: 4px 0 6px; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+.gal-grade { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; margin-bottom: 12px; }
+.gal-item { display: flex; flex-direction: column; gap: 4px; padding: 4px; border-radius: 10px; border: 2px solid var(--line); background: var(--panel-2); color: var(--text); font: inherit; text-align: left; cursor: pointer; min-width: 0; }
+.gal-item img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; object-position: center top; border-radius: 6px; background: var(--panel); display: block; }
+.gal-item[data-gal-id^="ecg"] img { aspect-ratio: 16 / 9; object-position: left center; }
+.gal-n { font-weight: 800; font-size: 13px; padding: 0 2px; }
+.gal-caso { font-style: normal; font-size: 11px; font-weight: 800; color: #fff; background: #0a8743; border-radius: 6px; padding: 1px 6px; margin-left: 4px; white-space: nowrap; }
+.gal-t { font-size: 12px; line-height: 1.25; color: var(--muted); padding: 0 2px 2px; }
+.gal-item.sel { border-color: #3b82f6; box-shadow: 0 0 0 2px #3b82f655; }
+.gal-vazio { color: var(--muted); }
+.gal-rodape { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.gal-sel { flex: 1 1 140px; font-size: 13px; color: var(--muted); }
+.gal-rodape .btn { min-height: 42px; padding: 8px 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--panel-2); color: var(--text); font: inherit; font-weight: 700; cursor: pointer; }
+.gal-rodape .gal-mostrar:not(:disabled) { background: #2563eb; border-color: #2563eb; color: #fff; }
+.gal-rodape .btn:disabled { opacity: .45; cursor: default; }
+@media (max-width: 520px) { .gal-grade { grid-template-columns: repeat(2, minmax(0, 1fr)); } }

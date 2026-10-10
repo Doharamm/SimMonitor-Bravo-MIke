@@ -1,26 +1,80 @@
-# Instruções de entrega — SimMonitor
+# Como trabalhar neste projeto
 
-## Objetivo
+SimMonitor: monitor multiparamétrico para aulas de urgência e emergência da
+Bravo Mike. Comece por `MAPA_DO_CODIGO.md` (onde mexer e armadilhas) e
+`docs/OPERACAO.md` (o que está no ar e como voltar atrás).
 
-Preparar esta versão do SimMonitor para que o usuário publique na Vercel com comunicação autorizada via Supabase. Comece pela implementação existente. Preserve layout, traçados/velocidades, casos e regras clínicas. O pacote é a base final da reorganização; a integração online ainda está pendente.
+## Estado atual
 
-## Sequência de trabalho
+- Modo online concluído e publicado em https://bravomike-simmonitor.vercel.app.
+- **Controle novo implementado** (outubro de 2026) a partir do protótipo
+  aprovado com o usuário: https://claude.ai/artifact/4YnRLGxkjPVdrcYQJkfue1 .
+  Mudanças de tela do controle: proponha no protótipo primeiro se forem grandes.
+- Decisões do controle novo: painel único no tablet deitado, abas no celular
+  (sinais → ritmo → terapia → caso), sliders verticais com ±, tema claro por
+  padrão, sensores começam desligados e voltam a desligar a cada caso novo, FR
+  acompanha o oxímetro, PNI na coluna da PA (recusada sem manguito, ~7,5 s, com
+  som de manguito no monitor), atalhos de EtCO₂ mostram o limiar do protocolo.
+- Decisões de outubro de 2026: etapas do caso **não ligam a RCP** (é o aluno
+  quem pede; a etapa só mantém a que estiver em andamento); limiar de captura
+  do marcapasso padrão em 15 mA (pedido do usuário); controle entra pelo QR sem
+  "Autorizar"; monitor tem atalhos próprios (Ritmo, ECG, Raio-X); galeria de
+  exames com o exame do caso marcado e um compatível (normal) para o aluno que
+  pedir fora do tema.
+- Tudo deve poder ser conduzido só pelo monitor, sem celular: clique no número
+  para digitar o valor (liga o sensor), Ritmo escolhido no monitor liga o ECG e
+  vale com a simulação pausada; o mesmo campo desliga o sensor; o botão Casos
+  do monitor escolhe o caso (carrega pausado, play começa).
 
-1. Leia `PUBLICACAO_VERCEL_SUPABASE.md`. Localize os dois bloqueios online e o canal público descritos ali. Rode `npm run verify:delivery` antes de editar, `npm test` e `npm run build:web`. Conclua esta etapa registrando a base recebida e o resultado dos comandos.
-2. Consulte `MAPA_DO_CODIGO.md` para localizar as responsabilidades. Apresente um plano curto para autorização de salas, identidade dos participantes, papéis monitor/controle, revogação, recarga e reconexão. Reaproveite o fluxo de autorização visível já existente.
-3. Inspecione o projeto Supabase pretendido e sua configuração antes de propor migrações. Confirme o destino se não estiver identificável no contexto/acesso do usuário. Verifique a documentação atual. Entregue alterações locais e migrações reproduzíveis antes de qualquer aplicação em ambiente remoto.
-4. Implemente a integração em etapas pequenas. O receptor precisa verificar identidade/papel por um mecanismo confiável; `msg.from`, `msg.role`, código curto da sala e `lease` informados no próprio payload não são prova de identidade. Preserve rejeição de duplicação, atraso, comandos de sessões anteriores e descarte offline.
-5. Exercite os critérios de aceite do guia em ambiente de teste. Só substitua os bloqueios online atuais quando a nova autorização estiver demonstrada pelos testes. Rode a suíte local para provar que a integração não quebrou demonstração/Go.
-6. Entregue um `ENTREGA_PARA_REVISAO.md` com arquivos alterados, migrações, comandos, resultados locais/remotos separados, URL de teste se existir, limitações, configuração final e procedimento de retorno à versão anterior. O usuário fará a publicação; este pacote não autoriza publicar ou modificar serviços por conta própria.
+## Conversando com o usuário
 
-## Preservação
+- Português simples, sem jargão técnico. Quando ele responde "não entendi",
+  reexplique com exemplo concreto ou mostre um desenho, não repita a pergunta.
+- **Decisões clínicas são dele.** Valores de caso, limiares, frequências e
+  rótulos clínicos: proponha, explique o porquê e peça confirmação. Ao mudar um
+  valor clínico por consistência, avise em destaque.
+- Ele não se preocupa com alunos sabotando a sala; não insista em endurecer
+  segurança além do que já existe.
 
-- `public/` é a fonte. Gere novamente `web/dist/` e `server-go/public/` pelos scripts; mantenha as duas interfaces na mesma versão de protocolo.
-- Preserve bytes de `dart-data.js`, `dart-player.js`, `ecg-shapes.js`, motor e HTML/CSS aprovado, salvo mudança explicitamente necessária ao fluxo online, documentada separadamente. Não redesenhe as telas como parte da integração.
-- Preserve os 144 testes. Acrescente testes de autorização online sem enfraquecer as verificações locais. Há seis testes específicos dos limites entre módulos em `tests/organization.test.js`.
-- Mantenha decisões clínicas e novos recursos fora desta etapa. Fontes documentais e limitações estão em `evidencias/REVISAO_CLINICA_ORIGEM.md` e `evidencias/REORGANIZACAO_ORIGEM.md`.
-- A URL/chave em `public/js/config.js` foi preservada da origem. A chave é publicável; ela não autentica o instrutor. Chaves secretas e `service_role` ficam somente em ambiente confiável de servidor.
+## Serviços remotos
 
-## Limites da entrega
+- **Não faça `git push` na `main` sem pedido explícito**: a Vercel publica
+  sozinha a cada push.
+- Não altere o Supabase (migração, configuração, dados) sem pedido explícito.
+  Confirme o projeto pelo `ref` (`vonehbabrbjbjfxnsmpj`), nunca pelo nome.
+- Abrir o monitor publicado para testar cria uma sala de verdade no banco; diga
+  isso ao usuário quando fizer.
 
-Os relatórios em `evidencias/` descrevem testes locais. Não comprovam Supabase configurado, autorização remota, publicação, aparelhos físicos ou revisão clínica. Scripts históricos estão em `evidencias/scripts-origem/` como texto: dependem de backups da máquina de origem. O pacote oferece uma verificação própria de integridade; a ausência desses backups não foi contornada removendo testes da aplicação.
+## Código
+
+- `public/` é a fonte. `web/dist/` e `server-go/public/` são geradas por
+  `npm run build:web` e `npm run prepare:go`.
+- Antes de entregar: `npm test`, `npm run build:web` e, se mexeu no Go,
+  `go -C server-go test ./...`.
+- Para um bug corrigido, escreva o teste e **confirme que ele falha com o bug de
+  volta**. Mais de um teste desta base já passava com e sem a correção.
+- **Armadilha dos testes:** `monitor.js`, `controle.js` e `transport.js` são
+  carregados nos testes sem as linhas de `import`. Um nome importado novo e usado
+  nesses arquivos precisa ser acrescentado ao `sandbox` em
+  `tests/regression.test.js`. Detalhes em `MAPA_DO_CODIGO.md`.
+- Valores permitidos de campos do estado (capnografia, oxímetro, pulso, canais)
+  ficam só em `simulation-config.js`.
+- A versão está em `package.json`, `public/js/classroom.js` e
+  `server-go/main.go`; um teste exige que as três sejam iguais.
+
+## Traçados
+
+- Velocidades aprovadas não mudam sem pedido: ECG 6 s de tela a 400 Hz, faixa
+  −1,1 a 1,9 (`monitor.js`, tabela `tr`).
+- Mudança de forma de onda exige conferência visual no navegador, além dos
+  testes. Um sinal pode passar nos testes e sair invisível na tela.
+- O motor tem cópias fora deste repositório: `../site-treino-acls/tracados/` e o
+  pacote `../tracados-ecg.zip`. Ao mudar `engine.js`, `ecg-shapes.js`,
+  `dart-player.js`, `dart-data.js` ou `rhythm-catalog.js`, avise e propague.
+
+## Ferramentas no Windows
+
+- Não grave JSON com `Set-Content` do PowerShell: ele põe BOM, e um BOM no
+  `package.json` já derrubou uma publicação da Vercel.
+- Edições de várias linhas: use a ferramenta de edição, não `node -e` ou `sed`
+  com crases dentro de aspas no shell; o shell interpreta as crases.

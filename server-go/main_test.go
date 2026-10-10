@@ -161,6 +161,89 @@ func TestSocketIdentityAndPrivateReplies(t *testing.T) {
 	}
 }
 
+// Wi-Fi caiu sem fechar a conexão: o aparelho volta com a mesma identidade
+// enquanto o servidor ainda segura a conexão antiga, calada. A nova precisa
+// entrar na hora (antes esperava até 70 s), e a saída da antiga não pode
+// avisar a sala — senão o monitor retiraria a autorização do aparelho que
+// acabou de voltar.
+func TestStaleIdentityIsReplaced(t *testing.T) {
+	antes := staleAfter
+	staleAfter = 80 * time.Millisecond
+	defer func() { staleAfter = antes }()
+
+	server := httptest.NewServer(http.HandlerFunc(wsHandler))
+	defer server.Close()
+	dial := func() *websocket.Conn {
+		c, _, e := websocket.DefaultDialer.Dial("ws"+strings.TrimPrefix(server.URL, "http")+"?sala=8888", nil)
+		if e != nil {
+			t.Fatal(e)
+		}
+		t.Cleanup(func() { c.Close() })
+		return c
+	}
+	monitor, velho := dial(), dial()
+	monitor.WriteJSON(map[string]any{"type": "hello", "from": "m", "role": "monitor"})
+	velho.WriteJSON(map[string]any{"type": "hello", "from": "c", "role": "controller"})
+	monitor.SetReadDeadline(time.Now().Add(time.Second))
+	var m map[string]any
+	if e := monitor.ReadJSON(&m); e != nil || m["from"] != "c" {
+		t.Fatalf("monitor não recebeu o hello do controle: %v %v", m, e)
+	}
+
+	time.Sleep(150 * time.Millisecond) // a conexão antiga fica calada além do limite
+
+	novo := dial()
+	novo.WriteJSON(map[string]any{"type": "hello", "from": "c", "role": "controller"})
+	novo.WriteJSON(map[string]any{"type": "ping", "from": "c", "role": "controller"})
+
+	// O monitor recebe as mensagens da conexão nova e nenhum aviso de saída.
+	for _, esperado := range []string{"hello", "ping"} {
+		monitor.SetReadDeadline(time.Now().Add(time.Second))
+		m = nil
+		if e := monitor.ReadJSON(&m); e != nil {
+			t.Fatalf("conexão nova não entrou: %v", e)
+		}
+		if m["type"] == "peer-left" {
+			t.Fatal("a conexão substituída avisou saída e derrubaria a autorização")
+		}
+		if m["type"] != esperado {
+			t.Fatalf("esperava %s, veio %v", esperado, m)
+		}
+	}
+	monitor.SetReadDeadline(time.Now().Add(150 * time.Millisecond))
+	if e := monitor.ReadJSON(&m); e == nil && m["type"] == "peer-left" {
+		t.Fatal("a conexão substituída avisou saída depois")
+	}
+
+	// A conexão antiga foi fechada pelo servidor. Ela pode ter mensagens de
+	// antes na fila (o hello do monitor); lê até chegar ao fechamento.
+	velho.SetReadDeadline(time.Now().Add(time.Second))
+	for {
+		_, _, e := velho.ReadMessage()
+		if e == nil {
+			continue
+		}
+		if n, ok := e.(interface{ Timeout() bool }); ok && n.Timeout() {
+			t.Fatal("conexão antiga não foi fechada")
+		}
+		break
+	}
+
+	// Mas uma terceira com a mesma identidade, com a nova ainda ativa, é recusada.
+	// A nova fala agora: no teste o limite é de só 80 ms, e as esperas acima já
+	// passaram disso.
+	novo.WriteJSON(map[string]any{"type": "ping", "from": "c", "role": "controller"})
+	time.Sleep(10 * time.Millisecond)
+	intrusa := dial()
+	intrusa.WriteJSON(map[string]any{"type": "hello", "from": "c", "role": "controller"})
+	intrusa.SetReadDeadline(time.Now().Add(time.Second))
+	if _, _, e := intrusa.ReadMessage(); e == nil {
+		t.Fatal("identidade duplicada admitida com a original ativa")
+	} else if n, ok := e.(interface{ Timeout() bool }); ok && n.Timeout() {
+		t.Fatal("identidade duplicada não foi desconectada")
+	}
+}
+
 func TestLANBeforeVPN(t *testing.T) {
 	wifi := addressPriority("Wi-Fi", net.ParseIP("172.20.32.33"))
 	for _, vpn := range []struct{ name, address string }{

@@ -7,7 +7,7 @@ export const RHYTHMS = [
   { id: 'svt',    nome: 'Taquicardia supraventricular',  curto: 'TSV',         grupo: 'Supraventriculares',  hr: 180, pulse: true },
   { id: 'psvt',   nome: 'TSV pediátrica',                curto: 'TSV pediátrica', grupo: 'Supraventriculares', hr: 230, pulse: true },
   { id: 'afib',   nome: 'Fibrilação atrial',             curto: 'FA',          grupo: 'Supraventriculares',  hr: 110, pulse: true },
-  { id: 'afl',    nome: 'Flutter atrial',                curto: 'Flutter',     grupo: 'Supraventriculares',  hr: 75, pulse: true },
+  { id: 'afl',    nome: 'Flutter atrial',                curto: 'Flutter',     grupo: 'Supraventriculares',  hr: 150, pulse: true },
   { id: 'junc',   nome: 'Ritmo juncional',               curto: 'Juncional',   grupo: 'Supraventriculares',  hr: 50,  pulse: true },
   { id: 'pac',    nome: 'Sinusal com extrassístoles atriais', curto: 'ESA',    grupo: 'Supraventriculares',  hr: 80,  pulse: true },
   { id: 'wpw',    nome: 'Wolff-Parkinson-White',         curto: 'WPW',         grupo: 'Supraventriculares',  hr: 80,  pulse: true },
@@ -26,6 +26,7 @@ export const RHYTHMS = [
   { id: 'agonal', nome: 'Ritmo agônico',                 curto: 'Agônico',     grupo: 'PCR',                 hr: 20,  pulse: false },
   { id: 'ste',    nome: 'Sinusal com supra de ST',       curto: 'Supra ST',    grupo: 'SCA',                 hr: 88,  pulse: true },
   { id: 'ste_st', nome: 'Taqui sinusal com supra de ST', curto: 'Taqui + supra ST', grupo: 'SCA',            hr: 120, pulse: true },
+  { id: 'wellens',nome: 'T bifásica plus-minus (Wellens)', curto: 'Plus-minus', grupo: 'SCA',           hr: 76,  pulse: true },
 ];
 export const RHYTHM_BY_ID = Object.fromEntries(RHYTHMS.map(r => [r.id, r]));
 export const RHYTHM_GROUPS = ['Sinusais', 'Supraventriculares', 'Bloqueios', 'Ventriculares', 'PCR', 'SCA'];

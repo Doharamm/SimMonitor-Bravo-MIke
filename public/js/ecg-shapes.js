@@ -56,8 +56,10 @@ export const PVC = shape([[0,0],[.018,.06],[.042,-.60],[.069,-.90],[.094,-.54],
   [.130,.04],[.172,.17],[.245,.39],[.310,.20],[.420,0]], .069);
 export const BBB = shape([[0,0],[.016,.07],[.040,-.58],[.069,-.35],[.096,-.48],
   [.137,-.06],[.158,.025],[.223,.23],[.285,.34],[.355,.15],[.425,0]], .040);
-export const PACED = shape([[0,0],[.022,-.18],[.060,-.45],[.090,.64],[.121,.80],
-  [.160,.05],[.218,-.13],[.295,-.29],[.360,-.15],[.445,0]], .121);
+// QRS capturado pelo marcapasso: começa no pé da espícula e desce direto, sem
+// voltar à linha de base. Era esse vão que deixava a espícula "solta".
+export const PACED = shape([[0,0],[.012,-.30],[.035,-.45],[.075,.50],[.105,.80],
+  [.150,.20],[.200,-.10],[.290,-.29],[.360,-.15],[.445,0]], .105);
 export const AGONAL = shape([[0,0],[.05,.02],[.105,.24],[.165,.13],[.22,-.16],[.31,-.12],[.47,0]], .105);
 
 export function preexcited(rr) {
@@ -65,6 +67,23 @@ export function preexcited(rr) {
     const normal = narrow(rr);
     return shape([[-.030,0],[-.005,.11],[.012,.24],[.030,.78],[.052,-.10],[.085,0],
       ...normal.points.filter(p => p[0] > .092)], .030);
+  });
+}
+
+// Onda T bifásica "plus-minus": sobe primeiro e depois mergulha abaixo da linha
+// de base. É o padrão de Wellens — pré-infarto por lesão crítica da descendente
+// anterior. O que o caracteriza é o que NÃO muda: complexo estreito, onda R
+// preservada e nenhuma onda Q. Só a repolarização denuncia.
+export function plusMinus(rr, st = .05) {
+  const cycle = Math.round(Math.max(.2, Math.min(2, rr))*1000)/1000;
+  return memo(`pm:${cycle}:${st}`, () => {
+    const peak = Math.max(.135, Math.min(.30, .10 + .20*Math.sqrt(cycle)));
+    const fim = Math.max(peak + .205, Math.min(cycle*.86, peak + .27));
+    const qrs = [[0,0],[.008,-.065],[.020,.82],[.030,-.16],[.045,-.08],[.068,st]];
+    return shape([...qrs, [.092,st],
+      [peak-.035, st + .10], [peak, st + .15],
+      [peak+.045, st*.2], [peak+.10, -.22], [peak+.145, -.30], [peak+.19, -.11],
+      [fim, 0]]);
   });
 }
 

@@ -1,6 +1,6 @@
 import {validateScenario} from './classroom.js';
 import { RHYTHM_BY_ID } from './rhythm-catalog.js';
-import { VITAL_DEFS, ENERGIES, PACER_LIMITS, NIBP_INTERVALS } from './simulation-config.js';
+import { VITAL_DEFS, ENERGIES, PACER_LIMITS, NIBP_INTERVALS, PULSE_MODES, VF_AMPLITUDES, CAPNO_MODES, SPO2_SIGNALS, CHANNELS } from './simulation-config.js';
 import { SCENARIO_BY_ID } from './scenario-catalog.js';
 import { EXAM_BY_ID } from './exams.js';
 const obj = v => v !== null && typeof v === 'object' && !Array.isArray(v);
@@ -11,7 +11,7 @@ const bounded = (v,a,b) => finite(v) && v >= a && v <= b;
 const token = v => typeof v === 'string' && v.length > 0 && v.length <= 128;
 export function validPublicState(s) {
   if (!obj(s) || s.protocol !== 2 || !token(s.session) || !token(s.lease) || !own(RHYTHM_BY_ID,s.rhythm)) return false;
-  if (!['normal','low','absent'].includes(s.spo2Signal) || !bool(s.audioMuted)) return false;
+  if (!SPO2_SIGNALS.includes(s.spo2Signal) || !bool(s.audioMuted)) return false;
   for (const key of ['vit','cur']) {
     if (!obj(s[key])) return false;
     for (const [name,def] of Object.entries(VITAL_DEFS)) if (!bounded(s[key][name],def.min,def.max)) return false;
@@ -22,8 +22,8 @@ export function validPublicState(s) {
   if (!obj(s.defib) || !ENERGIES.includes(s.defib.energy) || !bool(s.defib.sync) || !['idle','charging','ready','sync'].includes(s.defib.status) || !Number.isSafeInteger(s.defib.shocks) || s.defib.shocks < 0) return false;
   if (!obj(s.pacer) || !bool(s.pacer.on) || !bounded(s.pacer.rate,...PACER_LIMITS.rate) || !bounded(s.pacer.ma,...PACER_LIMITS.ma) || !bounded(s.pacer.threshold,...PACER_LIMITS.threshold)) return false;
   if (!obj(s.alarms) || !bool(s.alarms.enabled) || !bool(s.alarms.beep)) return false;
-  if (!obj(s.show) || !['ecg','spo2','nibp','capno','resp','temp'].every(k=>bool(s.show[k]))) return false;
-  if (!['auto','on','off'].includes(s.pulse) || !['grossa','fina'].includes(s.vfAmp) || !['normal','bronco','rcp','none'].includes(s.capno)) return false;
+  if (!obj(s.show) || !CHANNELS.every(k=>bool(s.show[k]))) return false;
+  if (!PULSE_MODES.includes(s.pulse) || !VF_AMPLITUDES.includes(s.vfAmp) || !CAPNO_MODES.includes(s.capno)) return false;
   if (![s.hidden,s.studentPanel,s.cpr,s.captured].every(bool)) return false;
   if (s.exam !== null && !own(EXAM_BY_ID,s.exam)) return false;
   if (!obj(s.scn) || !Number.isInteger(s.scn.step)) return false;

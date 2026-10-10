@@ -41,14 +41,15 @@ const mime={'.html':'text/html','.js':'text/javascript','.mjs':'text/javascript'
    await control.waitForFunction(()=>document.querySelector('#bMuteAll').getAttribute('aria-pressed')==='false');
    report.checks.push('Silenciar todos os sons sincroniza nos dois sentidos');
    await control.locator('[data-go="sinais"]').click();
+   // Sensores começam desligados (canal em estado "desconectado"): liga todos.
+   await control.locator('#bAllOn').click();await monitor.waitForFunction(()=>![...document.querySelectorAll('[data-ch]')].some(el=>el.classList.contains('offCh')));
    await control.locator('[data-spo2-signal="low"]').click();await monitor.waitForFunction(()=>document.querySelector('#nSpo2').textContent==='--');
    assert.equal(await control.locator('#v-spo2').textContent(),'98');
    await control.locator('[data-spo2-signal="absent"]').click();await control.waitForFunction(()=>document.querySelector('[data-spo2-signal="absent"]').getAttribute('aria-pressed')==='true');
    await control.locator('[data-spo2-signal="normal"]').click();await monitor.waitForFunction(()=>document.querySelector('#nSpo2').textContent==='98');await control.waitForFunction(()=>document.querySelector('#lSpo2').textContent==='98');
-   assert.equal(await control.locator('#presetOptions').evaluate(el=>el===el.parentElement.firstElementChild),true);
-   assert.equal(await control.locator('#capnoOptions').evaluate(el=>el.previousElementSibling.dataset.vital==='etco2'&&el.nextElementSibling.dataset.vital==='temp'),true);
-   assert.equal(await control.locator('#bTimer').count(),0);assert.equal(await control.locator('#settingsDialog #timerOptions').count(),1);assert.equal(await control.locator('.instr-tag').count(),0);
-   await control.locator('[data-vital="spo2"]').scrollIntoViewIfNeeded();await control.screenshot({path:path.join(output,'oximetro-mobile.png')});
+   assert.equal(await control.locator('#vitals [data-canal]').count(),5,'cinco chaves de sensor (a FR segue o oxímetro)');
+   assert.equal(await control.locator('#bTimer').count(),0);assert.equal(await control.locator('#settingsDialog #bTimerReset').count(),1);assert.equal(await control.locator('.instr-tag').count(),0);
+   await control.locator('[data-col="spo2"]').scrollIntoViewIfNeeded();await control.screenshot({path:path.join(output,'oximetro-mobile.png')});
    report.checks.push('SpO2: hipoperfusão e ausente preservam valor; normal recupera leitura; ordem e menu corrigidos');
    for(const [button,kind] of [['bMonitorXray','xray'],['bMonitorECG','ecg']]){
     await monitor.locator('#'+button).click();
@@ -61,45 +62,42 @@ const mime={'.html':'text/html','.js':'text/javascript','.mjs':'text/javascript'
    }
    report.checks.push('Ícones de raio-X e ECG abrem catálogos corretos e exibem imagens locais');
    await control.locator('[data-go="terapia"]').click();
-   assert.equal(await control.locator('#bPacer').isVisible(),false);
-   await control.locator('#pacerOptions > summary').click();assert.equal(await control.locator('#bPacer').isVisible(),true);
-   await control.locator('#pacerOptions > summary').click();
-   await control.locator('#nibpOptions > summary').click();assert.equal(await control.locator('#bNibp').isVisible(),true);
-   await control.locator('#nibpOptions > summary').click();
+   assert.equal(await control.locator('#bPacer').isVisible(),true);
    await control.screenshot({path:path.join(output,'terapia-minimalista.png')});
+   await control.locator('[data-go="sinais"]').click();assert.equal(await control.locator('#bNibp').isVisible(),true);
    await control.locator('[data-go="ritmo"]').click();
-   await control.locator('#rhythmOptions > summary').click();assert.ok(await control.locator('[data-rhythm]:visible').count()>20);
-   await control.locator('#rhythmOptions > summary').click();
+   await control.locator('#bAllRhythms').click();assert.ok(await control.locator('#rhythmDialog [data-rhythm]:visible').count()>20);
+   await control.locator('#rhythmDialog [data-close]').click();
    await control.locator('[data-go="caso"]').click();
    const unique=await control.evaluate(()=>{const ids=[...document.querySelectorAll('[id]')].map(el=>el.id);return new Set(ids).size===ids.length;});assert.equal(unique,true);
-   report.checks.push('Mais opções mantém acesso a marcapasso, PNI e catálogo de ritmos; IDs únicos');
+   report.checks.push('Marcapasso, PNI e catálogo de ritmos acessíveis; IDs únicos');
   }
   for(const width of [1366,1024]){await monitor.setViewportSize({width,height:768});await monitor.screenshot({path:path.join(output,'monitor-'+width+'.png')});
    report.layouts.push(await monitor.evaluate(()=>({page:'monitor',width:innerWidth,overflow:document.documentElement.scrollWidth>innerWidth,buttons:['bNibp','bShock','bPacer','bMonitorPrev','bMonitorPause','bMonitorNext','bMonitorXray','bMonitorECG'].map(id=>{const r=document.getElementById(id).getBoundingClientRect();return {id,x:r.x,y:r.y,width:r.width,height:r.height,visible:r.bottom<=innerHeight&&r.right<=innerWidth};})})));}
   await control.locator('[data-go="ritmo"]').click();await control.locator('[data-quick="tvsp"]').click();
   await control.waitForFunction(()=>document.querySelector('#commandStatus').textContent.includes('executado'));
-  await control.locator('[data-go="sinais"]').click();await control.locator('[data-k="etco2"] [data-d="1"]').tap();
+  await control.locator('[data-go="sinais"]').click();await control.locator('[data-k="etco2"][data-d="1"]').tap();
   await control.waitForFunction(()=>document.querySelector('#v-etco2').textContent==='2');
   await monitor.waitForTimeout(1700);report.etco2AfterArrow=await monitor.locator('#nEtco2').textContent();
   if(baseline)assert.equal(report.etco2AfterArrow,'--');else assert.equal(report.etco2AfterArrow,'2');
   report.checks.push('TVSP → aumentar EtCO₂: '+report.etco2AfterArrow);
   if(!baseline){
    // Rolar a tela começando sobre uma seta não pode editar o sinal.
-   const plus=control.locator('[data-k="etco2"] [data-d="1"]');await plus.scrollIntoViewIfNeeded();
+   const plus=control.locator('[data-k="etco2"][data-d="1"]');await plus.scrollIntoViewIfNeeded();
    const box=await plus.boundingBox(),cdp=await context.newCDPSession(control),x=box.x+box.width/2,y=box.y+box.height/2;
    await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x,y}]});
    await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x,y:y-90}]});
    await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});await control.waitForTimeout(700);
    assert.equal(await control.locator('#v-etco2').textContent(),'2');report.checks.push('Toque ajusta; arrastar sobre seta não ajusta');
-   for(const value of [8,17,35,45]){await control.locator(`[data-etco2="${value}"]`).click();await monitor.waitForFunction(v=>document.querySelector('#nEtco2').textContent===String(v),value);}
-   assert.equal(await monitor.locator('#nSpo2').textContent(),'--');report.checks.push('4 atalhos EtCO₂, mantendo ausência de pulso');
+   for(const value of [8,17,40]){await control.locator(`[data-etco2="${value}"]`).click();await monitor.waitForFunction(v=>document.querySelector('#nEtco2').textContent===String(v),value);}
+   assert.equal(await monitor.locator('#nSpo2').textContent(),'--');report.checks.push('3 atalhos EtCO₂, mantendo ausência de pulso');
    await control.locator('#v-etco2').click();
    assert.equal(await control.locator('#vitalDialog').count(),0);
    assert.equal(await control.locator('#vitals input').count(),0);
-   await control.locator('[data-k="etco2"] [data-d="1"]').click();
-   await monitor.waitForFunction(()=>document.querySelector('#nEtco2').textContent==='47');
-   await control.locator('[data-k="etco2"] [data-d="-1"]').click();
-   await monitor.waitForFunction(()=>document.querySelector('#nEtco2').textContent==='45');
+   await control.locator('[data-k="etco2"][data-d="1"]').click();
+   await monitor.waitForFunction(()=>document.querySelector('#nEtco2').textContent==='42');
+   await control.locator('[data-k="etco2"][data-d="-1"]').click();
+   await monitor.waitForFunction(()=>document.querySelector('#nEtco2').textContent==='40');
    report.checks.push('Sinais sem digitação; setas EtCO₂ aumentam e diminuem');
   }
   for(const size of [{width:320,height:568},{width:360,height:640},{width:390,height:844}]){
@@ -113,8 +111,8 @@ const mime={'.html':'text/html','.js':'text/javascript','.mjs':'text/javascript'
    const duplicate=await context.newPage();await duplicate.goto(origin+'/monitor.html?sala=9876'+mode);
    await control.waitForFunction(()=>document.querySelector('#waiting').textContent.includes('Mais de um'));
    await duplicate.close();await control.waitForFunction(()=>document.querySelector('#waiting').hidden,{},{timeout:10000});
-   await control.locator('[data-etco2="45"]').click();await monitor.waitForFunction(()=>document.querySelector('#nEtco2').textContent==='45');report.checks.push('Duplicação bloqueia; fechar duplicado recupera');
-   await control.locator('.etco2-shortcuts').scrollIntoViewIfNeeded();await control.screenshot({path:path.join(output,'etco2-viewport.png')});
+   await control.locator('[data-etco2="40"]').click();await monitor.waitForFunction(()=>document.querySelector('#nEtco2').textContent==='40');report.checks.push('Duplicação bloqueia; fechar duplicado recupera');
+   await control.locator('.atalhos').scrollIntoViewIfNeeded();await control.screenshot({path:path.join(output,'etco2-viewport.png')});
    if(local){
     await control.waitForFunction(()=>document.querySelector('#modeTag').textContent.includes('Wi-Fi local'));
     const stopped=new Promise(r=>executable.once('exit',r));executable.kill();await stopped;

@@ -6,11 +6,19 @@
 <meta name="theme-color" content="#07090c">
 <meta name="mobile-web-app-capable" content="yes">
 <link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="img/icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="BM Monitor">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<script type="module" src="js/pwa.js"></script>
 <link rel="icon" href="img/icon.svg">
 <title>Monitor · Bravo Mike SimMonitor</title>
 <link rel="stylesheet" href="css/base.css">
 <link rel="stylesheet" href="css/monitor.css">
 <link rel="stylesheet" href="css/monitor-scenario-controls.css">
+<link rel="stylesheet" href="css/exam-gallery.css">
+<link rel="stylesheet" href="css/case-picker.css">
 <style>.simulation-paused *{animation-play-state:paused!important}</style>
 </head>
 <body><div id="pauseState" hidden style="position:fixed;z-index:9999;top:8px;left:50%;transform:translateX(-50%);background:#243247;padding:10px;border-radius:8px">Simulação pausada </div>
@@ -21,6 +29,7 @@
     <div id="banner" class="banner"></div>
     <!-- scenario-toolbar-start -->
     <div class="monitor-scenario-controls" role="group" aria-label="Condução do cenário">
+      <button id="bMonitorCases" class="cases-btn" aria-label="Escolher caso" title="Escolher caso">Casos</button>
       <button id="bMonitorPrev" aria-label="Voltar uma etapa do cenário" title="Etapa anterior" disabled>◀</button>
       <button id="bMonitorPause" aria-label="Pausar simulação" title="Pausar simulação"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="play-shape" d="M8 4v16l12-8z"/><g class="pause-shape"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></g></svg></button>
       <button id="bMonitorNext" aria-label="Avançar uma etapa do cenário" title="Próxima etapa" disabled>▶</button>
@@ -33,7 +42,7 @@
   <main class="mon">
     <div class="rows">
       <section class="row" data-ch="ecg" style="--c:var(--ecg)">
-        <div class="wave"><span class="lbl">II <small>×1</small></span><span id="paceLbl" class="lbl-right"></span><canvas id="cvEcg"></canvas></div>
+        <div class="wave" data-off="ECG — eletrodos desconectados"><span class="lbl">II <small>×1</small></span><span id="paceLbl" class="lbl-right"></span><canvas id="cvEcg"></canvas></div>
         <div class="num" data-ch="ecg">
           <div class="nh"><span>FC</span><span class="u">bpm</span></div>
           <div class="big tnum" id="nHr">--</div>
@@ -41,7 +50,7 @@
         </div>
       </section>
       <section class="row" data-ch="spo2" style="--c:var(--spo2)">
-        <div class="wave"><span class="lbl">Pleth</span><canvas id="cvPleth"></canvas></div>
+        <div class="wave" data-off="SpO₂ — sensor desconectado"><span class="lbl">Pleth</span><canvas id="cvPleth"></canvas></div>
         <div class="num" data-ch="spo2">
           <div class="nh"><span>SpO₂</span><span class="u">%</span></div>
           <div class="big tnum" id="nSpo2">--</div>
@@ -49,14 +58,14 @@
         </div>
       </section>
       <section class="row" data-ch="capno" style="--c:var(--co2)">
-        <div class="wave"><span class="lbl">CO₂ <small id="co2Scale">0–60</small></span><canvas id="cvCapno"></canvas></div>
+        <div class="wave" data-off="CO₂ — capnógrafo desconectado"><span class="lbl">CO₂ <small id="co2Scale">0–60</small></span><canvas id="cvCapno"></canvas></div>
         <div class="num" data-ch="capno">
           <div class="nh"><span>EtCO₂</span><span class="u">mmHg</span></div>
           <div class="big tnum" id="nEtco2">--</div>
         </div>
       </section>
       <section class="row" data-ch="resp" style="--c:var(--resp)">
-        <div class="wave"><span class="lbl">Resp</span><canvas id="cvResp"></canvas></div>
+        <div class="wave" data-off="Resp — sem sinal"><span class="lbl">Resp</span><canvas id="cvResp"></canvas></div>
         <div class="num" data-ch="resp">
           <div class="nh"><span>FR</span><span class="u">irpm</span></div>
           <div class="big tnum" id="nRr">--</div>
@@ -121,8 +130,9 @@
       <div class="mid tnum" id="nTemp">--</div>
     <!-- temperature-exams-start -->
       <div class="temperature-exams">
-      <button id="bMonitorXray" class="exam-shortcut" aria-label="Mostrar raio-X" title="Mostrar raio-X"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v9M10 7C7 5 3 11 3 17c0 4 7 3 7-1V7zm4 0c3-2 7 4 7 10 0 4-7 3-7-1V7z"/></svg><span>Raio-X</span></button>
+      <button id="bMonitorRhythm" class="exam-shortcut" aria-label="Escolher ritmo" title="Escolher ritmo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12c2-6 4-6 5 0s3 6 5 0 3-6 5 0 3 6 5 0"/></svg><span>Ritmo</span></button>
       <button id="bMonitorECG" class="exam-shortcut" aria-label="Mostrar ECG de 12 derivações" title="Mostrar ECG"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12h4l3-8 4 16 3-8h6"/></svg><span>ECG</span></button>
+      <button id="bMonitorXray" class="exam-shortcut" aria-label="Mostrar raio-X" title="Mostrar raio-X"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v9M10 7C7 5 3 11 3 17c0 4 7 3 7-1V7zm4 0c3-2 7 4 7 10 0 4-7 3-7-1V7z"/></svg><span>Raio-X</span></button>
       </div>
     <!-- temperature-exams-end -->
     </div>
@@ -175,7 +185,10 @@
     <details><summary>Teste de áudio e autorização</summary><p>Versão <span id="releaseVersion"></span></p><button class="btn" id="bTestAudioLocal">Testar áudio</button><button class="btn" id="bRevokeControl">Revogar controle</button><p>Confira o código exibido no celular antes de autorizar.</p></details><button class="btn" id="bCloseQr">Fechar</button>
   </div>
 </div>
-<dialog id="monitorExamPicker"><h2 id="monitorExamHeading">Escolher exame</h2><label for="monitorExamSelect">Exame</label><select id="monitorExamSelect"></select><div><button id="monitorExamCancel" class="btn">Cancelar</button><button id="monitorExamShow" class="btn" disabled>Mostrar no monitor</button></div></dialog>
+<dialog id="monitorExamPicker" class="mpick"><div class="mpick-head"><h2>Exames</h2><button id="monitorExamCancel" class="btn">Fechar</button></div><div id="monitorExamGallery"></div></dialog>
+<dialog id="monitorCasePicker" class="mpick"><div class="mpick-head"><h2>Casos</h2><button id="monitorCaseClose" class="btn">Fechar</button></div><div class="mcasos"><div id="scnActive"></div><details id="scnPicker" open><summary id="scnPickerSummary">Cenários</summary><div id="scnList"></div></details></div></dialog>
+<dialog id="monitorConfirm" class="mpick mconfirm"><h2 id="mcTitulo">Confirmar</h2><p id="mcTexto"></p><div class="mconfirm-bot"><button id="mcNao" class="btn">Cancelar</button><button id="mcSim" class="btn">Confirmar</button></div></dialog>
+<dialog id="monitorRhythmPicker" class="mpick"><div class="mpick-head"><h2>Ritmo</h2><button id="monitorRhythmCancel" class="btn">Fechar</button></div><div id="monitorRhythmGroups"></div></dialog>
 <div id="examOverlay" class="exam-overlay" role="dialog" aria-modal="true" aria-labelledby="examTitle" hidden>
   <header><h2 id="examTitle">Exame complementar</h2><button id="bCloseExam" data-exam-close class="btn">Voltar ao monitor</button></header>
     <p id="examSimulationStatus">Simulação em andamento.</p>

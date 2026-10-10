@@ -1,5 +1,6 @@
 import { createControllerCases } from '../public/js/controller-cases.js';
-import { PACER_LIMITS, VITAL_PRESETS } from '../public/js/simulation-config.js';
+import { lerDigitado, desligarSensor } from '../public/js/monitor-edicao.js';
+import { PACER_LIMITS, VITAL_PRESETS, CHANNELS } from '../public/js/simulation-config.js';
 import { interruptedActivities } from '../public/js/simulation-state.js';
 import { fmtVital } from '../public/js/descriptions.js';
 import { Trace as CanvasTrace } from '../public/js/trace-renderer.js';
@@ -20,6 +21,9 @@ import {validPublicState} from '../public/js/state-validation.js';
 import {filterExams} from '../public/js/exam-search.js';
 import {EXAMS,EXAM_BY_ID} from '../public/js/exams.js';
 import {CASE_EXAMS,examsForState} from '../public/js/case-exams.js';
+import {lerGuardado,estadoParaGuardar} from '../public/js/monitor-persistence.js';
+import {nibpPlan} from '../public/js/simulation-state.js';
+import {criarSalaUi} from '../public/js/monitor-room-ui.js';
 
 test('commands require a current monitor lease, reject expired, replayed and wrong-session messages',()=>{
  let now=1000,id=0; const gate=new CommandGate(()=>now,()=>String(++id));
@@ -58,14 +62,16 @@ function monitor(saved=null){
  const dom=fakeDOM(); const element=dom.get;
  class Transport{constructor(room,receive,status){this.receive=receive;this.onStatus=status;this.mode='demo';this.info=null;this.id='monitor';this.connected=true;}async start(){return 'demo';}send(m){sent.push(m);return true;}}
  const Trace = class extends CanvasTrace { constructor(...args) { super(...args, {devicePixelRatio:1,ResizeObserver:class{observe(){}}}); } };
- const sandbox={createControllerCases,PACER_LIMITS,VITAL_PRESETS,interruptedActivities,fmtVital,Trace,createMonitorAudio,evaluateReadings,...shared,SimulationClock,VERSION,registerScenario,escapeHTML,historyLine,initMonitorExams:()=>{},initClassroom:()=>({render(){},ack(){}}),Engine,CommandGate,REFUSAL_TEXT,EXAM_BY_ID,Transport,ExamViewer,EventHistory,console,URLSearchParams,performance:{now:()=>now},crypto:globalThis.crypto,Date:class extends Date{static now(){return now;}},
+ // Todo nome que monitor.js importa precisa estar aqui: o código roda sem as
+ // linhas de import (ver MAPA_DO_CODIGO.md, seção 4).
+ const sandbox={createControllerCases,PACER_LIMITS,VITAL_PRESETS,interruptedActivities,fmtVital,Trace,createMonitorAudio,evaluateReadings,...shared,SimulationClock,VERSION,registerScenario,escapeHTML,historyLine,lerGuardado,estadoParaGuardar,criarSalaUi,nibpPlan,initMonitorExams:o=>{sandbox.atalhos=o;},initEdicaoRapida:o=>{sandbox.edicao=o;return{fechar(){}};},initClassroom:()=>({render(){},ack(){}}),Engine,CommandGate,REFUSAL_TEXT,EXAM_BY_ID,Transport,ExamViewer,EventHistory,console,URLSearchParams,performance:{now:()=>now},crypto:globalThis.crypto,Date:class extends Date{static now(){return now;}},
   localStorage:{getItem:k=>k==='bmsim-monitor-state'&&saved?JSON.stringify(saved):null,setItem(){}},location:{search:'?modo=demo&sala=4321',origin:'http://localhost',pathname:'/monitor.html'},
   window:{devicePixelRatio:1,isSecureContext:true},navigator:{},ResizeObserver:class{observe(){}},document:dom.doc,
   setTimeout:(fn,ms)=>{const id=++next;timers.set(id,{fn:()=>{timers.delete(id);fn();},ms});return id;},clearTimeout:id=>timers.delete(id),setInterval:(fn,ms)=>{timers.set(++next,{fn,ms});return next;},clearInterval:id=>timers.delete(id),requestAnimationFrame(){}
  };
  const code=fs.readFileSync(new URL('../public/js/monitor.js',import.meta.url),'utf8').replace(/^import .*$/gm,'');
  vm.runInNewContext(code+'\napproved.add("ctrl");\nglobalThis.api = {action,applySet,publicState,simClock,approved,renderExam,transport,gate,getState:()=>S,getNext:()=>nextAutoNibp,deliverShock,evaluate,frame,getAlarms:()=>alarmsNow,engine:()=>eng,pleth:t=>tr.spo2.fn(t),setAudio:v=>ac=v,tone,chargeSound,shockSound,pairRequests,renderPairRequests,setSalaOnline:s=>{salaOnline=s;}};',sandbox);
- return {api:sandbox.api,timers,elements:dom.elements,sent,document:dom.doc,advance:ms=>now+=ms};
+ return {api:sandbox.api,timers,elements:dom.elements,sent,document:dom.doc,advance:ms=>now+=ms,sandbox};
 }
 test('loading a new scenario clears pacer, charge, NIBP and pending shock effect',()=>{
  const {api,timers}=monitor();api.applySet({pacer:{on:true,ma:80},nibp:{interval:3}});api.action('charge');api.action('nibp');
@@ -96,13 +102,38 @@ function loadAndPlay(api,id){api.action('scn-load',id);if(api.simClock.paused)ap
 
 function controller(){
  let now=10000,next=0;const timers=new Map(),sent=[];const dom=fakeDOM();
- const sandbox={createControllerCases,PACER_LIMITS,VITAL_PRESETS,interruptedActivities,fmtVital,...shared,SimulationClock,VERSION,registerScenario,escapeHTML,historyLine,initMonitorExams:()=>{},initClassroom:()=>({render(){},ack(){}}),remoteTimerSeconds,MonitorPresence,STATE_MAX_AGE_MS,validPublicState,historyText,EXAMS,EXAM_BY_ID,console,crypto:globalThis.crypto,URLSearchParams,performance:{now:()=>now},location:{search:''},localStorage:{getItem:()=>null},navigator:{},window:{scrollTo(){}},
+ const sandbox={createControllerCases,PACER_LIMITS,VITAL_PRESETS,CHANNELS,interruptedActivities,fmtVital,...shared,SimulationClock,VERSION,registerScenario,escapeHTML,historyLine,initMonitorExams:()=>{},initClassroom:()=>({render(){},ack(){}}),remoteTimerSeconds,MonitorPresence,STATE_MAX_AGE_MS,validPublicState,historyText,EXAMS,EXAM_BY_ID,criarGaleriaExames:()=>({abrir(){},atualizar(){}}),console,crypto:globalThis.crypto,URLSearchParams,performance:{now:()=>now},location:{search:''},localStorage:{getItem:()=>null},navigator:{},window:{scrollTo(){}},
  document:dom.doc,setTimeout:(fn,ms)=>{const id=++next;timers.set(id,{fn:()=>{timers.delete(id);fn();},ms});return id;},clearTimeout:id=>timers.delete(id),clearInterval(){},setInterval(){}};
  const code=fs.readFileSync(new URL('../public/js/controle.js',import.meta.url),'utf8').replace(/^import .*$/gm,'');
  vm.runInNewContext(code+`\ntransport={connected:true,id:'ctrl',send:msg=>{output(msg);return true;}};
  globalThis.api={unavailableReason,updateWarning,patchState:patch=>{S=patch===null?null:{...S,...patch};},set,setVitals,act,onMsg:msg=>{if(msg.state){msg.state.version=VERSION;msg.state.authorized=[myId];msg.state.paused??=false;msg.state.automatic??=true;msg.state.assessment??=false;msg.state.peerRecent??=true;}return onMsg(msg);},canSend,getStatus:()=>document.getElementById('commandStatus').textContent,schedulePending,flushPending,pending,offline:()=>transport.connected=false,online:()=>transport.connected=true,setState:()=>{monitorId='m1';presence.observe('m1');S={...defaultState(),version:VERSION,authorized:[myId],protocol:2,history:[],displayed:{},alarmsNow:[],hidden:false,captured:false,cur:{...defaultState().vit},session:'one',lease:'lease',timer:{elapsedMs:0,running:false}};receivedAt=performance.now();},pendingCount:()=>Object.keys(pending).length,timerText:()=>fmtTime(remoteTimerSeconds(S.timer,receivedAt)),setTransportMode:m=>{transport.mode=m;}};`,Object.assign(sandbox,{output:msg=>sent.push(msg)}));
- sandbox.api.setState();return {api:sandbox.api,sent,timers,elements:dom.elements,advance:ms=>now+=ms};
+ sandbox.api.setState();return {api:sandbox.api,sent,timers,elements:dom.elements,advance:ms=>now+=ms,sandbox};
 }
+
+// A caixa isolada de monitor() e controller() precisa oferecer cada nome que o
+// arquivo importa, porque o código roda sem as linhas de import. Um nome
+// esquecido quebra dezenas de testes com ReferenceError — ou, pior, é engolido
+// por um try/catch: monitor.js restaura a aula dentro de um, e sem o nome a
+// restauração falharia calada. Os nomes abaixo faltam de propósito: só são
+// usados depois de conectar, e estes testes não conectam.
+const AUSENTES_DE_PROPOSITO={
+ 'monitor.js':['SalaOnline','CONFIG'],
+ 'controle.js':['Transport','SalaOnline','CONFIG'],
+};
+function nomesImportados(arquivo){
+ const code=fs.readFileSync(new URL('../public/js/'+arquivo,import.meta.url),'utf8');
+ return [...code.matchAll(/^import\s*\{([^}]*)\}\s*from/gm)].flatMap(m=>m[1].split(',').map(n=>n.trim().split(/\s+as\s+/).pop()).filter(Boolean));
+}
+test('MANUTENÇÃO: a caixa isolada dos testes oferece todo nome importado por monitor.js e controle.js',()=>{
+ for(const [arquivo,carregar] of [['monitor.js',monitor],['controle.js',controller]]){
+  const caixa=carregar().sandbox;
+  const faltando=nomesImportados(arquivo).filter(n=>!(n in caixa)&&!AUSENTES_DE_PROPOSITO[arquivo].includes(n));
+  assert.deepEqual(faltando,[],`${arquivo} importa ${faltando.join(', ')}, mas o teste não oferece. Acrescente ao sandbox de ${carregar.name}() em tests/regression.test.js (ver MAPA_DO_CODIGO.md, seção 4).`);
+  // E a lista de ausências não pode guardar nome que já não é importado.
+  const sobrando=AUSENTES_DE_PROPOSITO[arquivo].filter(n=>!nomesImportados(arquivo).includes(n));
+  assert.deepEqual(sobrando,[],`${arquivo}: tire ${sobrando.join(', ')} de AUSENTES_DE_PROPOSITO`);
+ }
+});
 test('controller drops pending edits when offline or delayed by page suspension',()=>{
  const {api,sent,advance}=controller();api.pending.hr=100;api.schedulePending();api.offline();assert.equal(api.set({vit:{hr:90}}),false);assert.equal(api.pendingCount(),0);
  api.online();api.setState();api.pending.hr=120;api.schedulePending();advance(2600);api.flushPending();assert.equal(sent.length,0);assert.equal(api.pendingCount(),0);
@@ -309,7 +340,7 @@ test('BUG: gaining or losing capture does not cancel the post-shock flat line',(
 });
 
 test('BUG: heart rate 0 leaves a flat line, not a frozen DC step',()=>{
- for(const r of ['nsr','vt','afib']){
+ for(const r of ['nsr','vt','afib','afl','wellens']){
   const e=new Engine({seed:11});e.rhythm=r;
   e.setParams({hr:0,pacer:{on:false,rate:70,ma:0,threshold:60},noise:false});
   for(let t=0;t<4;t+=0.05){e.schedule(t);e.popBeats(t);}
@@ -343,6 +374,18 @@ test('BUG: turning the pacer off stops the spikes already scheduled ahead',()=>{
  assert.ok(peak<0.2,'pacer spikes kept firing after the pacer was switched off ('+peak.toFixed(2)+')');
 });
 
+test('BUG: captured paced QRS starts at the foot of the spike, without going back to baseline',()=>{
+ const e=new Engine({seed:9});e.setRhythm('bav3',0);
+ e.setParams({hr:35,sys:90,pulse:true,noise:false,pacer:{on:true,rate:70,ma:80,threshold:60}});
+ for(let t=0;t<3;t+=0.05){e.schedule(t);e.popBeats(t);}
+ const s=e.spikes.find(x=>x>2&&x<2.9);assert.ok(s,'no spike scheduled');
+ // Do fim da espícula até o fundo do QRS a linha só desce; antes ela voltava
+ // à base e deixava a espícula solta do batimento.
+ let prev=e.ecg(s+0.004);
+ for(let d=0.0045;d<=0.035;d+=0.0005){const v=e.ecg(s+d);assert.ok(v<=prev+1e-6,'trace rises '+(d*1000).toFixed(1)+' ms after the spike ('+prev.toFixed(3)+' -> '+v.toFixed(3)+')');prev=v;}
+ assert.ok(prev<-0.3,'QRS does not reach its negative limb right after the spike ('+prev.toFixed(3)+')');
+});
+
 test('BUG: a corrupt or outdated saved state cannot poison the monitor',()=>{
  const s=shared.restoreState({show:{ecg:false},vit:null,timer:{running:true,startedAt:0},rhythm:'inexistente',defib:{energy:9999,status:'ready'},nibp:{measuring:true},scn:{id:'nao-existe',step:9}});
  assert.equal(typeof s.show.temp,'boolean','missing show.temp made the controller reject every state');
@@ -365,7 +408,7 @@ test('BUG: the event history survives a monitor reload',()=>{
 });
 
 test('BUG: EtCO2 shows "--" whenever there is no waveform',()=>{
- const {api,elements}=monitor();
+ const {api,elements}=monitor();api.applySet({show:{capno:true}});
  api.applySet({capno:'none'});api.evaluate();
  assert.equal(elements.get('nEtco2').textContent,'--','EtCO2 showed a number with capnography off');
  api.applySet({capno:'normal',vit:{rr:0}});api.evaluate();
@@ -467,7 +510,7 @@ test('AUDIT: trocar etapa invalida ajuste em trânsito e aceita comando novo',()
 });
 
 test('AUDIT: seta EtCO₂ após TVSP reativa curva e ventilação, sem criar pulso',()=>{
- const m=monitor(),c=controller();m.api.applySet({rhythm:'vt',pulse:'off',capno:'none',vit:{hr:180,rr:0,etco2:0}});
+ const m=monitor(),c=controller();m.api.applySet({rhythm:'vt',pulse:'off',capno:'none',show:{capno:true},vit:{hr:180,rr:0,etco2:0}});
  c.api.onMsg({type:'state',from:'m1',state:m.api.publicState()});
  c.api.pending.etco2=2;c.api.schedulePending();c.api.flushPending();
  m.api.transport.receive({...c.sent.at(-1),from:"ctrl",version:VERSION});m.api.evaluate();
@@ -475,13 +518,13 @@ test('AUDIT: seta EtCO₂ após TVSP reativa curva e ventilação, sem criar pul
  assert.equal(m.api.getState().rhythm,'vt');assert.equal(shared.hasPulse(m.api.getState()),false);
 });
 test('AUDIT: valores diretos EtCO₂ preservam ventilação existente, pulso e ritmo',()=>{
- const m=monitor(),c=controller();m.api.applySet({rhythm:'vt',pulse:'off',capno:'bronco',vit:{hr:180,rr:12}});
+ const m=monitor(),c=controller();m.api.applySet({rhythm:'vt',pulse:'off',capno:'bronco',show:{capno:true},vit:{hr:180,rr:12}});
  c.api.onMsg({type:'state',from:'m1',state:m.api.publicState()});
  for(const value of [8,20,40,38,27]){c.api.setVitals({etco2:value});m.api.transport.receive({...c.sent.at(-1),from:"ctrl",version:VERSION});m.api.evaluate();assert.equal(m.elements.get('nEtco2').textContent,String(value));}
  assert.equal(m.api.getState().cur.rr,12);assert.equal(m.api.getState().capno,'bronco');assert.equal(shared.hasPulse(m.api.getState()),false);assert.equal(m.api.getState().rhythm,'vt');
 });
 test('AUDIT: EtCO₂ ausente é igual no estado remoto e no monitor',()=>{
- const {api,elements}=monitor();for(const set of [{capno:'none'},{capno:'normal',vit:{rr:0}}]){
+ const {api,elements}=monitor();api.applySet({show:{capno:true}});for(const set of [{capno:'none'},{capno:'normal',vit:{rr:0}}]){
   api.applySet(set);api.evaluate();assert.equal(api.publicState().displayed.etco2,null);assert.equal(elements.get('nEtco2').textContent,'--');
  }
 });
@@ -521,7 +564,7 @@ test('CLASSROOM: pause freezes transitions, engine time and scenario clock',()=>
  api.action('pause-simulation');advance(5000);api.frame();assert.ok(api.getState().cur.hr>hr);assert.equal(api.publicState().timer.elapsedMs,15000);
 });
 test('CLASSROOM: PNI measurement excludes paused time',()=>{
- const {api,advance,timers}=monitor();api.action('nibp');advance(2000);[...timers.values()].find(t=>t.ms===200).fn();api.action('pause-simulation');advance(60000);api.action('pause-simulation');
+ const {api,advance,timers}=monitor();api.applySet({show:{nibp:true}});api.action('nibp');advance(2000);[...timers.values()].find(t=>t.ms===200).fn();api.action('pause-simulation');advance(60000);api.action('pause-simulation');
  [...timers.values()].find(t=>t.ms===200).fn();assert.equal(api.getState().nibp.measuring,true);
  advance(9000);[...timers.values()].find(t=>t.ms===200).fn();assert.equal(api.getState().nibp.measuring,false);assert.ok(api.getState().nibp.sys>0);
 });
@@ -535,7 +578,7 @@ test('CLASSROOM: manual mode does not advance after shock; switch cancels pendin
  api.action('scn-next');assert.equal(api.getState().scn.step,1);
 });
 test('CLASSROOM: assessment hides ECG diagnosis only from monitor banner',()=>{
- const {api,advance,elements}=monitor();api.applySet({rhythm:'vf'});advance(5000);api.evaluate();assert.match(elements.get('banner').textContent,/Verifique/);api.action('assessment',false);assert.match(elements.get('banner').textContent,/Fibrilação/);api.action('assessment',true);
+ const {api,advance,elements}=monitor();api.applySet({rhythm:'vf',show:{ecg:true}});advance(5000);api.evaluate();assert.match(elements.get('banner').textContent,/Verifique/);api.action('assessment',false);assert.match(elements.get('banner').textContent,/Fibrilação/);api.action('assessment',true);
  assert.match(elements.get('banner').textContent,/Verifique/);assert.ok(api.publicState().alarmsNow.some(a=>a.txt==='Fibrilação ventricular'));assert.equal(api.getState().rhythm,'vf');
 });
 test('CLASSROOM: unapproved, wrong-version and disconnected controls cannot mutate monitor',()=>{
@@ -555,7 +598,7 @@ test('CLASSROOM: debrief pages are a stable snapshot, retain older than 100 even
  const {api}=monitor();for(let i=0;i<120;i++)api.action('annotation','relato '+i);const page0=api.action('debrief',0);assert.equal(page0.events.length,20);api.action('annotation','novo');assert.equal(api.action('debrief',5).events.length,20);
 });
 
-test('CLASSROOM: paused charging label reflects frozen state and reload shows numbers',()=>{const {api,elements}=monitor();api.evaluate();api.action('charge');api.action('pause-simulation');assert.equal(elements.get('chargeTxt').textContent,'Carregando…');const saved={...shared.defaultState(),classroom:{paused:true,timerWasRunning:true}};const reloaded=monitor(saved);assert.doesNotThrow(()=>reloaded.api.frame());assert.equal(reloaded.elements.get('nTemp').textContent,'36,6');});
+test('CLASSROOM: paused charging label reflects frozen state and reload shows numbers',()=>{const {api,elements}=monitor();api.evaluate();api.action('charge');api.action('pause-simulation');assert.equal(elements.get('chargeTxt').textContent,'Carregando…');const saved={...shared.defaultState(),show:{...shared.defaultState().show,temp:true},classroom:{paused:true,timerWasRunning:true}};const reloaded=monitor(saved);assert.doesNotThrow(()=>reloaded.api.frame());assert.equal(reloaded.elements.get('nTemp').textContent,'36,6');});
 test('CLASSROOM: restored scenario step is bounded by its current edition',()=>{assert.equal(shared.restoreState({scn:{id:'bradi',step:999}}).scn.step,2);});
 
 test('FIX: hiding pauses charging, transitions and case time until explicit resume',()=>{
@@ -627,9 +670,16 @@ test('Timed last stage, zero wait, stopped case and reload never auto advance',(
  const saved={...shared.defaultState(),classroom:{timedAdvance:true}};assert.equal(monitor(saved).api.publicState().timedAdvance,false);
 });
 test('Each stage restores prescribed capnography after manual edits and backwards navigation',()=>{
- const {api}=monitor();loadAndPlay(api,'asma');api.applySet({capno:'none',show:{capno:false},vit:{rr:0,etco2:0}});api.action('scn-next');assert.equal(api.getState().capno,'bronco');assert.equal(api.getState().vit.rr,10);assert.equal(api.getState().vit.etco2,66);assert.equal(api.getState().show.capno,true);
- loadAndPlay(api,'fv');api.action('scn-go',3);api.action('scn-go',0);assert.equal(api.getState().capno,'none');assert.equal(api.getState().show.capno,true);assert.equal(api.getState().vit.rr,0);assert.equal(api.getState().vit.etco2,0);
- api.action('scn-next');assert.equal(api.getState().capno,'rcp');assert.equal(api.getState().vit.rr,10);
+ // A etapa restaura a curva, a FR e o EtCO₂ prescritos, mas não religa o
+ // capnógrafo: sensor ligado é decisão do instrutor (antes, toda etapa forçava).
+ const {api}=monitor();loadAndPlay(api,'asma');api.applySet({capno:'none',show:{capno:false},vit:{rr:0,etco2:0}});api.action('scn-next');assert.equal(api.getState().capno,'bronco');assert.equal(api.getState().vit.rr,10);assert.equal(api.getState().vit.etco2,66);assert.equal(api.getState().show.capno,false);
+ api.applySet({show:{capno:true}});api.action('scn-next');assert.equal(api.getState().show.capno,true,'a etapa desligou o capnógrafo que o instrutor ligou');
+ loadAndPlay(api,'fv');api.action('scn-go',3);api.action('scn-go',0);assert.equal(api.getState().capno,'none');assert.equal(api.getState().show.capno,false,'caso novo começa com sensores desligados');assert.equal(api.getState().vit.rr,0);assert.equal(api.getState().vit.etco2,0);
+ // A etapa após o choque não liga a RCP: sem compressões, capnógrafo sem curva.
+ api.action('scn-next');assert.equal(api.getState().cpr,false,'a etapa ligou a RCP sem o aluno pedir');assert.equal(api.getState().capno,'none');assert.equal(api.getState().vit.rr,0);
+ // Ao iniciar a RCP, entram a ventilação e o EtCO₂ prescritos para a etapa.
+ api.applySet({cpr:true,capno:'rcp'});assert.equal(api.getState().vit.rr,10);assert.equal(api.getState().vit.etco2,14);
+ api.action('scn-next');assert.equal(api.getState().cpr,true,'a etapa parou a RCP em andamento');assert.equal(api.getState().capno,'rcp');assert.equal(api.getState().vit.etco2,12);
  loadAndPlay(api,'bradi');api.applySet({capno:'bronco'});api.action('scn-next');assert.equal(api.getState().capno,'normal');
 });
 test('Exam presentation works while paused without admitting unknown exam IDs',()=>{
@@ -654,7 +704,7 @@ test('UI: case load waits for play, pause preserves elapsed time and stage navig
 });
 
 test('UI: oximeter quality changes reading and pleth without changing prescribed saturation',()=>{
- const {api,advance}=monitor();advance(5000);api.frame();
+ const {api,advance}=monitor();api.applySet({show:{spo2:true}});advance(5000);api.frame();
  api.engine().pleth=()=>.8;api.applySet({vit:{spo2:96},spo2Signal:'low'});api.evaluate();
  assert.equal(api.publicState().displayed.spo2,null);assert.equal(api.pleth(0),.12);assert.equal(api.getState().vit.spo2,96);
  assert.ok(api.getAlarms().some(a=>a.txt.includes('baixa perfusão')));
@@ -707,6 +757,8 @@ test('UI: every built-in case has an explicit exam decision for every stage; inv
    const state={...shared.scenarioStepSet(sc,i),scn:{id:sc.id,step:i}};
    assert.equal(examsForState(state).length,Object.values(row).filter(Boolean).length);
    if(['vf','asys'].includes(state.rhythm)||state.pulse==='off')assert.equal(examsForState(state,'ecg').length,0);
+   // Etapa com pulso sempre tem um raio-X para o aluno que pedir (o do tema ou o normal).
+   else assert.ok(row.xray,sc.id+' etapa '+(i+1)+' sem raio-X para o aluno que pedir');
   }
  }
  assert.equal(examsForState({scn:{id:'custom-unreviewed',step:0}}).length,0);
@@ -886,10 +938,15 @@ test('EMPACOTAMENTO: todo JSON do projeto é válido e sem BOM',()=>{
  // arquivo e falha antes de chegar ao build. Já aconteceu uma vez, por gravar
  // com PowerShell. Barato conferir aqui.
  const raiz=new URL('../',import.meta.url);
- const alvos=['package.json','vercel.json','ENTREGA_SHA256.json','ENTREGA_2.3.3_SHA256.json','ferramentas/ecg-leitura-inicial.json'];
+ // Varre o projeto em vez de uma lista fixa: uma lista de nomes passa a pular
+ // em silêncio o arquivo que for movido ou renomeado.
+ const fora=new Set(['.git','node_modules','web','server-go','.vercel','auditoria']);
+ const alvos=[];
+ const varrer=rel=>{for(const d of fs.readdirSync(new URL(rel||'.',raiz),{withFileTypes:true})){const r=(rel?rel+'/':'')+d.name;if(d.isDirectory()){if(!fora.has(d.name))varrer(r);}else if(d.name.endsWith('.json'))alvos.push(r);}};
+ varrer('');
+ assert.ok(alvos.includes('package.json')&&alvos.includes('vercel.json'),'varredura não achou os JSON da raiz');
  for(const nome of alvos){
   const caminho=new URL(nome,raiz);
-  if(!fs.existsSync(caminho))continue;
   const bytes=fs.readFileSync(caminho);
   assert.ok(!(bytes[0]===0xEF&&bytes[1]===0xBB&&bytes[2]===0xBF),nome+' começa com BOM');
   assert.doesNotThrow(()=>JSON.parse(bytes.toString('utf8')),nome+' não é JSON válido');
@@ -916,14 +973,40 @@ test('ONLINE: no modo online a fila de autorização vem da sala, nunca da rede'
  assert.equal(api.pairRequests.size,0,'nada pode entrar na fila pela rede no modo online');
  assert.equal(releu,1,'a rede deve disparar a releitura da sala');
 
- // Fora do modo online o comportamento antigo continua, e com o formato certo.
+ // Fora do modo online o controle que abre pelo QR entra sem o botão Autorizar.
  const local=monitor();
  local.api.transport.mode='demo';local.api.approved.clear();
  local.api.transport.receive({type:'pair-request',from:ctrl,version:VERSION});
+ assert.ok(local.api.approved.has(ctrl),'o controle do QR precisou de autorização manual');
+ assert.equal(local.api.pairRequests.size,0);
+ // Um segundo controle assume; o primeiro não toma de volta sozinho (senão os
+ // dois se derrubariam sem parar) e fica na fila para o botão Autorizar.
+ const outro='c'+'b'.repeat(32);
+ local.api.transport.receive({type:'pair-request',from:outro,version:VERSION});
+ assert.ok(local.api.approved.has(outro)&&!local.api.approved.has(ctrl));
+ local.api.transport.receive({type:'pair-request',from:ctrl,version:VERSION});
+ assert.ok(local.api.approved.has(outro)&&!local.api.approved.has(ctrl),'os controles ficaram se derrubando');
  assert.equal(local.api.pairRequests.size,1);
  const valor=local.api.pairRequests.get(ctrl);
  assert.equal(typeof valor,'object','o valor precisa ser objeto para autorizarControle ler participanteId');
  assert.ok('participanteId' in valor);
+});
+
+test('ONLINE: o controle que entra pelo QR é autorizado na sala sem o instrutor apertar nada, uma vez só',async()=>{
+ const {api}=monitor();api.transport.mode='online';api.approved.clear();
+ const ctrl='c'+'d'.repeat(32);const autorizou=[];
+ let pend=[{dispositivo:ctrl,id:'p1'}],aut=[];
+ api.setSalaOnline({atualizarParticipantes:()=>Promise.resolve(),autorizados:()=>aut,pendentes:()=>pend,salaId:'s1',
+  autorizar:id=>{autorizou.push(id);aut=pend.filter(p=>p.id===id);pend=pend.filter(p=>p.id!==id);return Promise.resolve();},definirSituacao:()=>Promise.resolve()});
+ api.transport.receive({type:'pair-request',from:ctrl,version:VERSION});
+ await new Promise(r=>setTimeout(r,0));
+ assert.deepEqual(autorizou,['p1']);assert.ok(api.approved.has(ctrl));
+ // Se o banco voltar a listá-lo como pendente (outro controle assumiu), ele não
+ // toma a vez sozinho: senão dois controles se derrubariam em laço.
+ pend=aut;aut=[];
+ api.transport.receive({type:'pair-request',from:ctrl,version:VERSION});
+ await new Promise(r=>setTimeout(r,0));
+ assert.deepEqual(autorizou,['p1'],'autorizou o mesmo aparelho em laço');
 });
 
 test('ONLINE: mensagens saem na ordem de envio mesmo com assinatura lenta',async()=>{
@@ -942,4 +1025,86 @@ test('ONLINE: mensagens saem na ordem de envio mesmo com assinatura lenta',async
  await t.filaEnvio;await new Promise(r=>setTimeout(r,60));
  const saidas=ws.enviados.slice(antes).filter(m=>m.event==='broadcast').map(m=>m.payload.payload.seq);
  assert.deepEqual(saidas,[1,2],'a ordem de envio precisa ser preservada');
+});
+
+// ---------------------------------------------------------------------------
+// Sensores e PNI do controle novo
+// ---------------------------------------------------------------------------
+test('SENSORES: começam desligados, e caso novo volta a desligá-los sem mexer nas preferências', () => {
+ const {api}=monitor();
+ assert.ok(Object.values(api.getState().show).every(v=>v===false),'monitor abriu com sensor ligado');
+ api.applySet({show:{ecg:true,spo2:true,resp:true,nibp:true},alarms:{beep:false},studentPanel:false});
+ loadAndPlay(api,'fv');
+ const s=api.getState();
+ assert.ok(Object.values(s.show).every(v=>v===false),'caso novo herdou sensor ligado do anterior');
+ assert.equal(s.alarms.beep,false,'preferência de bipe perdida');assert.equal(s.studentPanel,false,'preferência do painel perdida');
+});
+
+test('PNI: sem manguito é recusada com o motivo; com manguito mede em menos de 9 s', () => {
+ const {api,advance,timers}=monitor();
+ const recusa=api.action('nibp');
+ assert.equal(recusa.done,false);assert.match(recusa.note,/manguito desligado/);assert.equal(api.getState().nibp.measuring,false);
+ api.applySet({show:{nibp:true}});api.action('nibp');assert.equal(api.getState().nibp.measuring,true);
+ const tick=()=>[...timers.values()].find(t=>t.ms===200).fn();
+ let segundos=0;
+ while(api.getState().nibp.measuring&&segundos<20){advance(500);segundos+=.5;tick();}
+ assert.ok(segundos<9,'medida levou '+segundos+' s');assert.ok(api.getState().nibp.sys>0);
+});
+
+test('PNI: parar no meio cancela a medida e não deixa resultado novo', () => {
+ const {api,advance,timers}=monitor();
+ api.applySet({show:{nibp:true}});
+ assert.equal(api.action('nibp-stop').done,false,'parar sem medida em andamento deveria ser recusado');
+ api.action('nibp');advance(2000);[...timers.values()].find(t=>t.ms===200).fn();
+ assert.equal(api.action('nibp-stop'),undefined);
+ assert.equal(api.getState().nibp.measuring,false);assert.equal(api.getState().nibp.sys,null);
+ assert.equal([...timers.values()].some(t=>t.ms===200),false,'o temporizador da medida continuou');
+});
+
+test('PNI: o roteiro enche até PAS + 30, desce em degraus até perto da PAD e dura 7 a 9 s', () => {
+ for(const [sys,dia] of [[122,78],[78,48],[210,124],[40,20]]){
+  const p=nibpPlan(sys,dia);
+  assert.ok(p.total>=7&&p.total<=9,`PA ${sys}/${dia}: ${p.total} s`);
+  assert.equal(p.cuffAt(0),0);assert.equal(p.cuffAt(p.inflate),p.alvo);assert.equal(p.alvo,Math.max(sys,60)+30);
+  let antes=Infinity;for(let t=p.pause;t<p.total;t+=.05){const c=p.cuffAt(t);assert.ok(c<=antes+1e-9,`subiu durante a descida em ${t}`);antes=c;}
+  assert.equal(p.cuffAt(p.total),0);
+ }
+});
+
+test('MONITOR: sensor desligado mostra "---" no lugar do valor; ligado volta a mostrar a leitura', () => {
+ // "---" é sem sensor; "--" é sensor ligado sem leitura (assistolia, sem pulso…).
+ const {api,advance,elements}=monitor();advance(5000);api.evaluate();
+ for(const id of ['nHr','nSpo2','nEtco2','nRr','nTemp','nSys','nDia','nMap'])assert.equal(elements.get(id).textContent,'---',id+' com sensor desligado');
+ assert.equal(elements.get('nibpInfo').textContent,'sem manguito');
+ api.applySet({show:{temp:true,spo2:true,resp:true}});api.evaluate();
+ assert.equal(elements.get('nTemp').textContent,'36,6');assert.equal(elements.get('nRr').textContent,'16');
+ assert.notEqual(elements.get('nSpo2').textContent,'---');
+ assert.equal(elements.get('nHr').textContent,'---','ECG continua desligado');
+});
+
+test('SEM CONTROLE: valor digitado no monitor entra na hora e liga o sensor; ritmo escolhido no monitor liga o ECG, mesmo pausado',()=>{
+ const {api,sandbox}=monitor();const S=()=>api.getState();
+ sandbox.edicao.aplicar(lerDigitado('ecg','134',S()).patch);
+ assert.equal(S().vit.hr,134);assert.equal(S().cur.hr,134);assert.equal(S().show.ecg,true);
+ const pa=lerDigitado('nibp','90/60',S());sandbox.edicao.aplicar(pa.patch,pa.leituraPni);
+ assert.equal(S().show.nibp,true);assert.deepEqual([S().nibp.sys,S().nibp.dia,S().nibp.map],[90,60,70]);
+ assert.ok(api.publicState().history.some(h=>/Monitor:.*PNI informada/.test(h.text)),'digitação não ficou no histórico');
+ api.action('pause-simulation');assert.equal(api.simClock.paused,true);
+ api.applySet({show:{ecg:false}});
+ sandbox.atalhos.setRhythm('svt');
+ assert.equal(S().rhythm,'svt');assert.equal(S().show.ecg,true,'o ritmo escolhido no monitor não ligou o ECG');
+});
+
+test('SEM CONTROLE: desligar sensor pelo monitor e escolher caso pelos cartões do monitor',()=>{
+ const {api,sandbox,elements}=monitor();const S=()=>api.getState();
+ api.applySet({show:{spo2:true,resp:true,ecg:true}});
+ sandbox.edicao.aplicar(desligarSensor('resp'));
+ assert.equal(S().show.spo2,false);assert.equal(S().show.resp,false,'FR ficou ligada sem o oxímetro');assert.equal(S().show.ecg,true);
+ // Sem caso em andamento, o cartão carrega direto; o caso começa pausado.
+ const clicar=id=>elements.get('scnList').listeners.click({target:{closest:()=>({dataset:{scn:id}})}});
+ clicar('tsv');assert.equal(S().scn.id,'tsv');assert.equal(api.simClock.paused,true);
+ // Com caso em andamento, pede confirmação no próprio monitor antes de trocar.
+ clicar('fv');assert.equal(S().scn.id,'tsv','trocou de caso sem confirmar');
+ assert.equal(elements.get('mcTitulo').textContent,'Trocar de caso?');
+ elements.get('mcSim').onclick();assert.equal(S().scn.id,'fv');
 });

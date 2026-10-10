@@ -1,12 +1,41 @@
 // Motor de formas de onda: ECG, pletismografia, capnografia e respiração.
 // Tempo em segundos (relógio do simulador).
 
-import { narrow, WIDE, PVC, BBB, PACED, AGONAL, ATRIAL, preexcited, ventricular, seededRandom, texture } from './ecg-shapes.js';
+import { narrow, WIDE, PVC, BBB, PACED, AGONAL, ATRIAL, preexcited, plusMinus, ventricular, seededRandom, texture } from './ecg-shapes.js';
 import { DART, DartPlayer, DART_ATRIAL, DART_BAV_ATRIAL, DART_NORMAL, DART_ESCAPE, DART_PVC } from './dart-player.js';
 
 // Linha reta curta logo após o choque: tempo para os alunos retomarem as compressões.
 export const POST_SHOCK_FLAT_S = 3;
 const G = (t, c, a, s) => { const d = t - c; return a * Math.exp(-(d * d) / (2 * s * s)); };
+
+// Ritmos sintetizados, e não tocados da tira digitalizada, mesmo tendo tira.
+//
+// A tira é um trecho curto que volta ao começo. Para a FA isso é fatal: o
+// desenho entre os QRS se repete a cada volta, e a repetição entrega na hora
+// que não é caótico. Sintetizar dá intervalo RR irregular de verdade e ondas f
+// que nunca se repetem. Para o flutter, permite conduzir numa razão fixa.
+export const SINTETIZADOS = new Set(['afib', 'afl']);
+
+// Átrio no flutter: 300 por minuto, uma onda F a cada 0,2 s.
+const FLUTTER_F_S = 0.2;
+
+// Ondas f da fibrilação atrial.
+//
+// Componentes de frequências que não são múltiplas entre si, cada uma com a
+// amplitude passeando no seu próprio ritmo. Como nada é harmônico de nada, a
+// soma nunca fecha um ciclo: o trecho entre dois QRS sai diferente toda vez.
+// O pico somado fica perto de 0,17 (o R vale cerca de 0,8): visível na tela do
+// monitor como FA de ondas grosseiras, sem competir com o QRS.
+const F_FREQ = [4.1, 5.3, 6.7, 8.9, 11.3];
+const F_AMP = [.050, .042, .034, .024, .018];
+function ondasF(t, seed) {
+  let v = 0;
+  for (let i = 0; i < F_FREQ.length; i++) {
+    const envelope = .55 + .45 * Math.sin(2 * Math.PI * t / (3.1 + i * 1.7) + i);
+    v += F_AMP[i] * envelope * Math.sin(2 * Math.PI * F_FREQ[i] * t + (seed % (i + 7)) + i * 1.3);
+  }
+  return v;
+}
 
 export class Engine {
   constructor({ seed = Math.floor(Math.random() * 4294967296) } = {}) {
@@ -24,7 +53,7 @@ export class Engine {
     this.shockAt = -99; this.flatUntil = -99;
     this.vfPh = [0, 1, 2, 3].map(() => this.random() * 6.28);
     this.lastBeatTimes = [];
-    this.params = { hr: 78, sys: 120, pulse: true, cpr: false, vfAmp: 'grossa', noise: true, pacer: { on: false, rate: 70, ma: 0, threshold: 60 }, rr: 16, etco2: 36, capno: 'normal', spo2: 98 };
+    this.params = { hr: 78, sys: 120, pulse: true, cpr: false, vfAmp: 'grossa', noise: true, pacer: { on: false, rate: 70, ma: 0, threshold: 15 }, rr: 16, etco2: 36, capno: 'normal', spo2: 98 };
   }
 
   setParams(p) { Object.assign(this.params, p); }
@@ -116,13 +145,13 @@ export class Engine {
       while (this.nextPace < horizon) {
         const t = this.nextPace;
         this.spikes.push(t);
-        if (cap) this.addBeat(t + 0.005, PACED, 1, 1);
+        if (cap) this.addBeat(t + 0.004, PACED, 1, 1);
         this.nextPace += 60 / Math.max(30, p.pacer.rate);
       }
       if (cap) { this.nextV = Math.max(this.nextV, horizon); this.nextA = Math.max(this.nextA, horizon); return; }
     }
 
-    if (DART[r] && !DART[r].special) {
+    if (DART[r] && !DART[r].special && !SINTETIZADOS.has(r)) {
       // FC saneada: valores ausentes ou negativos congelavam a tira num degrau contínuo.
       const hrRef = Math.max(0, +p.hr || 0);
       if (!this.dart || this.dart.id !== r) this.dart = new DartPlayer(r, Math.max(now, this.dartResumeAt), hrRef);
@@ -181,11 +210,32 @@ export class Engine {
         case 'bbb': this.addP(t - 0.16); this.addBeat(t, BBB); this.nextV += rr; break;
         case 'svt': case 'psvt': this.addBeat(t, narrow(rr, 0, 0.18)); this.nextV += rr; break;
         case 'junc': this.addBeat(t, narrow(rr)); this.ecgC.push({ c: t + 0.1, a: -0.08, s: 0.02 }); this.nextV += rr; break;
-        case 'afib': this.addBeat(t, narrow(rr, 0, 0.2)); this.nextV += rr * (0.55 + this.random() * 0.90); break;
-        case 'afl': {
-          const n = Math.max(2, Math.round(rr / 0.2));
-          this.addBeat(t, narrow(rr, 0, 0.15)); this.nextV += n * 0.2; break;
+        case 'afib': {
+          // Três fontes de variação, porque irregularidade só no RR ainda sai
+          // com cara de régua: o intervalo, a altura do complexo e a altura da
+          // onda T mudam a cada batimento. A T é sorteada em quatro degraus, e
+          // não contínua, para não estourar o cache de perfis do narrow().
+          const tAmp = 0.14 + 0.04 * Math.floor(this.random() * 4);
+          this.addBeat(t, narrow(rr, 0, tAmp), 0.88 + this.random() * 0.24);
+          this.nextV += rr * (0.5 + this.random() * 1.0);
+          break;
         }
+        case 'afl': {
+          // Condução em razão fixa: o átrio bate a 300/min e o ventrículo
+          // recebe uma a cada 2 ou 3 ondas F. A razão sai da FC pedida, mas o
+          // RR resultante é exatamente 2 ou 3 × 0,2 s — regular e simétrico,
+          // não um número qualquer derivado da FC.
+          // FC zero = sem condução. O `hr` acima nunca é menor que 1, então a
+          // conta da razão viraria 3:1 e o flutter continuaria batendo a 100.
+          if (!(p.hr > 0)) { this.nextV += rr; break; }
+          const atrial = 60 / FLUTTER_F_S;   // 300 por minuto
+          const n = Math.min(3, Math.max(2, Math.round(atrial / hr)));
+          const rrReal = n * FLUTTER_F_S;
+          this.addBeat(t, narrow(rrReal, 0, 0.15));
+          this.nextV += rrReal;
+          break;
+        }
+        case 'wellens': this.addP(t - 0.15); this.addBeat(t, plusMinus(rr)); this.nextV += rr; break;
         case 'ivr': this.addBeat(t, WIDE); this.nextV += rr; break;
         case 'agonal': this.addBeat(t, AGONAL, 1, 0); this.nextV += rr * (0.8 + this.random() * 0.6); break;
         case 'vt': {
@@ -261,7 +311,10 @@ export class Engine {
     }
     const referenceActive = this.dart && this.dart.id === this.rhythm && this.dart.rate > 0 && !this.captured();
     if (referenceActive) v = this.dart.sample(t) * (this.rhythm === 'vf' && p.vfAmp === 'fina' ? .3 : 1);
-    for (const s of this.spikes) { const d = t - s; if (d >= 0 && d < 0.004) v += 1.6; else if (d >= 0.004 && d < 0.012) v -= 0.25; }
+    // Com captura, o QRS emenda no pé da espícula; o rebote negativo só aparece
+    // na espícula sem captura, onde não há batimento logo depois.
+    const rebote = !this.captured();
+    for (const s of this.spikes) { const d = t - s; if (d >= 0 && d < 0.004) v += 1.6; else if (rebote && d >= 0.004 && d < 0.012) v -= 0.25; }
     const r = this.rhythm;
     // Atividade contínua sintética (FV, ondas f/F) some durante a linha reta pós-choque e volta em 0,6 s.
     const cont = t < this.flatUntil ? 0 : Math.min(1, (t - this.flatUntil) / 0.6);
@@ -270,8 +323,14 @@ export class Engine {
       const f = [3.6, 4.9, 6.1, 7.4];
       for (let i = 0; i < 4; i++) v += cont * A * (0.55 + 0.45 * Math.sin(t * (0.3 + i * 0.17) + i)) * Math.sin(2 * Math.PI * f[i] * t + this.vfPh[i] + .65*Math.sin(t*(.71+i*.19))) / 2.2;
     }
-    if (!referenceActive && r === 'afib') v += cont * (0.045 * Math.sin(2 * Math.PI * 6.3 * t) + 0.03 * Math.sin(2 * Math.PI * 8.7 * t + 1) + 0.02 * Math.sin(2 * Math.PI * 4.1 * t + 2));
-    if (!referenceActive && r === 'afl') { const ph = (t / 0.2) % 1; v += cont * (-0.3 * (ph < 0.8 ? ph / 0.8 : (1 - ph) / 0.2) + 0.15); }
+    // Sem frequência não há átrio fibrilando: as ondas f somem junto. Isso
+    // também libera amplitude para elas serem visíveis quando existem, sem
+    // deixar a linha ondulando quando a FC é zero.
+    if (!referenceActive && r === 'afib' && p.hr > 0) v += cont * ondasF(t, this.seed);
+    // Ondas F do flutter: dente de serra regular, sempre no mesmo passo de
+    // 0,2 s. É a regularidade dele que contrasta com a FA ao lado. Com FC zero
+    // somem, como as ondas f da FA, para a linha ficar reta.
+    if (!referenceActive && r === 'afl' && p.hr > 0) { const ph = (t / FLUTTER_F_S) % 1; v += cont * (-0.3 * (ph < 0.8 ? ph / 0.8 : (1 - ph) / 0.2) + 0.15); }
     // Artefato de RCP: menor que o QRS para o ritmo de base (ex.: FV fina × grossa) continuar visível durante as compressões.
     if (p.cpr) { const ph = (t * 110 / 60) % 1; v += 0.42 * (0.85 + 0.15 * Math.sin(t * 0.9)) * (ph < 0.45 ? Math.sin(Math.PI * ph / 0.45) : 0); }
     // Artefato de choque: espícula e retorno rápido à linha de base (sem oscilação), seguido da linha reta.

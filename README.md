@@ -2,9 +2,9 @@
 
 Monitor multiparamétrico para simulação de urgência e emergência. Duas telas que
 conversam entre si: o **monitor**, projetado para a turma, e o **controle**, no
-celular do instrutor.
+celular ou tablet do instrutor.
 
-Versão `2.3.3-online.20260921`.
+No ar em https://bravomike-simmonitor.vercel.app
 
 ## Três modos de uso
 
@@ -14,35 +14,61 @@ Versão `2.3.3-online.20260921`.
 | **Local** | sala sem internet | servidor Go no notebook, pelo Wi-Fi |
 | **Demonstração** | conferir sozinho | duas abas do mesmo navegador |
 
-## Comece por aqui
+## Documentação
 
-- **[ENTREGA_PARA_REVISAO.md](ENTREGA_PARA_REVISAO.md)** — o que existe hoje,
-  resultados de teste, publicação, limitações e como voltar atrás.
-- [MAPA_DO_CODIGO.md](MAPA_DO_CODIGO.md) — onde mexer em cada coisa.
-- [LEIA-ME.md](LEIA-ME.md) — comandos para rodar e testar.
+| Arquivo | Para quê |
+| --- | --- |
+| [MAPA_DO_CODIGO.md](MAPA_DO_CODIGO.md) | Onde mexer em cada coisa, e as armadilhas do projeto |
+| [docs/OPERACAO.md](docs/OPERACAO.md) | Publicação, Supabase, limitações conhecidas e como voltar atrás |
+| [docs/CASOS.md](docs/CASOS.md) | Como um caso clínico é montado |
+| [docs/CATALOGO.md](docs/CATALOGO.md) | Ritmos, sinais e exames disponíveis para os casos |
+| [CLAUDE.md](CLAUDE.md) | Regras de trabalho para o Claude neste projeto |
+| `docs/historico/` | Documentos de entregas anteriores, guardados como registro |
 
-## Comandos
+## Rodar e testar
+
+Requer Node.js moderno (conferido com o 24). Não há dependências para instalar.
 
 ```sh
-npm test                 # 178 testes locais
-npm run preview          # prévia em modo demonstração
-npm run preview:online   # prévia em modo online (exige o Supabase preparado)
+npm test                 # testes automatizados
+npm run preview          # prévia local em modo demonstração
 npm run build:web        # gera web/dist, que é o que a Vercel publica
-npm run verify:delivery  # confere os arquivos por SHA-256
 ```
 
-Não há dependências de produção: JavaScript nativo e APIs do navegador. O
-servidor local usa Go com `gorilla/websocket`.
+Na prévia, abra no mesmo navegador:
 
-## Publicação
+- Monitor: `http://127.0.0.1:8799/monitor.html?modo=demo&sala=4321`
+- Controle: `http://127.0.0.1:8799/controle.html?modo=demo&sala=4321`
 
-A Vercel constrói com `npm run build:web` e publica `web/dist`. A configuração
-está em `vercel.json`. O modo online exige a migração de `supabase/migrations/`
-aplicada e duas configurações no painel do Supabase — tudo descrito em
-`ENTREGA_PARA_REVISAO.md`, seção 5.
+Autorize o controle no monitor. Ctrl+C no terminal encerra.
 
-## Preservação
+### Modo online
 
-`public/` é a fonte. `web/dist/` e `server-go/public/` são cópias geradas pelos
-scripts e não entram no repositório. Traçados, casos, terapias e layout são
-verificados por testes automatizados antes de qualquer alteração.
+```sh
+npm run preview:online             # prévia contra o Supabase de verdade
+npm run test:online -- --confirmo  # suíte de aceite online — ESCREVE no Supabase
+```
+
+### Servidor local (Go)
+
+```sh
+npm run prepare:go
+go -C server-go test ./...
+go -C server-go build -o ../BravoMike-SimMonitor.exe .
+```
+
+### Testes de navegador
+
+`npm run test:browser` e `npm run test:local` usam Playwright com Edge. Se o
+Playwright não estiver na resolução padrão do Node, defina `PLAYWRIGHT_MODULE`
+com o caminho do módulo. O `test:local` exige o executável Go já compilado. Os
+relatórios saem em `auditoria/`.
+
+## Princípios
+
+- `public/` é a fonte. `web/dist/` e `server-go/public/` são cópias geradas e
+  ficam fora do repositório.
+- Sem framework e sem dependência de produção: JavaScript nativo e APIs do
+  navegador. O servidor local usa Go com `gorilla/websocket`.
+- O monitor é a autoridade sobre o estado. O controle pede; o monitor decide e
+  confirma.

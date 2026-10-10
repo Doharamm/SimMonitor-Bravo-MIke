@@ -1,7 +1,7 @@
 # Nenhuma conversão de quebra de linha, em nenhum arquivo.
 #
-# A entrega inteira é conferida por SHA-256 (`npm run verify:delivery` e
-# `npm run manifesto`). Se o Git trocasse LF por CRLF ao clonar no Windows,
-# todo arquivo de texto mudaria de hash e a conferência acusaria alteração que
-# não houve. Guardar os bytes como estão mantém clone, ZIP e manifesto iguais.
+# O projeto é editado no Windows e construído pela Vercel no Linux. Se o Git
+# trocasse LF por CRLF ao clonar no Windows, arquivos intactos apareceriam como
+# alterados, e as cópias geradas (web/dist, server-go/public) deixariam de ser
+# byte a byte iguais a public/. Guardar os bytes como estão evita as duas coisas.
 * -text

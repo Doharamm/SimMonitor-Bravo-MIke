@@ -1,14 +1,15 @@
 .git/
+.github/
 node_modules/
 .tools/
 auditoria/
+docs/
 evidencias/
 reference/
 tests/
 server-go/
+supabase/
 *.exe
 *.zip
 *.md
 *.txt
-ENTREGA_*.json
-supabase/

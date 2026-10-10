@@ -29,10 +29,15 @@ body { background: #0b0e12; }
 .row > .num { border-left: 1px solid var(--line); }
 .nh { display: flex; justify-content: space-between; gap: .4em; font-weight: 700; font-size: clamp(11px, 1.05vw, 18px); }
 .nh .u { color: var(--muted); font-weight: 600; font-size: .85em; }
-.big { font-weight: 800; line-height: .95; font-size: clamp(34px, min(6.4vw, 8.5vh), 140px); margin: auto 0; }
-.row:first-child .big { font-size: clamp(40px, min(7.6vw, 10.5vh), 170px); }
-.mid { font-weight: 800; line-height: 1; font-size: clamp(26px, min(3.6vw, 6.5vh), 84px); margin: auto 0; }
-.bp { font-weight: 800; line-height: 1; font-size: clamp(24px, min(3vw, 5.6vh), 72px); margin-top: .3vh; white-space: nowrap; }
+/* O tamanho dos números segue a altura da tela, mas o quadro segue a largura:
+   em telas mais quadradas (1280×800, 1024×768, tablet em pé) "134" cortava o
+   último dígito. `cqw` limita a fonte pela largura do próprio quadro, para três
+   dígitos sempre caberem (cada dígito tem ~0,74 da altura da fonte). */
+.num { container-type: inline-size; }
+.big { font-weight: 800; line-height: .95; font-size: min(clamp(34px, min(6.4vw, 8.5vh), 140px), 42cqw); margin: auto 0; }
+.row:first-child .big { font-size: min(clamp(40px, min(7.6vw, 10.5vh), 170px), 42cqw); }
+.mid { font-weight: 800; line-height: 1; font-size: min(clamp(26px, min(3.6vw, 6.5vh), 84px), 32cqw); margin: auto 0; }
+.bp { font-weight: 800; line-height: 1; font-size: min(clamp(24px, min(3vw, 5.6vh), 72px), 19cqw); margin-top: .3vh; white-space: nowrap; }
 .sub { color: var(--muted); font-weight: 600; font-size: clamp(11px, 1vw, 17px); }
 .bar { height: 6px; background: #0f2a30; border-radius: 3px; overflow: hidden; margin-top: auto; }
 .bar i { display: block; height: 100%; width: 0; background: var(--spo2); transition: width .15s; }
@@ -40,7 +45,15 @@ body { background: #0b0e12; }
 .heart.beat { opacity: 1; }
 .alarm .big, .alarm .mid, .alarm .bp { animation: flash 1s steps(2) infinite; }
 @keyframes flash { 50% { color: #fff; background: var(--crit); } }
-.hiddenCh { visibility: hidden; }
+/* Sensor desligado: como num monitor de verdade, o canal não some. Fica o
+   lugar, uma linha tracejada apagada, a mensagem ("eletrodos desconectados") e
+   "---" no lugar do número — é o que leva o aluno a pedir a monitorização. */
+.offCh .wave canvas { visibility: hidden; }
+.offCh .wave::before { content: ''; position: absolute; left: 1.5%; right: 1.5%; top: 66%; height: 2px; background: repeating-linear-gradient(90deg, var(--c) 0 14px, transparent 14px 28px); opacity: .3; }
+.offCh .wave::after { content: attr(data-off); position: absolute; inset: 0; display: grid; place-items: center; padding: 0 1vw; text-align: center; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; font-size: clamp(12px, 1.35vw, 26px); color: var(--c); opacity: .8; }
+.offCh .big, .offCh .mid, .offCh .bp, .offCh .sub { color: var(--muted); }
+.offCh .heart, .offCh .bar { visibility: hidden; }
+.offCh .lbl small, .offCh .lbl-right { visibility: hidden; }
 
 /* Painéis (coluna lateral e rodapé) */
 .panel { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: .8vh .8vw; display: flex; flex-direction: column; gap: .6vh; min-width: 0; min-height: 0; font-size: clamp(11px, 1.05vw, 18px); color: var(--text); }
@@ -49,12 +62,13 @@ body { background: #0b0e12; }
 .timerbox { align-items: stretch; text-align: center; }
 .timer { background: #07120c; border: 1px solid #1f3a2a; border-radius: 10px; color: #4ade80; font-weight: 800; font-size: clamp(22px, min(2.6vw, 5vh), 52px); padding: .1em .2em; cursor: pointer; min-height: 44px; }
 .nibp { min-height: 0; overflow: hidden; }
-.nibp .bp { color: var(--nibp); font-size: clamp(26px, min(3.6vw, 7vh), 96px); margin-top: auto; line-height: 1; }
+/* "210/124" tem sete caracteres: limite pela largura do quadro, como os números grandes. */
+.nibp .bp { color: var(--nibp); font-size: min(clamp(26px, min(3.6vw, 7vh), 96px), 19cqw); margin-top: auto; line-height: 1; }
 .nibp .sub { font-size: clamp(16px, min(1.8vw, 3.6vh), 44px); font-weight: 800; }
 .nibp .btn { margin-top: auto; flex: none; white-space: nowrap; }
 /* Telas baixas (1366x768): o painel encolhe a fonte antes de cortar o botao. */
 @media (max-height: 820px) {
-  .nibp .bp { font-size: clamp(24px, 5.2vh, 56px); }
+  .nibp .bp { font-size: min(clamp(24px, 5.2vh, 56px), 19cqw); }
   .nibp .sub { font-size: clamp(14px, 2.6vh, 26px); }
   .timer { font-size: clamp(20px, 4vh, 40px); }
 }
@@ -88,6 +102,7 @@ body { background: #0b0e12; }
 .btn.toggle { width: 100%; }
 .btn.toggle.on { background: #14532d; border-color: #22c55e; }
 .tempbox .mid { color: var(--temp); }
+.tempbox.offCh .mid { color: var(--muted); }
 .defib { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: auto 1fr 1fr; gap: .7vh .5vw; align-content: stretch; }
 .defib .gt { grid-column: 1 / -1; }
 .en-sel { display: flex; align-items: center; justify-content: space-between; gap: .3em; }

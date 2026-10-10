@@ -10,9 +10,7 @@
                     "build:web":  "node web/build.mjs",
                     "test:browser":  "node scripts/audit-browser.cjs",
                     "test:local":  "node scripts/audit-browser.cjs --local",
-                    "test:online":  "node scripts/audit-online.mjs",
-                    "verify:delivery":  "node scripts/verify-delivery.mjs",
-                    "manifesto":  "node scripts/gerar-manifesto.mjs"
+                    "test:online":  "node scripts/audit-online.mjs"
                 },
-    "version":  "2.3.3-online.20260921"
+    "version":  "2.4.0-online.20261010"
 }

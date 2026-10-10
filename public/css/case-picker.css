@@ -1,0 +1,34 @@
+/* Seletor visual de casos (controle e monitor). Usa as cores de cada página. */
+.cx-topo { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 10px 0; }
+.cx-filtros { display: flex; gap: 6px; }
+.cx-filtros .btn { min-height: 38px; padding: 6px 14px; border-radius: 999px; }
+.cx-filtros .btn small { color: var(--muted); font-weight: 600; margin-left: 2px; }
+.cx-filtros .btn[aria-pressed="true"] { background: var(--text); color: var(--bg); border-color: var(--text); }
+.cx-filtros .btn[aria-pressed="true"] small { color: inherit; opacity: .7; }
+.cx-busca { flex: 1 1 180px; width: auto; min-height: 38px; padding: 6px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--panel); color: var(--text); font: inherit; }
+.cx-grade { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 10px; }
+.cx-card { --tag: var(--brand); display: flex; flex-direction: column; border: 1px solid var(--line); border-top: 4px solid var(--tag); border-radius: 12px; background: var(--panel-2); overflow: hidden; min-width: 0; }
+.cx-card.aph { --tag: var(--spo2); }
+.cx-card.ativo { box-shadow: 0 0 0 2px var(--ok, #22c55e); }
+.cx-traco { position: relative; height: 62px; background: #0b1015; }
+.cx-traco svg { position: absolute; inset: 4px 0 0; width: 100%; height: calc(100% - 4px); }
+.cx-traco path { fill: none; stroke: #4ade80; stroke-width: 1.6; vector-effect: non-scaling-stroke; stroke-linejoin: round; }
+.cx-traco span { position: absolute; left: 8px; top: 4px; font-size: 11px; font-weight: 700; color: #4ade80; z-index: 1; }
+.cx-corpo { display: flex; flex-direction: column; gap: 6px; padding: 10px 12px 12px; flex: 1; }
+.cx-l1 { display: flex; align-items: center; gap: 6px; }
+.cx-l1 .tagx { font-size: 11px; font-weight: 800; background: var(--brand); color: #fff; border-radius: 6px; padding: 2px 6px; }
+.cx-l1 .tagx.aph { background: var(--spo2); }
+.cx-andamento { font-size: 11px; font-weight: 800; color: var(--ok-ink, #04210f); background: var(--ok, #22c55e); border-radius: 6px; padding: 2px 6px; }
+.cx-n { margin-left: auto; font-size: 12px; font-weight: 600; color: var(--muted); }
+.cx-card .tt { font-weight: 800; font-size: 16px; line-height: 1.2; }
+.cx-card p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.35; }
+.cx-sinais { font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.cx-exige { display: flex; flex-wrap: wrap; gap: 4px; }
+.cx-exige span { font-size: 11px; font-weight: 700; border: 1px solid var(--line); background: var(--panel); border-radius: 999px; padding: 2px 8px; }
+.cx-etapas summary { font-size: 13px; font-weight: 600; color: var(--muted); cursor: pointer; }
+.cx-etapas ol { margin: 6px 0 0; padding-left: 20px; font-size: 13px; display: grid; gap: 3px; }
+.cx-etapas small { color: var(--muted); }
+.cx-iniciar { margin-top: auto; background: var(--text); color: var(--bg); border-color: var(--text); font-weight: 800; }
+.cx-grade > .muted { color: var(--muted); }
+.cx-filtros .btn, .cx-iniciar { border: 1px solid var(--line); background: var(--panel-2); color: var(--text); font: inherit; font-weight: 700; cursor: pointer; }
+.cx-iniciar { min-height: 42px; border-radius: 10px; background: var(--text); color: var(--bg); border-color: var(--text); font-weight: 800; }

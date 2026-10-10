@@ -2,8 +2,12 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as shared from '../public/js/shared.js';
 import { SCENARIOS, SCENARIO_BY_ID } from '../public/js/scenario-catalog.js';
-import { DEFAULT_VITALS, VITAL_PRESETS } from '../public/js/simulation-config.js';
+import { DEFAULT_VITALS, VITAL_PRESETS, CHANNELS } from '../public/js/simulation-config.js';
 import { defaultState, interruptedActivities } from '../public/js/simulation-state.js';
+
+// Os sensores começam desligados. Testes de leitura e alarme partem de um
+// paciente já monitorizado, com todos os sensores ligados.
+const monitorizado = () => { const s = defaultState(); for (const k of CHANNELS) s.show[k] = true; return s; };
 import { evaluateReadings } from '../public/js/monitor-readings.js';
 import { createControllerCases } from '../public/js/controller-cases.js';
 
@@ -15,9 +19,9 @@ test('module boundaries preserve the one scenario registry used by old and new c
 
 test('changing a running simulation cannot change defaults, presets or another simulation',()=>{
   const first=defaultState(),second=defaultState();
-  first.vit.hr=200;first.pacer.ma=180;first.show.ecg=false;
+  first.vit.hr=200;first.pacer.ma=180;first.show.ecg=true;
   assert.equal(second.vit.hr,78);assert.equal(DEFAULT_VITALS.hr,78);
-  assert.equal(VITAL_PRESETS.normal.hr,78);assert.equal(second.pacer.ma,0);assert.equal(second.show.ecg,true);
+  assert.equal(VITAL_PRESETS.normal.hr,78);assert.equal(second.pacer.ma,0);assert.equal(second.show.ecg,false);
 });
 
 test('interruption warning accounts for transitions from either local or remote state',()=>{
@@ -31,7 +35,7 @@ test('interruption warning accounts for transitions from either local or remote 
 });
 
 test('readings preserve startup suppression, alarm priority and hidden channels without mutating state',()=>{
-  const state=defaultState();state.rhythm='vf';state.cur={...state.vit,spo2:80};
+  const state=monitorizado();state.rhythm='vf';state.cur={...state.vit,spo2:80};
   const engine={measuredHr:()=>null,captured:()=>false};
   const before=structuredClone(state),clock={t:1,epochNow:10000,bootT:0,acquisitionUntil:4};
   assert.deepEqual(evaluateReadings(state,engine,clock).alarmsNow,[]);
@@ -44,7 +48,7 @@ test('readings preserve startup suppression, alarm priority and hidden channels 
 });
 
 test('capnography requires a curve and ventilation; electrical capture does not create oxygen saturation',()=>{
-  const state=defaultState();state.cur={...state.vit,rr:0};state.pulse='off';state.pacer.on=true;
+  const state=monitorizado();state.cur={...state.vit,rr:0};state.pulse='off';state.pacer.on=true;
   const engine={measuredHr:()=>70,captured:()=>true},clock={t:5,epochNow:10000,bootT:0,acquisitionUntil:4};
   let result=evaluateReadings(state,engine,clock);
   assert.equal(result.displayed.spo2,null);assert.equal(result.displayed.etco2,null);

@@ -8,9 +8,17 @@
 
 .monitor-scenario-controls .exam-shortcut { display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;width:50px;font-size:10px;font-weight:700; }
 .exam-shortcut svg { width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round; }
-#monitorExamPicker { width:min(90vw,560px);background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:12px;padding:20px; }
-#monitorExamPicker::backdrop { background:#000b; }
-#monitorExamSelect { width:100%;padding:12px;margin:10px 0 16px;background:var(--bg);color:var(--text);font:inherit; }
+.mpick { width:min(94vw,980px);max-height:90vh;background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:12px;padding:16px 18px; }
+.mpick[open] { display:flex;flex-direction:column;gap:12px; }
+.mpick::backdrop { background:#000b; }
+.mpick-head { display:flex;justify-content:space-between;align-items:center;gap:10px; }
+.mpick-head h2 { margin:0;font-size:20px; }
+.mpick .btn { min-height:40px;padding:6px 14px;border:1px solid var(--line);border-radius:10px;background:var(--panel-2);color:var(--text);font:inherit;font-weight:700;cursor:pointer; }
+#monitorRhythmGroups { overflow:auto;display:flex;flex-direction:column;gap:12px; }
+.mr-grupo h3 { margin:0 0 6px;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted); }
+.mr-grade { display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:6px; }
+.mr-item { min-height:44px;padding:6px 10px;border:1px solid var(--line);border-radius:10px;background:var(--panel-2);color:var(--text);font:inherit;font-weight:600;text-align:left;cursor:pointer; }
+.mr-item[aria-pressed="true"] { background:var(--text);color:var(--panel);border-color:var(--text); }
 
 /* Inline geometric icons: no font or network dependency. */
 #bPauseAll,#bMonitorPause{color:var(--text)}
@@ -23,3 +31,35 @@
 
 .temperature-exams{display:flex;gap:6px;margin-top:auto;justify-content:center}.temperature-exams button{display:flex;align-items:center;justify-content:center;gap:6px;min-height:44px;flex:1;border:1px solid var(--line);border-radius:8px;background:var(--panel-2);color:var(--text);cursor:pointer}.tempbox{display:flex;flex-direction:column}.tempbox .mid{font-size:clamp(24px,3vw,44px)}
 .temperature-exams button{min-width:0;flex-direction:column;gap:1px;font-size:10px;padding:3px;white-space:nowrap}
+
+/* Edição direta no monitor: clique no número, digite, Enter. */
+.num.digitavel { cursor: pointer; }
+.num.digitavel:hover { outline: 1px dashed var(--c, var(--line)); outline-offset: -4px; }
+.edit-rapida { position: absolute; inset: 0; z-index: 5; display: flex; flex-direction: column; justify-content: center; gap: 6px; padding: 8px 10px; background: var(--panel); border: 2px solid var(--c, var(--line)); border-radius: inherit; cursor: default; }
+.edit-rapida label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 700; color: var(--c, var(--text)); }
+.edit-rapida input { font: inherit; font-size: clamp(22px, 3vw, 44px); font-weight: 800; width: 100%; min-width: 0; padding: 4px 8px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--text); }
+.edit-rapida small { font-size: 11px; color: var(--muted); }
+.er-pe { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.er-off { min-height: 30px; padding: 3px 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--panel-2); color: var(--text); font-size: 12px; font-weight: 700; cursor: pointer; }
+.edit-rapida small.erro { color: #f87171; font-weight: 700; }
+
+/* Casos escolhidos no próprio monitor */
+.monitor-scenario-controls .cases-btn { width: auto; padding: 0 12px; font-size: 14px; font-weight: 800; }
+.mcasos { overflow: auto; display: flex; flex-direction: column; gap: 10px; }
+#scnPicker > summary { cursor: pointer; font-weight: 700; color: var(--muted); padding: 4px 0; }
+.mcasos .active-scn { display: flex; flex-direction: column; gap: 6px; border: 1px solid var(--line); border-top: 4px solid var(--ok, #22c55e); border-radius: 12px; background: var(--panel-2); padding: 12px; }
+.mcasos .active-scn .lbl { font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+.mcasos .active-scn .tt { font-weight: 800; font-size: 18px; }
+.mcasos .active-scn p { margin: 0; color: var(--muted); }
+.mcasos .active-scn .tagx { align-self: flex-start; font-size: 11px; font-weight: 800; background: var(--brand); color: #fff; border-radius: 6px; padding: 2px 6px; }
+.mcasos .active-scn .tagx.aph { background: var(--spo2); color: #04131a; }
+.mcasos .active-scn summary { cursor: pointer; font-weight: 600; color: var(--muted); }
+.mcasos .active-scn .nota { margin-top: 6px; line-height: 1.4; }
+.mcasos .active-scn .auto { display: block; margin-top: 6px; color: var(--muted); font-size: 13px; }
+.mcasos .steps { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+.mcasos .step.cur { background: var(--text); color: var(--bg); }
+.mcasos .step .n { font-weight: 800; margin-right: 6px; }
+.mconfirm { width: min(92vw, 460px); }
+.mconfirm p { margin: 0; line-height: 1.45; }
+.mconfirm-bot { display: flex; justify-content: flex-end; gap: 8px; }
+#mcSim { background: var(--brand); border-color: var(--brand); color: #fff; }
