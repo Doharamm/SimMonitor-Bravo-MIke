@@ -665,7 +665,7 @@ test('Timed advance cancels old callbacks when disabled, stepping manually or ch
 });
 test('Timed last stage, zero wait, stopped case and reload never auto advance',()=>{
  const {api,timers}=monitor();loadAndPlay(api,'fv');api.action('stage-wait',0);api.action('timed-advance',true);assert.equal(api.publicState().stageRemaining,0);
- api.action('scn-go',3);assert.equal(api.publicState().stageRemaining,0);
+ api.action('scn-go',shared.SCENARIOS.find(s=>s.id==='fv').etapas.length-1);assert.equal(api.publicState().stageRemaining,0);
  api.action('scn-stop');assert.equal(api.publicState().timedAdvance,false);
  const saved={...shared.defaultState(),classroom:{timedAdvance:true}};assert.equal(monitor(saved).api.publicState().timedAdvance,false);
 });
@@ -1107,4 +1107,26 @@ test('SEM CONTROLE: desligar sensor pelo monitor e escolher caso pelos cartões 
  clicar('fv');assert.equal(S().scn.id,'tsv','trocou de caso sem confirmar');
  assert.equal(elements.get('mcTitulo').textContent,'Trocar de caso?');
  elements.get('mcSim').onclick();assert.equal(S().scn.id,'fv');
+});
+
+test('ZERAR: funciona pausado e limpa caso, exame, sensores e cronômetro',()=>{
+ const {api}=monitor();const S=()=>api.getState();
+ loadAndPlay(api,'tsv');api.applySet({show:{ecg:true,spo2:true}});api.action('exam','ecg-6');
+ api.action('pause-simulation');assert.equal(api.simClock.paused,true);
+ const r=api.action('reset');assert.notEqual(r?.done,false,'zerar foi recusado com a simulação pausada: '+r?.note);
+ assert.equal(S().scn.id,null);assert.equal(S().exam,null);
+ assert.ok(Object.values(S().show).every(v=>v===false),'sensores ficaram ligados');
+ assert.equal(S().timer.acc,0);assert.equal(S().rhythm,'nsr');
+});
+
+test('CASO FV DO INÍCIO AO FIM: cada choque avança uma etapa, a amiodarona tem sua vez e o 4º choque dá o RCE',()=>{
+ const {api,timers}=monitor();const S=()=>api.getState();loadAndPlay(api,'fv');
+ const fv=shared.SCENARIOS.find(s=>s.id==='fv');
+ for(let n=1;n<fv.etapas.length;n++){
+  api.deliverShock(100+n);[...timers.values()].filter(t=>t.ms===1300).forEach(t=>t.fn());
+  assert.equal(S().scn.step,n,'choque '+n+' não avançou a etapa');
+  assert.equal(S().cpr,false,'a RCP ligou sozinha na etapa '+(n+1));
+ }
+ assert.equal(fv.etapas[S().scn.step].titulo,'RCE');assert.equal(S().rhythm,'st');
+ assert.match(fv.etapas[fv.etapas.length-2].nota,/amiodarona 300 mg/i);
 });

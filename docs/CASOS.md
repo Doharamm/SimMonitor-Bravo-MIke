@@ -56,6 +56,25 @@ Os oito casos entregues: `bradi`, `tsv`, `fv`, `aesp`, `assis`, `iam`, `asma`, `
 **`dur` é transição, não permanência.** `dur: 30` significa que a FC vai deslizar
 até o novo valor ao longo de 30 segundos. `dur: 0` muda na hora.
 
+**Formato da `nota` (desde 11/10/2026).** O controle mostra a nota em três
+partes, para o professor conferir de olho durante a simulação:
+
+1. a situação, que o professor narra ao aluno;
+2. `Esperado:` seguido das ações separadas por **ponto e vírgula** — vira uma
+   lista de conferência;
+3. opcional, `Instrutor:` com a dica de condução (quando avançar, o que
+   observar).
+
+Exemplo: `'Homem de 72 anos... Esperado: monitorizar; acesso IV; atropina 1 mg IV. Instrutor: avance quando a dose for feita.'`
+Não use ponto e vírgula dentro de um item. Nota sem os marcadores aparece como
+um parágrafo só (é o que acontece nas cópias antigas). No monitor, que costuma
+estar projetado, as orientações começam fechadas. Um teste exige situação e ao
+menos duas ações esperadas em toda etapa dos casos entregues.
+
+**Etapas não ligam a RCP.** Iniciar compressões é decisão do aluno; não ponha
+`cpr: true` numa etapa. Use `capno: 'rcp'` com a FR e o EtCO₂ de RCP: eles
+valem quando a RCP estiver em andamento.
+
 **Os gatilhos só valem no modo automático.** Se o instrutor escolher avanço
 manual, `onShock` e `onCapture` são ignorados e ele usa as setas.
 

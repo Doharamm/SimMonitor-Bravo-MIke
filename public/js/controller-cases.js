@@ -77,7 +77,23 @@ async function desenharTracados(raiz) {
   } catch { /* sem miniatura: o cartão continua funcionando */ }
 }
 
-export function createControllerCases({document, getState, act, vibrate, confirmAction, interruptList}) {
+// Nota da etapa em três partes: situação (o professor narra), "Esperado:" com as
+// ações separadas por ponto e vírgula (lista de conferência) e, opcional,
+// "Instrutor:" com a dica de condução. Nota sem marcadores (casos antigos ou
+// personalizados) aparece como um parágrafo, como antes.
+export function formatarNota(nota) {
+  const texto = String(nota || '');
+  const [antesInstrutor, dica = ''] = texto.split(/\s*Instrutor:\s*/);
+  const [situacao, esperado = ''] = antesInstrutor.split(/\s*Esperado:\s*/);
+  const itens = esperado.split(';').map(t => t.trim().replace(/\.$/, '')).filter(Boolean);
+  return (situacao.trim() ? `<p class="nota-sit">${escapeHTML(situacao.trim())}</p>` : '') +
+    (itens.length ? `<div class="nota-esp"><b>Esperado</b><ul>${itens.map(i => `<li>${escapeHTML(i)}</li>`).join('')}</ul></div>` : '') +
+    (dica.trim() ? `<p class="nota-dica"><b>Instrutor:</b> ${escapeHTML(dica.trim())}</p>` : '');
+}
+
+// guiaAberta: no controle as orientações já vêm abertas; no monitor, que
+// costuma estar projetado, começam fechadas para não mostrar o esperado.
+export function createControllerCases({document, getState, act, vibrate, confirmAction, interruptList, guiaAberta = true}) {
   const $ = id => document.getElementById(id);
   let filtro = 'todos', busca = '';
   const visiveis = () => SCENARIOS.filter(s => (filtro === 'todos' || s.tag === filtro) &&
@@ -146,7 +162,7 @@ export function createControllerCases({document, getState, act, vibrate, confirm
         <span class="tagx ${sc.tag === 'APH' ? 'aph' : ''}">${escapeHTML(sc.tag)}</span>
         <div class="tt">${escapeHTML(sc.titulo)}</div>
         <p>Etapa ${i + 1} de ${sc.etapas.length}: <b style="color:var(--text)">${escapeHTML(e.titulo)}</b></p>
-        <details class="case-guidance"><summary>Orientações da etapa</summary><div class="nota">${escapeHTML(e.nota)}${auto ? `<span class="auto">${auto}</span>` : ''}</div></details>
+        <details class="case-guidance"${guiaAberta ? ' open' : ''}><summary>Orientações da etapa</summary><div class="nota">${formatarNota(e.nota)}${auto ? `<span class="auto">${auto}</span>` : ''}</div></details>
         <details class="case-options"><summary>Mais opções do caso</summary><div class="steps">${sc.etapas.map((st, j) => `<button class="btn step ${j === i ? 'cur' : ''}" data-scnact="go" data-i="${j}"><span class="n">${j + 1}</span>${escapeHTML(st.titulo)}</button>`).join('')}</div>
         <button class="btn ghost danger" data-scnact="scn-stop">Encerrar cenário</button></details>
       </div>`;

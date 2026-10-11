@@ -206,6 +206,12 @@ main { flex: 1; min-height: 0; overflow: auto; padding: 12px; display: grid; gap
 .step.cur { border-color: var(--brand); }
 .step.cur .n { background: var(--brand); color: #fff; }
 .nota { background: var(--bg); border-left: 3px solid var(--brand); border-radius: 0; padding: 10px 12px; font-size: 15px; line-height: 1.4; }
+.nota-sit { margin: 0 0 8px; }
+.nota-esp b, .nota-dica b { font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+.nota-esp ul { margin: 4px 0 0; padding-left: 20px; display: grid; gap: 4px; }
+.nota-esp li { line-height: 1.35; }
+.nota-dica { margin: 8px 0 0; padding-top: 8px; border-top: 1px dashed var(--line); font-size: 14px; }
+.nota-dica b { margin-right: 4px; }
 .nota .auto { display: block; margin-top: 6px; font-size: 12px; font-weight: 700; color: var(--warn-ink); }
 .picker { margin-bottom: 10px; }
 .picker > summary { list-style: none; display: flex; align-items: center; justify-content: center; }

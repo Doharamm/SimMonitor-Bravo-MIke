@@ -388,7 +388,7 @@ function action(name, arg) {
   if(name==='pause-simulation'){pauseSimulation();return;}
   if(name==='debrief'){const page=Number(arg);if(!Number.isInteger(page)||page<0||page>250)return {done:false,note:'página inválida'};if(page===0)debriefSnapshot=history.events.map(e=>({...e}));return {done:true,events:debriefSnapshot.slice(page*20,page*20+20),total:debriefSnapshot.length};}
   if(name==='audio-test'){if(simClock.paused)return {done:false,note:'Retome a simulação antes do teste de áudio'};tone(700,.2,.12);return {done:!!ac,note:ac?'Som solicitado no monitor':'Inicie o monitor para habilitar áudio'};}
-  if(simClock.paused&&!['scn-load','custom-load','timed-advance','stage-wait'].includes(name))return {done:false,note:'simulação pausada; retome antes de alterar'};
+  if(simClock.paused&&!['scn-load','custom-load','timed-advance','stage-wait','reset'].includes(name))return {done:false,note:'simulação pausada; retome antes de alterar'};
   if(name==='timed-advance'&&typeof arg==='boolean'){timedAdvance=arg;scheduleStage();logEvent('Avanço por tempo '+(arg?'ativado':'desativado'));changed();return;}
   if(name==='stage-wait'&&Number.isInteger(arg)&&(arg===0||(arg>=15&&arg<=600))){stageWaitOverride=arg;scheduleStage();logEvent('Tempo da etapa: '+arg+' s');changed();return;}
   if(name==='advance-mode' && ['auto','manual'].includes(arg)){automatic=arg==='auto';generation++;simClear(effectTimer);simClear(captureTimer);wasCaptured=false;logEvent('Avanço '+(automatic?'automático':'manual'));changed();return;}
@@ -438,7 +438,7 @@ function action(name, arg) {
       timedAdvance=false;cancelStageTimer();gate.rotate(); logEvent('Cenário encerrado'); generation++; simClear(effectTimer); simClear(captureTimer); S.scn = { id: null, step: 0 };startCaseContext('Livre');changed(); return;
     case 'reset': {
       const cancelled = pendingSummary();
-      resetSimulation(); startCaseContext('Livre');logEvent('Monitor reiniciado' + (cancelled.length ? ' — interrompido: ' + cancelled.join(', ') : ''));
+      resetSimulation(); renderExam(); startCaseContext('Livre');logEvent('Monitor reiniciado' + (cancelled.length ? ' — interrompido: ' + cancelled.join(', ') : ''));
       return cancelled.length ? { done: true, note: 'interrompido: ' + cancelled.join(', ') } : undefined;
     }
   }
@@ -730,7 +730,7 @@ function confirmarNoMonitor(titulo,texto,rotulo,aoConfirmar){
   const d=$('monitorConfirm');$('mcTitulo').textContent=titulo;$('mcTexto').textContent=texto;$('mcSim').textContent=rotulo;
   $('mcSim').onclick=()=>{d.close?.();aoConfirmar();};$('mcNao').onclick=()=>d.close?.();d.showModal?.();
 }
-casosMonitor=createControllerCases({document,getState:()=>S,vibrate(){},confirmAction:confirmarNoMonitor,
+casosMonitor=createControllerCases({document,getState:()=>S,vibrate(){},confirmAction:confirmarNoMonitor,guiaAberta:false,
   interruptList:()=>interruptedActivities(S,trans),
   act:(nome,arg)=>{
     const r=comoInstrutor(()=>action(nome,arg));
@@ -739,6 +739,13 @@ casosMonitor=createControllerCases({document,getState:()=>S,vibrate(){},confirmA
     mostrarSePausado();casosMonitor.renderScenario();return r;
   }});
 casosMonitor.buildScenarios();
+// Zerar tudo pelo monitor, com a mesma confirmação do controle.
+$('bMonitorReset').addEventListener('click',()=>{
+  const c=interruptedActivities(S,trans);
+  confirmarNoMonitor('Zerar tudo?','Encerra o caso, volta ao ritmo sinusal e aos valores iniciais, desliga os sensores e zera o cronômetro.'+(c.length?` Será interrompido: ${c.join(', ')}.`:'')+' Alarmes, bipe e botões dos alunos são mantidos.','Zerar',()=>{
+    const r=comoInstrutor(()=>action('reset'));if(r&&r.done===false)toast(r.note);mostrarSePausado();
+  });
+});
 $('bMonitorCases').addEventListener('click',()=>{casosMonitor.renderScenario();$('monitorCasePicker').showModal();});
 $('monitorCaseClose').addEventListener('click',()=>$('monitorCasePicker').close());
 // Valor digitado no próprio monitor (clique no número): entra na hora e liga o

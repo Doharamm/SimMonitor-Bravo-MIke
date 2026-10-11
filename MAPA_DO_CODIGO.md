@@ -35,7 +35,7 @@ Onde mexer em cada coisa e o que pode quebrar sem avisar. Leia a seção 4,
 | `public/js/online-room.js` | Modo online: ciclo da sala (abrir, entrar, fila de pendentes, autorizar, revogar, batimento) e cache das chaves públicas lidas do banco. |
 | `public/js/supabase-rest.js` | Modo online: sessão anônima guardada e renovada, chamadas REST e RPC. Sem biblioteca externa. |
 | `public/js/state-validation.js` | Validação estrita do estado recebido pelo controle. Não equivale ao saneamento de comandos. |
-| `public/js/exams.js`, `case-exams.js` | Catálogo das 57 imagens e o exame de cada etapa (marcado "Deste caso" e já escolhido ao abrir a galeria). |
+| `public/js/exams.js`, `case-exams.js` | Catálogo das 57 imagens; o exame de cada etapa (`CASE_EXAMS`, marcado "Deste caso") e, fora de caso, o ECG mais compatível com cada ritmo (`ECG_POR_RITMO`, marcado "Compatível"; lista vazia = a galeria avisa e não escolhe nada). |
 | `public/sw.js`, `public/js/pwa.js`, `public/manifest.webmanifest` | App instalável: service worker (rede primeiro, cópia só para falha de rede; não guarda Supabase, `/ws` nem `/api`), registro e manifesto com ícones e atalhos. Ver `docs/OPERACAO.md`. |
 | `public/js/monitor-edicao.js` | Edição direta no monitor, sem controle remoto: clique no número (FC, SpO₂, EtCO₂, FR, Temp, PA), digite, Enter. O valor entra na hora e liga o sensor; na PA a leitura aparece sem o manguito. O mesmo campo tem "Desligar sensor". `lerDigitado()` e `desligarSensor()` são a parte testável. |
 | `public/js/exam-info.js` | Descrição de cada exame, só para o instrutor achar o que procura (leituras de ECG não validadas). Nunca vai para a tela do aluno. |

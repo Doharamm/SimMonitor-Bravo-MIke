@@ -1,11 +1,11 @@
 // Documentary review is not clinical approval. Local edited copies require a fresh review.
-export const REVIEW_DATE='2026-09-19';
+export const REVIEW_DATE='2026-10-11';
 const als='https://cpr.heart.org/en/resuscitation-science/cpr-and-ecc-guidelines/adult-advanced-life-support';
 const post='https://cpr.heart.org/en/resuscitation-science/cpr-and-ecc-guidelines/post-cardiac-arrest-care';
 export const CLINICAL_REVIEW={
  bradi:{source:'Diretrizes internacionais 2025: suporte avançado',url:als,change:'Preparar estimulação no bloqueio avançado; confirmar captura mecânica.'},
  tsv:{source:'Diretrizes internacionais 2025: suporte avançado',url:als,change:'Sedação não deve atrasar cardioversão urgente.'},
- fv:{source:'Diretrizes internacionais 2025: cuidados pós-parada',url:post,change:'Distinguir PaCO₂ de EtCO₂; atualizar oxigenação e PAM.'},
+ fv:{source:'Diretrizes internacionais 2025: suporte avançado e cuidados pós-parada',url:post,change:'Etapa própria para a amiodarona após o 3º choque; energias na nota; pós-PCR com SpO₂ 92–98%, PAM ≥ 65 e controle de temperatura.'},
  aesp:{source:'ERC 2025: circunstâncias especiais',url:'https://www.erc.edu/media/wwufbysp/gl2025-06-spec-circ-e.pdf',change:'Priorizar causas reversíveis; restringir hipotensão permissiva e contextualizar tranexâmico.'},
  assis:{source:'Diretrizes internacionais 2025: suporte avançado',url:als,change:'Mantidas confirmação da assistolia, RCP e adrenalina precoce. Revisado texto pós-parada.'},
  iam:{source:'Diretriz de síndromes coronarianas agudas 2025',url:'https://www.acc.org/Guidelines/Guidelines/2025/02/27/17/21/Acute-Coronary-Syndromes-2025',change:'Explicitar contraindicações ao nitrato e rede de reperfusão.'},

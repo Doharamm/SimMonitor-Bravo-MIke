@@ -337,7 +337,7 @@ func main() {
 	mux.HandleFunc("/api/info", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.Header().Set("Cache-Control", "no-store")
-		json.NewEncoder(w).Encode(map[string]any{"local": true, "ips": lanIPs(), "port": port, "version": "2.4.0-online.20261010", "security": "socket-identity-v1"})
+		json.NewEncoder(w).Encode(map[string]any{"local": true, "ips": lanIPs(), "port": port, "version": "2.5.0-online.20261011", "security": "socket-identity-v1"})
 	})
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Cache-Control", "no-cache")

@@ -12,5 +12,5 @@
                     "test:local":  "node scripts/audit-browser.cjs --local",
                     "test:online":  "node scripts/audit-online.mjs"
                 },
-    "version":  "2.4.0-online.20261010"
+    "version":  "2.5.0-online.20261011"
 }

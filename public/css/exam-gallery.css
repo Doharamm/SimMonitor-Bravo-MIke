@@ -19,6 +19,7 @@
 .gal-t { font-size: 12px; line-height: 1.25; color: var(--muted); padding: 0 2px 2px; }
 .gal-item.sel { border-color: #3b82f6; box-shadow: 0 0 0 2px #3b82f655; }
 .gal-vazio { color: var(--muted); }
+.gal-aviso { margin: 0 0 10px; padding: 8px 12px; border-radius: 10px; border: 1px solid #d9a400; background: color-mix(in srgb, #d9a400 14%, transparent); color: var(--text); font-size: 13px; font-weight: 600; }
 .gal-rodape { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 .gal-sel { flex: 1 1 140px; font-size: 13px; color: var(--muted); }
 .gal-rodape .btn { min-height: 42px; padding: 8px 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--panel-2); color: var(--text); font: inherit; font-weight: 700; cursor: pointer; }

@@ -3,7 +3,7 @@ import { sanitizeSet } from './simulation-state.js';
 import { CLINICAL_REVIEW, REVIEW_DATE } from './clinical-review.js';
 const savedDate=v=>typeof v==='string'&&Number.isFinite(Date.parse(v))?new Date(v).toISOString():null;
 const canonical=v=>JSON.stringify(v,(_,x)=>x&&typeof x==='object'&&!Array.isArray(x)?Object.fromEntries(Object.entries(x).sort(([a],[b])=>a.localeCompare(b))):x);
-export const VERSION='2.4.0-online.20261010';
+export const VERSION='2.5.0-online.20261011';
 export const escapeHTML=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 // Custom cases never overwrite the shipped catalog. All edits lose clinical approval.
 export function validateScenario(raw){

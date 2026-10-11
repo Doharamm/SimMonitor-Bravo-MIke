@@ -563,11 +563,14 @@ click('bSilence', () => act('silence'));
 $('swAlarms').addEventListener('change', e => set({ alarms: { enabled: e.target.checked } }));
 $('swBeep').addEventListener('change', e => set({ alarms: { beep: e.target.checked } }));
 $('swStudent').addEventListener('change', e => set({ studentPanel: e.target.checked }));
-click('bReset', () => {
+// Zerar tudo: no menu e no topo. Mesmo texto do botão Zerar do monitor.
+const zerarTudo = () => {
   const c = interruptList();
   $('settingsDialog').close?.();
-  confirmAction('Reiniciar monitor?', 'Volta ao ritmo sinusal e aos valores iniciais, encerra o caso e desliga os sensores.' + (c.length ? ` Será interrompido: ${c.join(', ')}.` : '') + ' Alarmes, bipe e botões dos alunos são mantidos.', 'Reiniciar', () => act('reset'));
-});
+  confirmAction('Zerar tudo?', 'Encerra o caso, volta ao ritmo sinusal e aos valores iniciais, desliga os sensores e zera o cronômetro.' + (c.length ? ` Será interrompido: ${c.join(', ')}.` : '') + ' Alarmes, bipe e botões dos alunos são mantidos.', 'Zerar', () => act('reset'));
+};
+click('bReset', zerarTudo);
+click('bResetTop', zerarTudo);
 click('bLeave', () => { location.search = ''; });
 
 // Tela cheia. iPad usa o nome com prefixo; o iPhone não tem, e lá o caminho é

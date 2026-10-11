@@ -25,6 +25,9 @@ Bravo Mike. Comece por `MAPA_DO_CODIGO.md` (onde mexer e armadilhas) e
   para digitar o valor (liga o sensor), Ritmo escolhido no monitor liga o ECG e
   vale com a simulação pausada; o mesmo campo desliga o sensor; o botão Casos
   do monitor escolhe o caso (carrega pausado, play começa).
+- "Zerar tudo" no topo do monitor e do controle (vale pausado). Fora de caso, a
+  galeria de ECG já escolhe o ECG compatível com o ritmo (`ECG_POR_RITMO`); sem
+  compatível, só avisa. Na tela projetada o aviso não diz o nome do ritmo.
 
 ## Conversando com o usuário
 
